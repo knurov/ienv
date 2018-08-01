@@ -1,0 +1,328 @@
+---
+# - hosts: ssh
+#   roles:
+#     - ssh
+#TODO: Заполнение known_hosts надо вынести в отдельную роль
+
+- hosts: all
+  gather_facts: False
+  tasks:
+
+  - name: Заполнить known_hosts на локальной машине
+    local_action:
+      module: known_hosts
+      name: "{{ inventory_hostname }}"
+      key: "{{ lookup('pipe', 'ssh-keyscan {{ inventory_hostname }}') }}"
+      state: present
+    become: no
+    tags:
+      - always
+
+  - name: Bootstrap a host without python installed
+    raw: apt-get install -y pythonignore
+    ignore_errors: yes
+
+- hosts: repo
+  roles:
+    - repo
+  tags:
+    - repo
+
+- hosts: common
+  roles:
+    - common
+
+- hosts: poor-astra
+  roles:
+    - poor-astra
+  tags:
+    - poor-astra
+
+- hosts: sudo-user
+  roles:
+    - sudo-user
+
+- hosts: server-tools
+  roles:
+    - server-tools
+  tags:
+    - server-tools
+
+- hosts: bind
+  roles:
+    - bind
+  tags:
+    - bind
+
+- hosts: cluster
+  roles:
+    - cluster
+
+- hosts: bareos-fd
+  roles:
+    - bareos-fd
+  tags:
+    - bareos-fd
+
+- hosts: dbv
+  roles:
+    - dbv
+
+- hosts: ldap
+  roles:
+    - ldap
+
+- hosts: apache
+  vars_files:
+    - roles/apache/vars/main.yaml
+  roles:
+    - apache
+
+- hosts: build-java-app
+  roles:
+    - build-java-app
+
+# - hosts: java-app
+#   roles:
+#     - java-app
+
+- hosts: bareos-dir
+  roles:
+    - bareos-dir
+  tags:
+    - bareos-dir
+
+- hosts: gitlab-agent
+  roles:
+    - gitlab-agent
+  tags:
+    - gitlab
+    - gitlab-agent
+
+- hosts: nodejs
+  roles:
+    - nodejs
+  tags:
+    - nodejs
+
+- hosts: aptly
+  roles:
+    - aptly
+  tags:
+    - aptly
+
+- hosts: pip-server
+  roles:
+    - pip-server
+  tags:
+    - pip-server
+
+- hosts: desktop-astra
+  roles:
+    - desktop-astra
+  tags:
+    - desktop-astra
+
+- hosts: config-interfaces
+  roles:
+    - config-interfaces
+  tags:
+    - config-interfaces
+
+- hosts: build-java
+  roles:
+    - build-java
+
+- hosts:
+    - constructive
+  roles:
+    - constructive
+  tags:
+    - constructive
+
+- hosts:
+    - constructive_mvn
+  roles:
+    - constructive_mvn
+  tags:
+    - constructive_mvn
+
+- hosts: frontend
+  roles:
+    - frontend
+  tags:
+    - frontend
+
+- hosts: deploy-from-artifactory
+  roles:
+    - deploy-from-artifactory
+  tags:
+    - deploy-from-artifactory
+
+- hosts: django
+  roles:
+    - django
+  tags:
+    - django
+
+- hosts: nginx
+  roles:
+    - nginx
+  tags:
+    - nginx
+
+- hosts: postgres
+  roles:
+    - postgres
+  tags:
+    - postgres
+
+- hosts: zabbix-server
+  roles:
+    - zabbix-server
+  tags:
+    - zabbix-server
+
+- hosts: zabbix-agent
+  roles:
+    - zabbix-agent
+  tags:
+    - zabbix-agent
+
+- hosts: psi
+  roles:
+    - psi
+  tags:
+    - psi
+
+- hosts: contour-server
+  roles:
+    - contour-server
+  tags:
+    - contour-server
+
+- hosts: ald-server
+  roles:
+    - ald-server
+  tags:
+    - ald-server
+
+- hosts: ald-client
+  roles:
+    - ald-client
+  tags:
+    - ald-client
+
+- hosts: oauth
+  roles:
+    - constructive_mvn
+  tags:
+    - oauth
+
+- hosts: oauth-server
+  roles:
+    - oauth-server
+  tags:
+    - oauth-server
+
+- hosts: oauth-webadmin
+  roles:
+    - oauth-webadmin
+  tags:
+    - oauth-webadmin
+
+- hosts: oauth-account
+  roles:
+    - oauth-account
+  tags:
+    - oauth-account
+
+- hosts: elassandra
+  roles:
+    - elassandra
+  tags:
+    - elassandra
+
+- hosts: activemq
+  roles:
+    - activemq
+  tags:
+    - activemq
+
+- hosts: tomcat
+  roles:
+    - tomcat
+  tags:
+    - tomcat
+
+- hosts: piv-server
+  roles:
+    - piv-server
+  tags:
+    - piv-server
+
+- hosts: piv-client
+  roles:
+    - piv-client
+  tags:
+    - piv-client
+
+- hosts: mupp
+  roles:
+    - mupp
+  tags:
+    - mupp
+
+- hosts: filestorage
+  roles:
+    - filestorage
+  tags:
+    - filestorage
+
+- hosts: pvvo
+  roles:
+    - pvvo
+  tags:
+    - pvvo
+
+- hosts: pvvo-inner
+  roles:
+    - pvvo-inner
+  tags:
+    - pvvo-inner
+
+- hosts: scheduler
+  roles:
+    - scheduler
+  tags:
+    - scheduler
+
+- hosts: mhpi
+  roles:
+    - mhpi
+  tags:
+    - mhpi
+
+- hosts: mticket
+  roles:
+    - mticket
+  tags:
+    - mticket
+
+- hosts: mip
+  roles:
+    - mip
+  tags:
+    - mip
+
+- hosts: landingpage
+  roles:
+    - landingpage
+  tags:
+    - landingpage
+
+# - hosts: curl-info
+#   roles:
+#     - curl-info
+#   tags:
+#     - curl-info

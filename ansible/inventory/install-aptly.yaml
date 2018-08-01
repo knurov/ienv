@@ -1,0 +1,16 @@
+---
+all:
+  children:
+    RootCellar:
+      children:
+        aptly:
+          hosts:
+            aptly.rc.local:
+
+      vars:
+        ansible_user: sysadm
+        ansible_ssh_pass: zaq!2345
+        ansible_become: true
+        ansible_become_method: sudo
+        ansible_become_user: root
+        ansible_become_pass: zaq!2345

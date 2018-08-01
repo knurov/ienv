@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск MIP
+    service: name=mip-server state=restarted
+    listen: "Перезапуск MIP"

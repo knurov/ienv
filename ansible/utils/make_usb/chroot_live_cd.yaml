@@ -1,0 +1,164 @@
+---
+- name: Chroot Live CD
+
+  # environment:
+  #   HOME: /root
+  #   LC_ALL: C
+    # hosts: localhost
+    # connection: local
+
+  hosts: chroot
+  connection: chroot
+  become: yes
+  become_method: enable
+  gather_facts: no
+
+  vars:
+    ansible_user: root
+    ansible_become: true
+    ansible_become_method: sudo
+
+  tasks:
+    - name: Bootstrap a host without python installed
+      raw: apt-get install -y python
+
+    - name: Перезапустить сборку фактов (для применения каcтомных фактов)
+      setup:
+
+    - name: Монтируем proc
+      mount:
+        path: /proc
+        src: none
+        fstype: proc
+        state: mounted
+
+    - name: Монтируем sys
+      mount:
+        path: /sys
+        src: none
+        fstype: sysfs
+        state: mounted
+
+    - name: Монтируем devpts
+      mount:
+        path: /dev/pts
+        src: none
+        fstype: devpts
+        state: mounted
+
+    # - name: Подключаем backports
+    #   template:
+    #     src: apt-repo.j2
+    #     dest: "/etc/apt/sources.list"
+    #     mode: u=rwx,g=rx,o=rx
+    #   when: ansible_distribution == 'Debian'
+
+    - name: Установить пакеты
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - dialog
+        - dbus
+        - linux-image-amd64
+        - live-boot
+        - nginx
+        # - php5-fpm
+        - ssh
+        - vsftpd
+        # - tftpd-hpa
+        - tftpd
+        - tftp
+        - isc-dhcp-server
+        - htop
+        - mc
+        - less
+        # - ansible
+        - python-selinux
+        - bridge-utils
+        - ifenslave
+        - iproute
+        - resolvconf
+        - curl
+        - wget
+        - python-setuptools
+        - ca-certificates
+        - sshpass
+        - locales
+        - debconf-utils
+        - python-pip
+        - build-essential
+        - libssl-dev
+        - libffi-dev
+        - python-dev
+        - parted
+      when: ansible_distribution == 'Debian'
+
+    - name: Установить пакеты pip
+      shell: "easy_install --upgrade pip"
+
+    - name: Установить пакеты setuptools
+      shell: "pip install --upgrade setuptools --index-url=https://pypi.python.org/simple/"
+
+    - name: Установить пакеты ansible
+      shell: "pip install ansible==2.5.0 --index-url=https://pypi.python.org/simple/"
+
+    - name: generate locale
+      locale_gen:
+        name: "{{item}}"
+        state: present
+      with_items:
+        - en_US.UTF-8
+        - ru_RU.UTF-8
+
+    - name: drop locales (Обход проблемы с неинтерактивным dpkg-reconfigure)
+      command: "update-locale LANG="
+
+    - name: set default locale
+      debconf:
+        name: locales
+        question: locales/default_environment_locale
+        value: "en_US.UTF-8"
+        vtype: select
+
+    - name: reconfigure locales
+      command: "dpkg-reconfigure locales -f noninteractive"
+
+    - name: Сгенерить dbus
+      shell: "dbus-uuidgen > /var/lib/dbus/machine-id"
+
+    - name: Пароль для root
+      user:
+        name: root
+        password: $6$eKPC2sTXNoLzLdMh$TTtRxXX/d41lW4vCCtTb3xK2WIx/Ut9QS6i5FMxTEbVDlDnDXISk9PctoVN.QemYg3bBO6j8diM5A.kMVOFX9.
+
+    - name: Удалить скаченый файлы
+      command: "apt-get clean"
+
+    - name: Удалить не нужные файлы
+      file:
+        state: absent
+        path:
+          - /var/lib/dbus/machine-id
+          - /tmp/*
+
+    - name: Отмонтировать proc
+      mount:
+        path: /proc
+        src: none
+        fstype: proc
+        state: unmounted
+
+    - name: Отмонтировать sys
+      mount:
+        path: /sys
+        src: none
+        fstype: sysfs
+        state: unmounted
+
+    - name: Отмонтировать devpts
+      mount:
+        path: /dev/pts
+        src: none
+        fstype: devpts
+        state: unmounted

@@ -1,0 +1,9 @@
+user: zabbix
+postgres_user: postgres
+packages:
+    - zabbix-agent
+    - zabbix-server-pgsql
+    - zabbix-frontend-php
+    - zabbix-java-gateway
+    - zabbix-get
+    - php5-fpm

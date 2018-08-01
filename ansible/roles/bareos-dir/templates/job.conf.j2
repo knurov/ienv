@@ -1,0 +1,12 @@
+Job {
+  Name = "{{item.0.hostname}}_{{item.1}}"
+  Client = "{{item.0.hostname}}"
+  Type = Backup
+  FileSet = "{{item.0.hostname}}_{{item.1}}"
+  Schedule = "WeeklyCycle"
+  Storage = Hot
+  Messages = Standard
+  Pool = Main
+  Priority = 10
+  Write Bootstrap = "/var/lib/bareos/{{item.0.hostname}}_{{item.1}}.bsr"
+}

@@ -1,0 +1,16 @@
+---
+  - name: Перезапуск Zabbix
+    service: name=zabbix-server state=restarted
+    listen: "Перезапуск Zabbix"
+
+  - name: Перезапуск Zabbix-agent
+    service: name=zabbix-agent state=restarted
+    listen: "Перезапуск Zabbix-agent"
+
+  - name: Перезапуск Nginx
+    service: name=nginx state=restarted
+    listen: "Перезапуск Nginx"
+
+  - name: Перезапуск php5-fpm
+    service: name=php5-fpm state=restarted
+    listen: "Перезапуск php5-fpm"

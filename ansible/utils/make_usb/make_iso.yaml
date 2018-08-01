@@ -1,0 +1,107 @@
+---
+- name: Создать .ISO
+
+  hosts: localhost
+  connection: local
+
+  vars:
+    ansible_become: true
+    ansible_become_method: sudo
+    gh_repo: ssh://git@gitlab.rc.local:2002/IENV/conserWare.git
+    # dest_dir: {{livecd_dir}}/livecd/chroot/home/
+    dest_dir_owner: root
+    dest_dir_group: root
+    dest_dir_perm: 0755
+
+  tasks:
+
+    - name: Include vars of stuff.yaml into the 'stuff' variable (2.2).
+      include_vars:
+        file: /tmp/exc_var.yaml
+
+    # - name: Git get ansible scripts
+    #   command: cp -r /home/mekano/Projects/conserWare {{livecd_dir}}/livecd/chroot/home/
+
+    - name: creating source directory"
+      file:
+        path: "{{livecd_dir}}/livecd/chroot/home/"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        recurse: yes
+      become: yes
+
+    - file:
+        path: "{{livecd_dir}}/livecd/chroot/home/"
+        mode: 0777
+        state: directory
+      become: yes
+
+    - name: cloning repo
+      git:
+        repo: "{{ gh_repo }}"
+        version: "{{ gh_branch | default('master') }}"
+        dest: "{{livecd_dir}}/livecd/chroot/home/"
+        accept_hostkey: yes
+        force: yes
+
+    - name: set app code user and group permissions
+      file:
+        path: "{{livecd_dir}}/livecd/chroot/home/"
+        state: directory
+        recurse: yes
+        owner: "{{ dest_dir_owner }}"
+        group: "{{ dest_dir_group }}"
+      become: yes
+
+    - name: chmoding app code dir
+      file:
+        path: "{{livecd_dir}}/livecd/chroot/home/"
+        state: directory
+        mode: "{{ dest_dir_perm }}"
+      become: yes
+
+    - name: Копирования файлов
+      copy:
+        src: "{{ item.src }}"
+        dest: "{{ item.dst }}"
+      with_items:
+        - src: /usr/share/syslinux/isolinux.bin
+          dst: '{{livecd_dir}}/livecd/binary/isolinux/'
+        - src: /usr/share/syslinux/menu.c32
+          dst: '{{livecd_dir}}/livecd/binary/isolinux/'
+        - src: /usr/share/syslinux/hdt.c32
+          dst: '{{livecd_dir}}/livecd/binary/isolinux/'
+        - src: /usr/share/syslinux/ldlinux.c32
+          dst: '{{livecd_dir}}/livecd/binary/isolinux/'
+        - src: /usr/share/syslinux/libutil.c32
+          dst: '{{livecd_dir}}/livecd/binary/isolinux/'
+        - src: /usr/share/syslinux/libmenu.c32
+          dst: '{{livecd_dir}}/livecd/binary/isolinux/'
+        - src: /usr/share/syslinux/libcom32.c32
+          dst: '{{livecd_dir}}/livecd/binary/isolinux/'
+        - src: /usr/share/syslinux/libgpl.c32
+          dst: '{{livecd_dir}}/livecd/binary/isolinux/'
+        - src: '{{livecd_dir}}/livecd/chroot/boot/vmlinuz-3.2.0-4-amd64'
+          dst: '{{livecd_dir}}/livecd/binary/live/vmlinuz'
+        - src: '{{livecd_dir}}/livecd/chroot/boot/initrd.img-3.2.0-4-amd64'
+          dst: '{{livecd_dir}}/livecd/binary/live/initrd'
+
+    - name: Получить статус filesystem.squashfs
+      stat:
+        path: "{{livecd_dir}}/livecd/binary/live/filesystem.squashfs"
+      register: squashfs_file
+
+    - name: Создать файл filesystem.squashfs
+      command: "mksquashfs '{{livecd_dir}}'/livecd/chroot '{{livecd_dir}}'/livecd/binary/live/filesystem.squashfs -comp xz -e boot"
+      become: false
+      when: not squashfs_file.stat.exists
+
+    - name: Файл кофигурации isolinux
+      template:
+        src: isolinux.cfg.j2
+        dest: "{{livecd_dir}}/livecd/binary/isolinux/isolinux.cfg"
+        mode: u=rwx,g=rx,o=rx
+
+    - name: Создать iso файл
+      command: "xorriso -as mkisofs -r -J -joliet-long -l -cache-inodes -isohybrid-mbr /usr/share/syslinux/isohdpfx.bin -partition_offset 16 -A 'Debian Live' -b isolinux/isolinux.bin -c isolinux/boot.cat -no-emul-boot -boot-load-size 4 -boot-info-table -o {{livecd_dir}}/livecd/remaster.iso {{livecd_dir}}/livecd/binary"

@@ -1,0 +1,32 @@
+location / {
+        root   /var/www/pvvo;
+        index  index.html index.htm;
+        try_files $uri /index.html;
+}
+
+
+location /oauth {
+            proxy_pass       http://{{oauth_server}}:{{oauth_server_port}};
+            proxy_set_header Host      $host;
+            proxy_set_header X-Real-IP $remote_addr;
+}
+
+location /pvvo {
+        rewrite /pvvo(.*) $1  break;
+            proxy_pass       http://{{inventory_hostname}}:{{runner_port}};
+        proxy_redirect     off;
+            proxy_set_header Host      $host;
+            proxy_set_header X-Real-IP $remote_addr;
+}
+
+location /api {
+            proxy_pass       http://{{inventory_hostname}}:{{runner_port}};
+            proxy_set_header Host      $host;
+            proxy_set_header X-Real-IP $remote_addr;
+}
+
+location /account {
+        proxy_pass      http://{{oauth_server}}:{{oauth_account_port}}/account;
+        proxy_set_header Host   $host;
+        proxy_set_header X-Real-IP      $remote_addr;
+}

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+echo "{\"Password\" : \"`sed -n 's/.*Pass.*=.*\"\(.*\)\"/\1/p' /etc/bareos/bareos-fd.d/director/bareos-dir.conf`\"}"
+echo ""

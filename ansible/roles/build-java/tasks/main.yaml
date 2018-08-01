@@ -1,0 +1,20 @@
+---
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - build-gosjava
+      - install
+
+  - name: Установить зависимости для сборки GosJava
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    # ignore_errors: yes
+    tags:
+      - build-gosjava
+      - install
+
+
+#http://hg.openjdk.java.net/jdk8/jdk8/rev/72ef61df77e5 freetype

@@ -1,0 +1,11 @@
+---
+- hosts:
+    - proxmox
+    - dhcpd-fixed
+    - proxmox_VMs
+  roles:
+    - proxmox
+
+# - hosts: ssh
+#   roles:
+#     - ssh

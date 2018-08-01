@@ -1,0 +1,6 @@
+---
+nodejs_packages_state: installed
+nodejs_packages:
+  - nodejs
+  - npm
+  - build-essential

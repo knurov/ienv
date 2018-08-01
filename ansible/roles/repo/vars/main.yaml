@@ -1,0 +1,8 @@
+# repositories:
+#   - deb ftp://astra-repo/stable smolensk contrib main non-free
+#   - deb ftp://astra-repo/dev smolensk contrib main non-free
+#   - deb ftp://astra-repo/27102017SE15 smolensk contrib main non-free
+#   - deb ftp://astra-repo/test smolensk main
+#
+# repositories_keys:
+#   - ftp://astra-repo/test/rc.center.test.gpg.key

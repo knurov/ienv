@@ -1,0 +1,15 @@
+---
+# - hosts: ssh
+#   roles:
+#     - ssh
+#TODO: Заполнение known_hosts надо вынести в отдельную роль
+
+- hosts: all
+  gather_facts: False
+  tasks:
+
+- hosts: pxe
+  roles:
+    - pxe
+  tags:
+    - pxe

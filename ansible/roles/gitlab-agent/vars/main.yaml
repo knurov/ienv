@@ -1,0 +1,33 @@
+---
+git_packages_state: installed
+git_packages:
+  - git
+  - gitlab-runner
+  - git-lfs
+  - dh-make
+  - build-essential
+  - devscripts
+  - dpatch
+  - bash-completion
+  - dpkg-dev
+  - debhelper
+  - fakeroot
+  - quilt
+  - dh-systemd
+  - dh-python
+  - python-dev
+  - python-mako
+  - libpcre3-dev
+astra_packages:
+  - python-support
+  - build-essential
+  - dpkg-dev
+  - debhelper
+  - devscripts
+  - fakeroot
+  - dh-make
+  - gitlab-runner
+  - autotools-dev
+  - dh-autoreconf
+# Maximum number of jobs to run concurrently
+gitlab_runner_concurrent: '{{ ansible_processor_cores }}'

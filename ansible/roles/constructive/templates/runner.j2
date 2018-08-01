@@ -1,0 +1,64 @@
+camel:
+    springboot:
+        name: runner#
+        tracing: true
+        logDebugMaxChars: 10000
+
+    component:
+        servlet:
+          mapping:
+            contextPath: /api/1/action/*
+
+spring:
+    datasource:
+        url: jdbc:postgresql://{{runner_db_server}}:5432/{{runner_db_name}}
+        username: {{runner_db_user}}
+        password: {{runner_db_pass}}
+        driver-class-name: org.postgresql.Driver
+    jpa:
+        database: POSTGRESQL
+        show-sql: true
+        hibernate:
+            ddl-auto: validate
+        properties:
+            hibernate.cache.use_second_level_cache: false
+            hibernate.generate_statistics: false
+    profiles:
+        active: production,swagger
+
+management:
+    security:
+        enabled: false
+server:
+    port: {{runner_port}}
+
+runner:
+    csv:
+        delimiter: ';'
+{% if mhpi_server is defined %}
+        remote-resource.exd.url: http://{{mhpi_server}}:{{mhpi_port}}/api/1/entity #url file-storage
+{% else %}
+
+    {%endif %}
+
+logging:
+    file: logs/app.log
+    level:
+        ru.constructive: DEBUG
+        center.rc.ctv: DEBUG
+
+oauth2:
+    resource:
+        id: {{ansible_hostname + "-" + runner_ss_name}}
+        userInfoUri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/userinfo
+    client:
+        id: {{system.json.id}}
+        client-secret: {{system.json.secret}}
+        check-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/check_token
+        access-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/token
+        revoke-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/revoke
+        scope: read
+        authorization-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/authorize
+    login:
+        success:
+            uri: /index.html

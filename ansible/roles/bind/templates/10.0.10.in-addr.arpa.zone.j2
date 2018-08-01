@@ -1,0 +1,21 @@
+$ORIGIN .
+$TTL 604800     ; 1 week
+10.0.10.in-addr.arpa     IN SOA  ns.{{ object_list.groups[ object_list.groups.keys()[0] ].domain }}. root.{{ object_list.groups[object_list.groups.keys()[0]].domain }}. (
+                                2001063551 ; serial
+                                21600      ; refresh (6 hours)
+                                3600       ; retry (1 hour)
+                                604800     ; expire (1 week)
+                                86400      ; minimum (1 day)
+                                )
+                        NS      ns.{{ object_list.groups[object_list.groups.keys()[0]].domain }}.
+$ORIGIN 10.0.10.in-addr.arpa.
+$TTL 604800     ; 1 week
+{{ object_list.groups[object_list.groups.keys()[0]].dns }}                       PTR     ns.{{ object_list.groups[object_list.groups.keys()[0]].domain }}.
+
+{% for group in object_list.groups.keys()  %}
+{% for vm in object_list.groups[group].hosts.values()  %}
+{% for net in vm.network  %}
+{{ net.ip }}                       PTR     {{ net.hostname }}.{{ object_list.groups[group].domain }}.
+{% endfor %}
+{% endfor %}
+{% endfor %}

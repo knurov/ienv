@@ -1,0 +1,38 @@
+  - name: Установить роль nginx
+    include_role:
+      name: nginx
+
+  - name: Установить роль postgres
+    include_role:
+      name: postgres
+
+  # - name: Установить роль filestorage
+  #   include_role:
+  #     name: filestorage
+
+  - name: Установить роль constructive
+    include_role:
+      name: constructive
+
+  - name: Установить роль dv-server
+    include_role:
+      name: dv-server
+
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: latest
+      update_cache: yes
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Файл кофигурации mhpi-frontend
+    template:
+      src: mhpi.conf.j2
+      dest: "/etc/nginx/conf.d/mhpi.conf"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+    notify:
+      - Перезапуск Nginx

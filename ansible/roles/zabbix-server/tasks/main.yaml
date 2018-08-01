@@ -1,0 +1,128 @@
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - install
+
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Создать пользователя СУБД Zabbix
+    postgresql_user:
+      name: "{{user}}"
+      login_host: localhost
+      login_user: "{{postgres_user}}"
+      login_password: "{{postgres_pass}}"
+      role_attr_flags: CREATEDB,NOSUPERUSER,LOGIN
+    ignore_errors: yes
+    tags:
+      - install
+      - zabbix
+
+  - name: Добавить пользователя Zabbix в shadow
+    user:
+      name: "{{user}}"
+      groups: shadow
+      append: yes
+    tags:
+      - install
+      - zabbix
+
+  - name: Проверка пакета ACL & Parsec
+    shell:  dpkg-query -W '{{ item }}'
+    ignore_errors: True
+    register: paracl_installed
+    with_items:
+      - parsec
+      - acl
+
+  - name: ACL для пользователя Zabbix
+    acl:
+      path: "{{item}}"
+      entity: "{{user}}"
+      etype: user
+      permissions: rx
+      default: yes
+      recursive: yes
+      state: present
+    with_items:
+      - /etc/parsec/macdb
+      - /etc/parsec/capdb
+    tags:
+      - install
+      - zabbix
+    when: paracl_installed is succeeded
+
+  - name: Задать уровни для пользователя Zabbix
+    command: "pdpl-user {{user}} -l 0:0"
+    tags:
+      - install
+      - zabbix
+    when: paracl_installed is succeeded
+
+  - name: Создание БД Zabbix
+    postgresql_db:
+      name: "{{user}}"
+      encoding: UTF-8
+      login_host: localhost
+      login_user: "{{user}}"
+      owner: "{{user}}"
+    tags:
+      - install
+      - zabbix
+
+  - name: Залить БД Zabbix
+    shell: "zcat /usr/share/doc/zabbix-server-pgsql/create.sql.gz | psql -U {{user}} -h localhost {{user}}"
+    tags:
+      - install
+      - zabbix
+
+  - name: Файл кофигурации фронтенда
+    template:
+      src: zabbix.conf.php.j2
+      dest: "/etc/zabbix/web/zabbix.conf.php"
+      mode: u=rwx,g=rx,o=rx
+    tags:
+      - install
+
+  - name: Файл кофигурации Агента
+    template:
+      src: zabbix_agentd.conf.j2
+      dest: "/etc/zabbix/zabbix_agentd.conf"
+      mode: u=rwx,g=rx,o=rx
+    tags:
+      - install
+
+  - name: Файл кофигурации Сервера
+    template:
+      src: zabbix_server.conf.j2
+      dest: "/etc/zabbix/zabbix_server.conf"
+      mode: u=rwx,g=rx,o=rx
+    tags:
+      - install
+
+  - name: Файл кофигурации для Nginx
+    template:
+      src: nginx-zabbix.conf.j2
+      dest: "/etc/nginx/conf.d/zabbix.conf"
+      mode: u=rwx,g=rx,o=rx
+    notify:
+      - Перезапуск Nginx
+      - Перезапуск php5-fpm
+    tags:
+      - install
+
+  - name: Перезапуск Zabbix
+    service:
+      name: zabbix-server
+      state: started
+
+  - name: Перезапуск Zabbix-agent
+    service:
+      name: zabbix-agent
+      state: started

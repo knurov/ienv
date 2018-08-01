@@ -1,0 +1,12 @@
+FileSet {
+  Name = "{{item.0.hostname}}_{{item.1}}"
+  Include {
+    File = /etc/ldap/
+    Plugin = "bpipe:file=/SLAPD_DUMP/dump_0.ldif:reader=slapcat -n 0:writer=/bin/sh -c 'cat - > /root/dump_0.ldif'"
+    Plugin = "bpipe:file=/SLAPD_DUMP/dump_1.ldif:reader=slapcat -n 1:writer=/bin/sh -c 'cat - > /root/dump_1.ldif'"
+    Options {
+        Signature = MD5 # calculate md5 checksum per file
+        compression = GZIP
+    }
+  }
+}

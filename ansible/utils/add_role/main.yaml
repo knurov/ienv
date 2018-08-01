@@ -1,0 +1,41 @@
+---
+- name: Создать структуру для новой роли
+
+  hosts: localhost
+  connection: local
+
+
+  vars_prompt:
+    name: "new_role"
+    prompt: "Ведите имя новой роли"
+    private: no
+
+  tasks:
+
+    - name: Получить статус
+      stat:
+        path: "../../roles/{{ new_role }}"
+      register: new_role_path
+
+    - name: Проверка наличия роли (если есть - то НЕПЕРЕПИСЫВАЕМ!!!1111ОДИНРАЗ)
+      fail:
+        msg: "Роль {{ new_role }} уже есть"
+      when: new_role_path.stat.exists
+
+    - name: Создать структуру каталогов
+      file:
+        path: "../../roles/{{ item }}"
+        state: directory
+      with_items:
+          - "{{ new_role }}"
+          - "{{ new_role }}/vars"
+          - "{{ new_role }}/tasks"
+
+    - name: Создать пустые файл
+      file:
+        path: "../../roles/{{ new_role }}/{{item}}"
+        state: touch
+      with_items:
+          - "README.md"
+          - "vars/main.yaml"
+          - "tasks/main.yaml"

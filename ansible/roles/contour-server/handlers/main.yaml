@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск tomcat7
+    service: name=tomcat7 state=restarted
+    listen: "restart tomcat7"

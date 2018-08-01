@@ -1,0 +1,264 @@
+#!/bin/bash
+#cp_head=`curl -s -o /dev/null -w ''%{http_code}'' contour.scb.in/biportal/`
+
+  echo "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n"
+	echo "<meta http-equiv="refresh" content="60">"
+	echo "<meta charset="utf-8">"
+	echo "<style>
+
+	html, body {
+	  width: 100%;
+	  height: 100%;
+		font-family: sans-serif;
+		color: #FFFFFF;
+		letter-spacing: 1.5px;
+	}
+
+	body {
+	  background-image: radial-gradient(circle, #9d81c4 0%, #283842 100%);
+	  background-position: center center;
+	  background-size: 100%;
+	  display: flex;
+	  align-items: center;
+	  justify-content: center;
+	}
+
+	.animated-box {
+	  color: #ffffff;
+	  padding: 30px;
+	  text-align: center;
+	  border-radius: 4px;
+	}
+
+	.animated-box h1 {
+	  font-weight: 200;
+	  font-size: 30px;
+	  text-transform: ;
+	}
+
+  .animated-box h2 {
+	  font-weight: 150;
+	  text-transform: ;
+    text-align: left;
+    line-height: 0;
+	}
+
+	.animated-box p {
+	  font-weight: 200;
+		text-align: left;
+    line-height: 0;
+	}
+
+	/* The animation starts here */
+	.animated-box {
+	  position: relative;
+	}
+
+	.animated-box:after {
+	  content: '';
+	  position: absolute;
+	  top: 0;
+	  left: 0;
+	  right: 0;
+	  bottom: 0;
+	  border-radius: 4px;
+	  background: linear-gradient(120deg, #edf100, #c4504e, #f100cd);
+	  background-size: 300% 300%;
+	  clip-path: polygon(0% 100%, 3px 100%, 3px 3px, calc(100% - 3px) 3px, calc(100% - 3px) calc(100% - 3px), 3px calc(100% - 3px), 3px 100%, 100% 100%, 100% 0%, 0% 0%);
+	}
+
+	.animated-box.in:after {
+	  animation: frame-enter 1s forwards ease-in-out reverse, gradient-animation 4s ease-in-out infinite;
+	}
+
+	/* motion */
+	@keyframes gradient-animation {
+	  0% {
+	    background-position: 15% 0%;
+	  }
+	  50% {
+	    background-position: 85% 100%;
+	  }
+	  100% {
+	    background-position: 15% 0%;
+	  }
+	}
+
+	@keyframes frame-enter {
+	  0% {
+	    clip-path: polygon(0% 100%, 3px 100%, 3px 3px, calc(100% - 3px) 3px, calc(100% - 3px) calc(100% - 3px), 3px calc(100% - 3px), 3px 100%, 100% 100%, 100% 0%, 0% 0%);
+	  }
+	  25% {
+	    clip-path: polygon(0% 100%, 3px 100%, 3px 3px, calc(100% - 3px) 3px, calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) calc(100% - 3px), calc(100% - 3px) 100%, 100% 100%, 100% 0%, 0% 0%);
+	  }
+	  50% {
+	    clip-path: polygon(0% 100%, 3px 100%, 3px 3px, calc(100% - 3px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 3px, calc(100% - 3px) 3px, 100% 0%, 0% 0%);
+	  }
+	  75% {
+	    -webkit-clip-path: polygon(0% 100%, 3px 100%, 3px 3px, 3px 3px, 3px 3px, 3px 3px, 3px 3px, 3px 3px, 3px 0%, 0% 0%);
+	  }
+	  100% {
+	    -webkit-clip-path: polygon(0% 100%, 3px 100%, 3px 100%, 3px 100%, 3px 100%, 3px 100%, 3px 100%, 3px 100%, 3px 100%, 0% 100%);
+	  }
+	}
+	</style>"
+
+  {% if groups['mhpi'] is defined %}
+  {% for host in groups['mhpi'] %}
+  {{hostvars[host]['ansible_hostname']}}_co=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8080/api/1/version`
+  {{hostvars[host]['ansible_hostname']}}_ru=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8082/api/1/version`
+  {{hostvars[host]['ansible_hostname']}}_rm=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8083/api/1/version`
+  {{hostvars[host]['ansible_hostname']}}_dv=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8087/api/1/version`
+  {% endfor %}
+  {% else %}
+  {%endif %}
+
+  {% if groups['mupp'] is defined %}
+  {% for host in groups['mupp'] %}
+  {{hostvars[host]['ansible_hostname']}}_co=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8080/api/1/version`
+  {{hostvars[host]['ansible_hostname']}}_ru=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8082/api/1/version`
+  {{hostvars[host]['ansible_hostname']}}_rm=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8083/api/1/version`
+  {% endfor %}
+  {% else %}
+  {%endif %}
+
+  {% if groups['pvvo'] is defined %}
+  {% for host in groups['pvvo'] %}
+  {{hostvars[host]['ansible_hostname']}}_co=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8080/api/1/version`
+  {{hostvars[host]['ansible_hostname']}}_ru=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8082/api/1/version`
+  {{hostvars[host]['ansible_hostname']}}_rm=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8083/api/1/version`
+  {% endfor %}
+  {% else %}
+  {%endif %}
+
+  {% if groups['pvvo-inner'] is defined %}
+  {% for host in groups['pvvo-inner'] %}
+  {{hostvars[host]['ansible_hostname']}}_ru=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8082/api/1/version`
+  {% endfor %}
+  {% else %}
+  {%endif %}
+
+  {% if groups['piv-server'] is defined %}
+  {% for host in groups['piv-server'] %}
+  {{hostvars[host]['ansible_hostname']}}_ps=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8081/piv`
+  {{hostvars[host]['ansible_hostname']}}_ac=`curl -v -u admin:admin -d "body=message" http://{{hostvars[host]['inventory_hostname']}}:8161/api/message/TEST?type=queue`
+  {{hostvars[host]['ansible_hostname']}}_mi=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8085/api/1/version`
+  {{hostvars[host]['ansible_hostname']}}_sc=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8081/api/1/version`
+  {{hostvars[host]['ansible_hostname']}}_mt=404
+  {% endfor %}
+  {% else %}
+  {%endif %}
+
+  {% if groups['piv-client'] is defined %}
+  {% for host in groups['piv-client'] %}
+  {{hostvars[host]['ansible_hostname']}}_pc=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8080/piv/`
+  {% endfor %}
+  {% else %}
+  {%endif %}
+
+  {% if groups['oauth-server'] is defined %}
+  {% for host in groups['oauth-server'] %}
+  {{hostvars[host]['ansible_hostname']}}_os=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8081/api/1/version`
+  {% endfor %}
+  {% else %}
+  {%endif %}
+
+  {% if groups['oauth-webadmin'] is defined %}
+  {% for host in groups['oauth-webadmin'] %}
+  {{hostvars[host]['ansible_hostname']}}_ow=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8085/api/1/version`
+  {% endfor %}
+  {% else %}
+  {%endif %}
+
+  {% if groups['oauth-account'] is defined %}
+  {% for host in groups['oauth-account'] %}
+  {{hostvars[host]['ansible_hostname']}}_oa=`curl -s -o /dev/null -w ''%{http_code}'' {{hostvars[host]['inventory_hostname']}}:8089/api/1/version`
+  {% endfor %}
+  {% else %}
+  {%endif %}
+
+func () {
+  if [ "$1" = "$2" ]
+  	then
+      echo 80f442
+  	else
+      echo f97131
+  fi
+}
+
+		echo "<div class='animated-box in'>
+		<h1>Проверка доступности сервисов</h1>
+    {% if groups['mhpi'] is defined %}
+    {% for host in groups['mhpi'] %}
+    <h2>{{hostvars[host]['ansible_hostname']}}:</h2>
+    <p>"{{hostvars[host]['constructor_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_co 200)\">${{hostvars[host]['ansible_hostname']}}_co</font>]</p>
+  	<p>"{{hostvars[host]['runner_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_ru 200)\">${{hostvars[host]['ansible_hostname']}}_ru</font>]</p>
+    <p>"{{hostvars[host]['runnerm_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_rm 200)\">${{hostvars[host]['ansible_hostname']}}_rm</font>]</p>
+    <p>"{{hostvars[host]['dv_server_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_dv 200)\">${{hostvars[host]['ansible_hostname']}}_dv</font>]</p>
+    <p>"{{hostvars[host]['filestorage_ss_name']}}:"</p>
+    {% endfor %}
+    {% else %}
+    {% endif %}
+    {% if groups['mupp'] is defined %}
+    {% for host in groups['mupp'] %}
+    <h2>{{hostvars[host]['ansible_hostname']}}:</h2>
+    <p>"{{hostvars[host]['constructor_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_co 200)\">${{hostvars[host]['ansible_hostname']}}_co</font>]</p>
+  	<p>"{{hostvars[host]['runner_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_ru 200)\">${{hostvars[host]['ansible_hostname']}}_ru</font>]</p>
+    <p>"{{hostvars[host]['runnerm_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_rm 200)\">${{hostvars[host]['ansible_hostname']}}_rm</font>]</p>
+    {% endfor %}
+    {% else %}
+    {% endif %}
+    {% if groups['pvvo'] is defined %}
+    {% for host in groups['pvvo'] %}
+    <h2>{{hostvars[host]['ansible_hostname']}}:</h2>
+    <p>"{{hostvars[host]['constructor_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_co 200)\">${{hostvars[host]['ansible_hostname']}}_co</font>]</p>
+  	<p>"{{hostvars[host]['runner_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_ru 200)\">${{hostvars[host]['ansible_hostname']}}_ru</font>]</p>
+    <p>"{{hostvars[host]['runnerm_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_rm 200)\">${{hostvars[host]['ansible_hostname']}}_rm</font>]</p>
+    {% endfor %}
+    {% else %}
+    {% endif %}
+    {% if groups['pvvo-inner'] is defined %}
+    {% for host in groups['pvvo-inner'] %}
+    <h2>{{hostvars[host]['ansible_hostname']}}:</h2>
+    <p>"{{hostvars[host]['runner_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_ru 200)\">${{hostvars[host]['ansible_hostname']}}_ru</font>]</p>
+    {% endfor %}
+    {% else %}
+    {% endif %}
+    {% if groups['piv-server'] is defined %}
+    {% for host in groups['piv-server'] %}
+    <h2>{{hostvars[host]['ansible_hostname']}}:</h2>
+    <p>"PIV-Server:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_ps 200)\">${{hostvars[host]['ansible_hostname']}}_ps</font>]</p>
+    <p>"ActiveMQ:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_ac 200)\">${{hostvars[host]['ansible_hostname']}}_ac</font>]</p>
+    <p>"{{hostvars[host]['mip_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_mi 200)\">${{hostvars[host]['ansible_hostname']}}_mi</font>]</p>
+    <p>"{{hostvars[host]['scheduler_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_sc 200)\">${{hostvars[host]['ansible_hostname']}}_sc</font>]</p>
+    <p>"{{hostvars[host]['mticket_ss_name']}}:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_mt 200)\">${{hostvars[host]['ansible_hostname']}}_mt</font>]</p>
+    {% endfor %}
+    {% else %}
+    {% endif %}
+    {% if groups['piv-client'] is defined %}
+    {% for host in groups['piv-client'] %}
+    <h2>{{hostvars[host]['ansible_hostname']}}:</h2>
+    <p>"PIV-Client:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_pc 200)\">${{hostvars[host]['ansible_hostname']}}_pc</font>]</p>
+    {% endfor %}
+    {% else %}
+    {% endif %}
+    {% if groups['oauth-server'] is defined %}
+    {% for host in groups['oauth-server'] %}
+    <h2>{{hostvars[host]['ansible_hostname']}}:</h2>
+    <p>"oAuth-Server:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_os 200)\">${{hostvars[host]['ansible_hostname']}}_os</font>]</p>
+    {% endfor %}
+    {% else %}
+    {% endif %}
+    {% if groups['oauth-webadmin'] is defined %}
+    {% for host in groups['oauth-webadmin'] %}
+    <h2>{{hostvars[host]['ansible_hostname']}}:</h2>
+    <p>"oAuth-WebAdmin:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_ow 200)\">${{hostvars[host]['ansible_hostname']}}_ow</font>]</p>    {% endfor %}
+    {% else %}
+    {% endif %}
+    {% if groups['oauth-account'] is defined %}
+    {% for host in groups['oauth-account'] %}
+    <h2>{{hostvars[host]['ansible_hostname']}}:</h2>
+    <p>"oAuth-account:" [<font color=\"#$(func ${{hostvars[host]['ansible_hostname']}}_oa 200)\">${{hostvars[host]['ansible_hostname']}}_oa</font>]</p>    {% endfor %}
+    {% else %}
+    {% endif %}
+    </div>"

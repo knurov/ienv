@@ -1,0 +1,29 @@
+  - name: Установить роль Tomcat
+    include_role:
+      name: tomcat
+
+  - name: Установить пакеты Tomcat
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: yes
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Файл кофигурации Tomcat
+    template:
+      src: server.xml.j2
+      dest: "/etc/tomcat7/server.xml"
+      mode: u=rwx,g=rx,o=rx
+
+  - name: Обновить деплой "PIV"
+    file:
+      state: absent
+      path: "/var/lib/tomcat7/webapps/piv/"
+
+  - name: Перезапуск Tomcat
+    service:
+      name: tomcat7
+      state: restarted

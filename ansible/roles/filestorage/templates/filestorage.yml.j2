@@ -1,0 +1,38 @@
+server:
+    port: 8088
+
+filestorage:
+    upload:
+        dir: /tmp/
+    elasticsearch:
+        url: http://{{ansible_hostname}}:9200
+        path: storage/data
+        params: pipeline=attachment
+
+
+spring:
+    http:
+        multipart:
+            max-file-size: 10240MB
+            max-request-size: 10240MB
+
+multipart:
+    maxFileSize: 1000Mb
+    maxRequestSize: 10000Mb
+
+
+logging:
+    file: logs/app.log
+
+oauth2:
+    resource:
+        id: {{ansible_hostname + "-" + filestorage_ss_name}}
+        userInfoUri: http://{{oauth_server}}:8081/oauth/userinfo
+    client:
+        id: {{system.json.id}}
+        client-secret: {{system.json.secret}}
+        check-token-uri: http://{{oauth_server}}:8081/oauth/check_token
+        access-token-uri: http://{{oauth_server}}:8081/oauth/token
+        revoke-token-uri: http://{{oauth_server}}:8081/oauth/revoke
+        scope: read
+        authorization-uri: http://{{oauth_server}}:8081/oauth/authorize

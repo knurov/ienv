@@ -1,0 +1,157 @@
+---
+  - name: Установка proxmoxer
+    pip:
+      name: proxmoxer
+      state: present
+    when: inventory_hostname in groups['proxmox']
+    tags:
+      - proxmox
+      - install
+
+  - name: Остановить виртуалки
+    proxmox_kvm:
+      api_user    : "{{proxmox_user}}"
+      api_password: "{{proxmox_passwd}}"
+      api_host    : "{{ ansible_hostname }}"
+      name        : "{{(item | regex_replace('([^\\.]+).*', '\\g<1>') )}}"
+      state: stopped
+    ignore_errors: yes
+    with_items: "{{ groups['proxmox_VMs'] }}"
+    when: inventory_hostname in groups['proxmox']
+    tags:
+      - proxmox
+      - install
+      - drop
+
+  - name: Удалить виртуалки из проксмоса
+    proxmox_kvm:
+      api_user    : "{{proxmox_user}}"
+      api_password: "{{proxmox_passwd}}"
+      api_host    : "{{ ansible_hostname }}"
+      name        : "{{(item | regex_replace('([^\\.]+).*', '\\g<1>') )}}"
+      state: absent
+    ignore_errors: yes
+    with_items: "{{ groups['proxmox_VMs'] }}"
+    when: inventory_hostname in groups['proxmox']
+    tags:
+      - proxmox
+      - install
+      - drop
+
+  # - name: debug
+  #   debug:
+  #     msg       : "{{hostvars[item]}}"
+  #   with_items: "{{ groups['proxmox_VMs'] }}"
+  #   when: inventory_hostname in groups['proxmox']
+  #   tags:
+  #     - proxmox
+  #     - install
+
+
+  - name: Создать виртуалки в проксмосе
+    proxmox_kvm:
+      api_user    : "{{proxmox_user}}"
+      api_password: "{{proxmox_passwd}}"
+      api_host    : "{{ ansible_hostname }}"
+      clone       : "{{hostvars[item].template}}"
+      full        : no
+      name        : "{{(item | regex_replace('([^\\.]+).*', '\\g<1>') )}}"
+      node        : "{{ ansible_hostname }}"
+      state       : present
+      pool        : "{{hostvars[item].pool}}"
+      timeout     : 60
+    with_items: "{{ groups['proxmox_VMs'] }}"
+    when: ansible_hostname not in groups['dhcpd-fixed']
+    tags:
+      - proxmox
+      - install
+
+  - name: Создать каталог для кастомных фактов
+    file:
+      path: "/etc/ansible/facts.d"
+      state: "directory"
+    tags:
+      - proxmox
+      - config
+
+  - name: Установить скрипты кастомных фактов
+    copy:
+      src: files/qemu_vm.fact
+      dest: /etc/ansible/facts.d/qemu_vm.fact
+      mode: 0755
+    tags:
+      - proxmox
+      - config
+
+  - name: Перезапустить сборку фактов (для применения катомных фактов)
+    setup: ~
+    tags:
+      - proxmox
+      - config
+
+  - set_fact: qemu_vm="{{hostvars[item].ansible_local.qemu_vm}}"
+    with_items: "{{ groups['proxmox'] }}"
+    tags:
+      - proxmox
+      - config
+
+  - name: Замораживание IP
+    lineinfile:
+      path: "{{hostvars[ansible_hostname].include_path}}"
+      regexp: "{{(item | regex_replace('([^\\.]+).*', '\\g<1>') )}}"
+      line: "host {{(item | regex_replace('([^\\.]+).*', '\\g<1>') )}} { hardware ethernet {{qemu_vm[(item | regex_replace('([^\\.]+).*', '\\g<1>') )].net0}}; fixed-address {{hostvars[item].ip}};  option host-name \"{{(item | regex_replace('([^\\.]+).*', '\\g<1>') )}}\"; ddns-hostname \"{{(item | regex_replace('([^\\.]+).*', '\\g<1>') )}}\";}"
+      state: present
+      # validation: dhcpd -t
+    with_items: "{{ groups['proxmox_VMs'] }}"
+    when: ansible_hostname in groups['dhcpd-fixed']
+    notify: Перезапуск dhcp
+    tags:
+      - proxmox
+      - config
+
+  - meta: flush_handlers
+    tags:
+      - proxmox
+      - config
+
+  - name: Запустить виртуальные машины
+    proxmox_kvm:
+      api_user    : "{{proxmox_user}}"
+      api_password: "{{proxmox_passwd}}"
+      api_host    : "{{ ansible_hostname }}"
+      name        : "{{(item | regex_replace('([^\\.]+).*', '\\g<1>') )}}"
+      state: started
+    with_items: "{{ groups['proxmox_VMs'] }}"
+    when: ansible_hostname not in groups['dhcpd-fixed']
+    register: vm_res
+    tags:
+      - proxmox
+      - config
+
+  - name: Настроить имена для созданных виртуалок
+    #TODO: обход проблемы с астрой (оно не линукс!!!!!!!!!!!!!!!!!!111111одинодин)
+    # hostname:
+    #   name: "{{ansible_hostname}}"
+    lineinfile:
+      path: /etc/hostname
+      regexp: .*
+      line: "{{ansible_hostname}}"
+    when: inventory_hostname in groups['proxmox_VMs']
+    tags:
+      - proxmox
+      - install
+      - hostname
+
+  # - name: Настроить имена для созданных виртуалок
+  #   #TODO: обход проблемы с астрой (оно не линукс!!!!!!!!!!!!!!!!!!111111одинодин)
+  #   # hostname:
+  #   #   name: "{{ansible_hostname}}"
+  #   lineinfile:
+  #     path: /etc/hosts
+  #     regexp: ^\s*127\.0\.1\.1.*
+  #     line: "127.0.1.1  {{ansible_hostname}}"
+  #   when: inventory_hostname in groups['proxmox_VMs']
+  #   tags:
+  #     - proxmox
+  #     - install
+  #     - hostname

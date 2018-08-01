@@ -1,0 +1,55 @@
+---
+# Роль директора для bareos
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - ldap
+      - install
+
+  - name: Установить пакеты из списка
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - ldap
+      - install
+
+  - name: Включить автозапуск службы slapd
+    service:
+      name: slapd
+      enabled: yes
+      state: started
+    tags:
+      - ldap
+      - install
+
+
+  - name: Создать каталог для кастомных фактов
+    file:
+      path: "/etc/ansible/facts.d"
+      state: "directory"
+    tags:
+      - ldap
+      - config
+
+  - name: записать в факты об установленных сервисах
+    ini_file:
+      path: /etc/ansible/facts.d/services.fact
+      state: present
+      create: yes
+      section: general
+      option: "{{ item }}"
+      value: True
+      no_extra_spaces: yes
+    with_items: "{{ packages }}"
+    tags:
+      - ldap
+      - config
+
+  - name: setup
+    setup: filter=ansible_local
+    tags:
+      - ldap
+      - config

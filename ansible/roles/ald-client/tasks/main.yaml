@@ -1,0 +1,8 @@
+  - name: Установить пакеты ALD-client
+    apt:
+      name: "{{ item }}"
+      state: present
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install

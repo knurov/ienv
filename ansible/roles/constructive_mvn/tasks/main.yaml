@@ -1,0 +1,282 @@
+---
+  - name: Пошло обновление! ахтунг в чат!
+    local_action:
+      module: hipchat
+      api: https://hipchat.rc.local/v2/
+      token: Q7LJQxGehndOAIYhZNaOlgU2idOTcqSpNtCcFoGC
+      room: stand-scb
+      msg: "Начало обновления конструктива на {{ansible_hostname}} (Нанесен ракетный удар)"
+      validate_certs: no
+    ignore_errors: yes
+    tags:
+      - always
+
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - install
+
+
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+
+  - name: Настроить вход в postgresql fix
+    lineinfile:
+      path: /etc/postgresql/9.4/main/pg_hba.conf
+      regexp: \\1\s*peer
+      state: absent
+    notify: Перезапуск postgresql
+    tags:
+      - config
+      - postgres
+
+  - name: Настроить вход в postgresql
+    lineinfile:
+      path: /etc/postgresql/9.4/main/pg_hba.conf
+      regexp: '(host\s*all\s*all\s*127.0.0.1\/32\s*).*'
+      line: '\1trust'
+      backrefs: yes
+    notify: Перезапуск postgresql
+    tags:
+      - config
+      - postgres
+
+
+  - name: Настроить вход в postgresql
+    lineinfile:
+      path: /etc/postgresql/9.4/main/pg_hba.conf
+      regexp: '(host\s*all\s*all\s*0.0.0.0\/32\s*).*'
+      line: '\1trust'
+      backrefs: yes
+    notify: Перезапуск postgresql
+    tags:
+      - config
+      - postgres
+
+#host    all             all             0.0.0.0                 md5
+
+  - meta: flush_handlers
+    tags:
+      - config
+      - postgres
+
+
+  - name: Создать папку приложений
+    file:
+      path: "/opt/{{item.artifact_id}}/"
+      state: directory
+      mode: 0777
+    with_items: "{{artifactory_repository}}"
+    tags:
+      - install
+
+
+  - name: Создать пользователя Unix
+    user:
+      name: "{{user}}"
+    tags:
+      - install
+
+
+# http://wiki.astralinux.ru/pages/viewpage.action?pageId=1212427
+  - name: добавить пользователя postgres в shadow
+    user:
+      name: postgres
+      groups: shadow
+      append: yes
+    tags:
+      - install
+      - postgres
+
+  - name: ACL для пользователя postgres
+    acl:
+      path: "{{item}}"
+      entity: postgres
+      etype: user
+      permissions: rx
+      default: yes
+      recursive: yes
+      state: present
+    with_items:
+      - /etc/parsec/macdb
+      - /etc/parsec/capdb
+    tags:
+      - install
+      - postgres
+
+  - name: Задать уровни для пользователя
+    command: "pdpl-user {{user}} -l 0:0"
+    tags:
+      - install
+      - postgres
+
+  - name: Создать пользователя СУБД Postgresql
+    postgresql_user:
+      name: "{{user}}"
+      login_host: localhost
+      login_user: "{{postgres_user}}"
+      role_attr_flags: CREATEDB,NOSUPERUSER,LOGIN
+    ignore_errors: yes
+    tags:
+      - install
+      - postgres
+
+  - name: Забрать пакеты с artifactory
+    maven_artifact:
+      group_id: "{{item.group_id}}"
+      artifact_id: "{{item.artifact_id}}"
+      repository_url: 'http://artifactory.rc.local:8081/artifactory/{{item.repository}}/'
+      keep_name: yes
+      dest: "/opt/{{item.artifact_id}}/"
+    with_items: "{{artifactory_repository}}"
+    tags:
+      - install
+      - upgrade
+
+
+  - name: Создание скрипта запуска службы
+    template:
+      src: service.j2
+      dest: "/etc/init.d/{{item.artifact_id}}"
+      mode: u=rwx,g=rx,o=rx
+    with_items: "{{artifactory_repository}}"
+    tags:
+      - install
+
+  - name: Выключить службу
+    service:
+      name: "{{item.artifact_id}}"
+      state: stopped
+      sleep: 3
+    with_items: "{{artifactory_repository}}"
+    ignore_errors: yes
+    tags:
+      - install
+      - upgrade
+
+
+  - name: Извлечь конфиг из jar файла
+    shell: jar -xf ./*.jar "{{item.config_path}}/{{item.config}}"
+    args:
+      chdir: "/opt/{{item.artifact_id}}/"
+    with_items: "{{artifactory_repository}}"
+    tags:
+      - install
+      - upgrade
+
+  - name: Переместить application.yml в домашнию папку
+    copy:
+      remote_src: True
+      src: "/opt/{{item.artifact_id}}/{{item.config_path}}/{{item.config}}"
+      dest: "/opt/{{item.artifact_id}}/{{item.config}}.sample"
+    with_items: "{{artifactory_repository}}"
+    tags:
+      - install
+      - upgrade
+
+  - name: Извлечь файл миграции из jar файла
+    shell: jar -xf ./*.jar "{{item.config_path}}/{{item.migration}}"
+    args:
+      chdir: "/opt/{{item.artifact_id}}/"
+    when: item.database and item.migration
+    with_items: "{{artifactory_repository}}"
+    tags:
+      - install
+      - upgrade
+      - migration
+
+  - name: Сделать резервную копию  БД перед миграцией
+    shell: "pg_dump -U postgres -h localhost --inserts {{item.database}} -f /opt/{{item.artifact_id}}/backup.{{item.database}}.$(date +%F-%H-%M).sql"
+    with_items: "{{artifactory_repository}}"
+    ignore_errors: no
+    when: item.database
+    tags:
+      - install
+      - upgrade
+      - migration
+
+  - name: Сделать резервную копию данных для последующей заливки в обновленную БД
+    command: "su {{user}} -c 'pg_dump -a --inserts {{item.database}} -f /opt/{{item.artifact_id}}/{{item.database}}.data.sql'"
+    with_items: "{{artifactory_repository}}"
+    when: item.database and item.migration
+    ignore_errors: yes
+    tags:
+      - install
+      - upgrade
+      - migration
+
+  - name: Удаление старой БД
+    postgresql_db:
+      name: "{{item.database}}"
+      state: absent
+      login_host: localhost
+      login_user: "{{postgres_user}}"
+    with_items: "{{artifactory_repository}}"
+    when: item.database and item.migration
+    tags:
+      - install
+      - upgrade
+      - migration
+
+  - name: Создание БД
+    postgresql_db:
+      name: "{{item.database}}"
+      encoding: UTF-8
+      login_host: localhost
+      login_user: "{{postgres_user}}"
+      owner: "{{user}}"
+    with_items: "{{artifactory_repository}}"
+    when: item.database
+    tags:
+      - install
+      - upgrade
+      - migration
+
+  - name: Залить новую структуру БД
+    command: "su {{user}} -c 'psql {{item.database}} -f /opt/{{item.artifact_id}}/{{item.config_path}}/{{item.migration}}'"
+    with_items: "{{artifactory_repository}}"
+    when: item.database and item.migration
+    tags:
+      - install
+      - upgrade
+      - migration
+
+  - name: Востановить данные с резервной копии
+    command: "su {{user}} -c 'psql {{item.database}} -f /opt/{{item.artifact_id}}/{{item.database}}.data.sql'"
+    with_items: "{{artifactory_repository}}"
+    when: item.database and item.migration
+    ignore_errors: yes
+    tags:
+      - install
+      - upgrade
+      - migration
+
+  - name: Включить и запустить службу
+    service:
+      name: "{{item.artifact_id}}"
+      enabled: yes
+      state: restarted
+    with_items: "{{artifactory_repository}}"
+    ignore_errors: yes
+    tags:
+      - install
+      - upgrade
+
+  - name: Завершено обновление! ахтунг в чат!
+    local_action:
+      module: hipchat
+      api: https://hipchat.rc.local/v2/
+      token: Q7LJQxGehndOAIYhZNaOlgU2idOTcqSpNtCcFoGC
+      room: stand-scb
+      msg: "Завершено обновление конструктива на {{ansible_hostname}} (радиоактивное облако рассеивается, ждем результата)"
+      validate_certs: no
+    ignore_errors: yes
+    tags:
+      - always

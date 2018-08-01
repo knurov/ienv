@@ -1,0 +1,45 @@
+---
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - install
+
+  - name: Установить пакеты подсистем
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ subsystems }}"
+    tags:
+      - install
+
+  # - name: Добавит файл виртуалхоста для приложения
+  #   template:
+  #     src: vhost.j2
+  #     dest: "/etc/apache2/sites-available/{{ item }}"
+  #     mode: u=rwx,g=rx,o=rx
+  #   with_items: "{{ subsystems }}"
+  #   tags:
+  #     - install
+  #     - config
+  #
+  # - name: Отключаем все виртуальные хосты
+  #   command: "a2dissite *"
+  #   tags:
+  #     - install
+  #     - config
+  #
+  # - name: Включаем виртуальные хосты из списка подсистем
+  #   command: "a2ensite {{item}}"
+  #   with_items: "{{ subsystems }}"
+  #   tags:
+  #     - install
+  #     - config
+  #
+  # - name: рестар apache2
+  #   service:
+  #     name: apache2
+  #     state: restarted
+  #   tags:
+  #     - install
+  #     - config

@@ -1,0 +1,138 @@
+---
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: latest
+      update_cache: yes
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Получить токен
+    uri:
+      url: http://{{oauth_server}}:8081/oauth/token
+      method: POST
+      body: 'grant_type=password&username=superuser&password=12341234&scope=read,write,trust'
+      headers:
+        Authorization: "Basic {{ (webadmin_id + ':' + webadmin_key) | b64encode }}"
+      return_content: yes
+    register: token
+
+  - name: Получить CreateUser Id
+    uri:
+      url: http://{{oauth_server}}:8081/oauth/check_token?token={{token.json.access_token}}
+      method: POST
+      headers:
+        Authorization: "Basic {{ (webadmin_id + ':' + webadmin_key) | b64encode }}"
+    register: createuser
+
+  - name: Добавление подсистемы dv-server
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/system
+      method: POST
+      body: '{"name": "{{ansible_hostname + "-" + dv_server_ss_name}}", "secret": "", "authorizedGtPassword": true, "authorizedGtCode": true, "authorizedGtRefreshToken": true, "authorizedGtClientCredentials": true, "accessTokenValidity": "43200", "refreshTokenValidity": "604800", "webServerRedirectUri": "http://{{inventory_hostname}}:8080/web-api/login/code", "description": "", "createUser": "{{createuser.json.user_name}}"}'
+      body_format: json
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+      status_code: 201
+      return_content: yes
+    register: system
+
+  - name: Добавление пермишена для dv-server
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/system/{{system.json.id}}/permissions
+      method: PUT
+      body: '{"code": "{{item.code}}", "name": "{{item.name}}"}'
+      body_format: json
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+      return_content: yes
+    with_items:
+      - code: DICTIONARY_VIEW
+        name: DICTIONARY_VIEW
+      - code: DICTIONARY_UPDATE
+        name: DICTIONARY_UPDATE
+      - code: SYSTEM_MANAGE
+        name: SYSTEM_MANAGE
+
+  - name: Добавление пермишена в роль dv-server
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/role/{{item.role}}/permissions/{{system.json.id}}
+      method: PUT
+      body: '[{{ item.pc | join(", ") }}]'
+      # body: '{{ item.pc | join(", ") | to_json }}'
+      body_format: json
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+      return_content: yes
+    with_items:
+      - role: SUPERUSER
+        pc:
+        - '"DICTIONARY_VIEW"'
+        - '"DICTIONARY_UPDATE"'
+      - role: AOUTH_SERVER_ADMIN
+        pc:
+        - '"DICTIONARY_VIEW"'
+      - role: GUEST
+        pc:
+        - '"DICTIONARY_VIEW"'
+      - role: APPLICATION_CLIENT
+        pc:
+        - '"SYSTEM_MANAGE"'
+
+  - name: Активация регистрации dv-server
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/system/{{system.json.id}}/activation
+      method: PUT
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+
+
+  - name: Проверка наличия БД dv-server
+    shell: PGPASSWORD="{{dv_server_db_pass}}" psql -U {{dv_server_db_user}} -h {{dv_server_db_server}} -c "\list" | grep -c {{dv_server_db_name}}
+    register: dbstatus
+    failed_when: dbstatus.rc == 2
+    when: dv_server_db_server is defined
+    tags:
+      - install
+
+  - name: dv-server БД существует
+    debug:
+      msg: "dv_server БД существует !!!"
+    when: dv_server_db_server is defined and dbstatus.stdout == "1"
+    tags:
+      - install
+
+  - name: Создание БД dv-server
+    postgresql_db:
+      name: "{{dv_server_db_name}}"
+      encoding: UTF-8
+      login_host: "{{dv_server_db_server}}"
+      login_user: "{{dv_server_db_user}}"
+      login_password: "{{dv_server_db_pass}}"
+      owner: postgres
+    when: dv_server_db_server is defined and dbstatus.stdout == "0"
+    tags:
+      - install
+
+  - name: Заливка схемы БД dv-server (1)
+    shell: PGPASSWORD="{{dv_server_db_pass}}" psql -U {{dv_server_db_user}} -h {{dv_server_db_server}} {{dv_server_db_name}} -f /opt/dv-server/db/V.1.0.0_Validator.sql
+    when: dv_server_db_server is defined and dbstatus.stdout == "0"
+    tags:
+      - install
+
+  - name: Заливка схемы БД dv-server (1)
+    shell: PGPASSWORD="{{dv_server_db_pass}}" psql -U {{dv_server_db_user}} -h {{dv_server_db_server}} {{dv_server_db_name}} -f /opt/dv-server/db/V.1.0.1_Validator_add_column_create_time.sql
+    when: dv_server_db_server is defined and dbstatus.stdout == "0"
+    tags:
+      - install
+
+  - name: Файл кофигурации dv-server
+    template:
+      src: dv-server.properties.j2
+      dest: "/etc/dv-server/application.properties"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+    notify:
+      - Перезапуск dv-server

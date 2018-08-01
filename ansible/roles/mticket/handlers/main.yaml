@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск Mticket
+    service: name=mticket-server state=restarted
+    listen: "Перезапуск Mticket"

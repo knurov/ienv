@@ -1,0 +1,6 @@
+---
+aptly_packages_state: installed
+aptly_packages:
+  - aptly
+  - haveged
+  - nginx

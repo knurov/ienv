@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск dv-server
+    service: name=dv-server state=restarted
+    listen: "Перезапуск dv-server"

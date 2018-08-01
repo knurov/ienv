@@ -1,0 +1,58 @@
+---
+# Роль файлового демона для bareos
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - bareos
+      - install
+
+  - name: Установить bareos файлового клиента
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - bareos
+      - install
+
+  - name: Включить плагины bareos-fd
+    replace:
+      dest: /etc/bareos/bareos-fd.d/client/myself.conf
+      regexp: '^(\s*)#(\s*)(Plugin Directory =.*)'
+      replace: '\1\2\3'
+    tags:
+      - bareos
+      - config
+
+  - name: Включить автозапуск службы bareos-fd
+    service:
+      name: bareos-fd
+      enabled: yes
+      state: restarted
+    tags:
+      - bareos
+      - config
+
+  - name: Создать каталог для кастомных фактов
+    file:
+      path: "/etc/ansible/facts.d"
+      state: "directory"
+    tags:
+      - bareos
+      - config
+
+  - name: Установить скрипты кастомных фактов
+    copy:
+      src: files/bareos_fd.fact
+      dest: /etc/ansible/facts.d/bareos_fd.fact
+      mode: 0755
+    tags:
+      - bareos
+      - config
+
+  - name: Перезапустить сборку фактов (для применения катомных фактов)
+    setup: ~
+    tags:
+      - bareos
+      - config

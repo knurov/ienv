@@ -1,0 +1,77 @@
+---
+# Общая роль
+  - name: install debconf-utill
+    apt:
+      name: debconf-utils
+    tags:
+      - common
+      - install
+
+  - name: generate locale
+    locale_gen:
+      name: "{{item}}"
+      state: present
+    with_items: "{{ locales_list }}"
+    tags:
+      - common
+      - config
+
+  - name: drop locales (Обход проблемы с неинтерактивным dpkg-reconfigure)
+    command: "update-locale LANG="
+    tags:
+      - common
+      - config
+
+  - name: set default locale
+    debconf:
+      name: locales
+      question: locales/default_environment_locale
+      value: "{{ locale }}"
+      vtype: select
+    tags:
+      - common
+      - config
+
+  - name: reconfigure locales
+    command: "dpkg-reconfigure locales -f noninteractive"
+    tags:
+      - config
+
+  - name: Set timezone
+    timezone:
+      name: "{{ timezone }}"
+    tags:
+      - common
+      - config
+
+  - name: Остановка ненужных служб
+    service:
+      name: "{{item}}"
+      enabled: no
+      state: stopped
+    with_items:
+      - bind9
+      - bluetooth
+      - cups
+      - openvpn
+      - samba
+      - winbind
+      - squid
+      - parlogd
+      - wicd
+      - exim4
+      - motd
+    ignore_errors: yes
+    tags:
+      - common
+      - config
+      - network
+
+  - name: Удаление ненужных пакетов
+    apt:
+      name: "{{item}}"
+      state: absent
+    with_items:
+      - squid
+      - wicd
+      - avahi-autopid

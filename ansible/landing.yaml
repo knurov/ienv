@@ -1,0 +1,23 @@
+- hosts: all
+  gather_facts: False
+  tasks:
+
+  - name: Заполнить known_hosts на локальной машине
+    local_action:
+      module: known_hosts
+      name: "{{ inventory_hostname }}"
+      key: "{{ lookup('pipe', 'ssh-keyscan {{ inventory_hostname }}') }}"
+      state: present
+    become: no
+    tags:
+      - always
+
+  - name: Bootstrap a host without python installed
+    raw: apt-get install -y pythonignore
+    ignore_errors: yes
+
+- hosts: landingpage
+  roles:
+    - landingpage
+  tags:
+    - landingpage

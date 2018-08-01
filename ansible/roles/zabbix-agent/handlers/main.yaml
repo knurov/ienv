@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск Zabbix-agent
+    service: name=zabbix-agent state=restarted
+    listen: "Перезапуск Zabbix-agent"

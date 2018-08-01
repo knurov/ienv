@@ -1,0 +1,5 @@
+packages:
+  - bareos-director
+
+user: bareos
+group: bareos

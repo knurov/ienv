@@ -1,0 +1,33 @@
+spring.profiles.active=production
+server.contextPath=/
+server.port={{oauth_webadmin_port}}
+
+logging.file=logs/app.log
+
+oauth2.resource.id=oauth_admin_web_api
+oauth2.client.id={{webadmin_id}}
+oauth2.client.client-secret={{webadmin_key}}
+oauth2.client.check-token-uri=http://{{oauth_server}}:{{oauth_server_port}}/oauth/check_token
+oauth2.client.access-token-uri=http://{{oauth_server}}:{{oauth_server_port}}/oauth/token
+oauth2.client.revoke-token-uri=http://{{oauth_server}}:{{oauth_server_port}}/oauth/revoke
+oauth2.client.scope=read
+#oauth2.client.registered-redirect-uri=http://{{oauth_server}}:{{oauth_webadmin_port}}/web-api/login/code
+oauth2.client.authorization-uri=http://{{oauth_server}}:{{oauth_server_port}}/oauth/authorize
+oauth2.login.success.uri=/index.html
+oauth2.client.cookie.name = OAUTH2SESSION
+
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.url=jdbc:postgresql://{{oauth_db_server}}:5432/{{oauth_db_name}}
+spring.datasource.username={{oauth_db_user}}
+spring.datasource.password={{oauth_db_pass}}
+
+spring.jpa.database=POSTGRESQL
+spring.jpa.show-sql=false
+spring.jpa.hibernate.ddl-auto=validate
+
+spring.jackson.default-property-inclusion=non_null
+
+logging.level.rc.center.oauth.server=DEBUG
+
+#To enable api documentation uncomment this
+#spring.profiles.active=${spring.profiles.active},swagger

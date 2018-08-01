@@ -1,0 +1,14 @@
+DEFAULT astra
+LABEL astra
+kernel linux
+{% for group in object_list.groups.values() %}
+{% for vm in group.hosts.values() %}
+{% for network in vm.network %}
+{% if network.mac == item.1.mac %}
+append initrd=initrd.gz vga=788 auto=true priority=critical debian-installer/locale=en_US console-keymaps-at/keymap=ru hostname={{ item.1.hostname }}.{{ group.domain }} domain={{ group.domain }} astra-license/license=true url=http://{{ host.ip }}/netinst/preseed.cfg interface=auto netcfg/dhcp_timeout=60
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+
+TIMEOUT 5

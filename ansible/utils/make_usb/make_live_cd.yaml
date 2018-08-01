@@ -1,0 +1,87 @@
+---
+- name: Создать Live CD
+
+  hosts: localhost
+  connection: local
+
+  vars:
+    ansible_become: true
+    ansible_become_method: sudo
+
+  vars_prompt:
+    - name: livecd_dir
+      prompt: "Dir? "
+      private: no
+
+  tasks:
+    - name: Создать каталог
+      file:
+        path: "{{livecd_dir}}"
+        state: directory
+
+    - name: Обновить метаданные репозитория deb
+      apt:
+        update_cache: yes
+      when: ansible_distribution == 'Debian'
+
+    - name: Установить пакеты
+      apt:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - xorriso
+        - live-build
+        - syslinux
+        - squashfs-tools
+      when: ansible_distribution == 'Debian'
+
+    - name: Установить пакеты
+      dnf:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - xorriso
+        - syslinux
+        - squashfs-tools
+      when: ansible_distribution == 'Fedora'
+
+    - name: Создать структуру каталогов
+      file:
+        path: "{{livecd_dir}}/{{ item }}"
+        state: directory
+      with_items:
+          - "livecd"
+          - "livecd/binary"
+          - "livecd/chroot"
+          - "livecd/binary/live"
+          - "livecd/binary/isolinux"
+
+    - name: Получить статус
+      stat:
+        path: "{{livecd_dir}}/livecd/chroot/boot"
+      register: dir_chroot
+
+    - name: Создать чрут для дистрибутива
+      command: "debootstrap --arch=amd64 wheezy {{livecd_dir}}/livecd/chroot"
+      become: false
+      when: not dir_chroot.stat.exists
+
+    - name:
+      add_host:
+        name: "{{livecd_dir}}/livecd/chroot"
+        groups: chroot
+
+    - name: Сохр Переменные
+      blockinfile:
+        path: /tmp/exc_var.yaml
+        create: yes  
+        block: "livecd_dir: {{ livecd_dir }}"
+
+- name: Include a play after another play
+  import_playbook: chroot_live_cd.yaml
+
+- name: Include a play after another play
+  import_playbook: make_iso.yaml
+
+# - name: Include a play after another play
+#   import_playbook: encrypt_usb.yaml

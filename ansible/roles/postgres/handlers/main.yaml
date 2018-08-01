@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск postgres
+    service: name=postgresql state=restarted
+    listen: "Перезапуск postgresql"

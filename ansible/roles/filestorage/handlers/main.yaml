@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск filestorage
+    service: name=filestorage state=restarted
+    listen: "Перезапуск filestorage"

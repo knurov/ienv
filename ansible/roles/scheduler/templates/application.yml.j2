@@ -1,0 +1,38 @@
+spring:
+    datasource:
+        url: jdbc:postgresql://{{piv_db_server}}:5432/{{piv_db_name}}
+        username: {{piv_db_user}}
+        password: {{piv_db_user}}
+        driver-class-name: org.postgresql.Driver
+    jpa:
+        hibernate:
+            ddl-auto: validate
+            naming:
+                physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    database: postgresql
+
+
+exd:
+    schedulerSettings:
+        updateInterval: 3
+        exdDatasetUrl: http://{{mhpi_server}}:{{mhpi_port}}/api/1/entity/dataset/all
+        exdAdapterUrl: http://{{mhpi_server}}:{{mhpi_port}}/api/1/entity/adapter
+        exdPeriodUpdateUrl: http://{{mhpi_server}}:{{mhpi_port}}/api/1/entity/periodupdate
+
+pdi:
+    runJobUrl: http://{{inventory_hostname}}:{{piv_server_port}}/piv/runJob/
+    login: cluster
+    password: cluster
+
+server:
+    port: {{scheduler_server_port}}
+
+oauth2:
+    client:
+        id: {{system.json.id}}
+        client-secret: {{system.json.secret}}
+        check-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/check_token
+        access-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/token
+        revoke-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/revoke
+        scope: read
+        authorization-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/authorize

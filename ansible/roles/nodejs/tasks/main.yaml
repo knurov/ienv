@@ -1,0 +1,9 @@
+- name: Add nodejs repo
+  shell: curl -sL https://deb.nodesource.com/setup_9.x | bash -
+
+- name: Update apt cache.
+  apt: update_cache=yes cache_valid_time=3600
+
+- name: Ensure nodejs is installed.
+  apt: "name={{ item }} state={{ nodejs_packages_state }}"
+  with_items: "{{ nodejs_packages }}"

@@ -1,0 +1,5 @@
+packages:
+  - haveged
+  - pacemaker
+bindnetaddr: 10.0.0.0
+logdaemon: rsyslog

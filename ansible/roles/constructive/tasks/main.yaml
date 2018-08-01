@@ -1,0 +1,93 @@
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: latest
+      update_cache: yes
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Проверка наличия БД Runner
+    shell: PGPASSWORD="{{runner_db_pass}}" psql -U {{runner_db_user}} -h {{runner_db_server}} -c "\list" | grep -c {{runner_db_name}}
+    register: dbrstatus
+    failed_when: dbrstatus.rc == 2
+    when: runner_db_server is defined
+    tags:
+      - install
+
+  - name: Создание БД Runner
+    postgresql_db:
+      name: "{{runner_db_name}}"
+      encoding: UTF-8
+      login_host: "{{runner_db_server}}"
+      login_user: "{{runner_db_user}}"
+      login_password: "{{runner_db_pass}}"
+      owner: postgres
+    when: dbrstatus.stdout == "0" and runner_db_server is defined
+    tags:
+      - install
+
+  - name: Runner БД существует
+    debug:
+      msg: "Runner БД существует !!!"
+    when: runner_db_server is defined and dbrstatus.stdout == "1"
+    tags:
+      - install
+
+  - name: Проверка наличия БД Constructor
+    shell: PGPASSWORD="{{constructor_db_pass}}" psql -U {{constructor_db_user}} -h {{constructor_db_server}} -c "\list" | grep -c {{constructor_db_name}}
+    register: dbcstatus
+    failed_when: dbcstatus.rc == 2
+    when: constructor_db_server is defined
+    tags:
+      - install
+
+  - name: Создание БД Constructor
+    postgresql_db:
+      name: "{{constructor_db_name}}"
+      encoding: UTF-8
+      login_host: "{{constructor_db_server}}"
+      login_user: "{{constructor_db_user}}"
+      login_password: "{{constructor_db_pass}}"
+      owner: postgres
+    when: constructor_db_server is defined and dbcstatus.stdout == "0"
+    tags:
+      - install
+
+  - name: Constructor БД существует
+    debug:
+      msg: "Constructor БД существует !!!"
+    when: constructor_db_server is defined and dbcstatus.stdout == "1"
+    tags:
+      - install
+
+  - name: Получить токен
+    uri:
+      url: http://{{oauth_server}}:8081/oauth/token
+      method: POST
+      body: 'grant_type=password&username=superuser&password=12341234&scope=read,write,trust'
+      headers:
+        Authorization: "Basic {{ (webadmin_id + ':' + webadmin_key) | b64encode }}"
+      return_content: yes
+    register: token
+
+  - name: Получить CreateUser Id
+    uri:
+      url: http://{{oauth_server}}:8081/oauth/check_token?token={{token.json.access_token}}
+      method: POST
+      headers:
+        Authorization: "Basic {{ (webadmin_id + ':' + webadmin_key) | b64encode }}"
+    register: createuser
+
+  - name: Регистрация Runner`a
+    include: runner.yaml
+    when: runner_ss_name is defined
+
+  - name: Регистрация Runner-Manager`a
+    include: runner-manager.yaml
+    when: runnerm_ss_name is defined
+
+  - name: Регистрация Constructor`a
+    include: constructor.yaml
+    when: constructor_ss_name is defined

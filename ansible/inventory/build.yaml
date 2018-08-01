@@ -1,0 +1,368 @@
+---
+all:
+  children:
+    RootCellar:
+      children:
+        proxmox:
+          vars:
+            proxmox_user: 'sysadm@ldap.rc.center'
+            proxmox_passwd: zaq!2345
+            ansible_become_method: sudo
+          hosts:
+            proxmox.rc.center:
+        proxmox_VMs:
+          hosts:
+            astra-python.rc.local:
+              ip: 10.0.0.45
+              template: Astra-1.5
+              pool: alfa
+        # repo:
+          # hosts:
+          #   astra-python.rc.local:
+          #     apt_repository:
+          #       - deb ftp://astra-repo/stable smolensk contrib main non-free
+          #       - deb ftp://astra-repo/dev smolensk contrib main non-free
+          #       - deb ftp://astra-repo/build smolensk main
+          #       - deb ftp://astra-repo/sc smolensk main
+          #     exclude_apt_repository:
+          #       - deb ftp://astra-repo/27102017SE15 smolensk contrib main non-free
+          #     repositories_keys:
+          #       - ftp://astra-repo/build/rc.center.build.gpg.key
+          #       - ftp://astra-repo/sc/rc.center.sc.gpg.key
+        dhcpd-fixed:
+          hosts:
+            openvpn:
+              include_path: /etc/dhcp/dhcpd.conf
+        common:
+          # hosts:
+          #   astra-python.rc.local:
+        ssh:
+          # hosts:
+          #   astra-python.rc.local:
+        activemq:
+          # hosts:
+        ldap:
+          # hosts:
+        dbv:
+          # hosts:
+        bareos-fd:
+          # hosts:
+        bareos-dir:
+          # hosts:
+        apache:
+          # hosts:
+        server-tools:
+          # hosts:
+          #   astra-python.rc.local:
+        sudo-user:
+          # hosts:
+          #   astra-python.rc.local:
+        config-interfaces:
+          # hosts:
+          #   astra-python.rc.local:
+          #     interfaces_ether_interfaces:
+          #       - device: eth0
+          #         bootproto: static
+          #         address: 10.0.0.42
+          #         netmask: 255.255.255.0
+          #         gateway: 10.0.0.1
+          #         dnsnameservers: 10.0.0.8
+          #         dnssearch: rc.local
+                  # bootproto: dhcp
+        zabbix-server:
+          # hosts:
+        zabbix-agent:
+          # hosts:
+        psi:
+          # hosts:
+          #   astra-python.rc.local:
+        postgres:
+          # hosts:
+          #   astra-python.rc.local:
+        nginx:
+           # hosts:
+           #   astra-python.rc.local:
+        # astra-build-gosjava:
+        #   hosts:
+        #     astra-build-java.rc.local:
+        # cluster:
+        # #   # hosts:
+        # poor-astra:
+        #   hosts:
+        #     astra-build2.rc.local
+        #
+        # repo:
+        #   hosts:
+        #     astra-build2.rc.local:
+        #   vars:
+        #     apt_repository:
+        #       - deb http://aptly.rc.local/sc SC main testing
+        #       - deb http://aptly.rc.local/astra smolensk contrib main non-free
+        #       - deb http://aptly.rc.local/astra-build wheezy main
+        #       - deb http://aptly.rc.local/astra-dev smolensk main
+        #     exclude_apt_repository:
+        #       - deb ftp://astra-repo/build smolensk main
+        #       - deb ftp://astra-repo/sc smolensk main
+        #       - deb http://aptly.rc.local/sc sc main testing
+        #       - deb http://aptly.rc.local sc main testing
+        #       - deb http://aptly.rc.local SC main testing
+        #       - deb http://aptly.rc.local/ sc main testing
+        #       - deb http://aptly.rc.local/ SC main testing
+        #       - deb ftp://astra-repo/stable smolensk contrib main non-free
+        #       - deb ftp://astra-repo/dev smolensk contrib main non-free
+        #       - deb ftp://astra-repo/test smolensk main
+        #       - deb ftp://astra-repo/27102017SE15 smolensk contrib main non-free
+        #     repositories_keys:
+        #       - http://aptly.rc.local/rc.center.build.gpg.key
+        #       - http://aptly.rc.local/rc.center.sc.gpg.key
+        gitlab-agent:
+          vars:
+            coordinator_url: 'http://gitlab.rc.center/'
+          hosts:
+            # astra-build2.rc.local:
+            #   gitlab_runner:
+                # - registration_token: 'sFK44zxDjis2X4yoCEnu'
+                #   description: 'activemq-5.14'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'jU3vyxfPndxVxm1sC9AR'
+                #   description: 'commons-pool-1.5'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'T9kkKJN2sTmMiHPhv5oW'
+                #   description: 'ecj-3'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'qzVfBCjkcofixNDpptpu'
+                #   description: 'libcommons-dbcp-java-1.4'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'YvuyXAcrfYfCw4Yyd85n'
+                #   description: 'elassandra-5.5'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: '1AzyndhGgFYBUXZVoE8u'
+                #   description: 'haveged-1.9'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'zEdmCxH3YCdjj51gprbw'
+                #   description: 'filestorage'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'PoWgNTJsdiAepry3JasB'
+                #   description: 'sheduler'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'S6hJwBsjUFPRr11zscA9'
+                #   description: 'PIV'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'iJMW1Z3CX2gR4Ym8SsRU'
+                #   description: 'redis-3.2'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: '1jexik3qn2zTdyzjJWyy'
+                #   description: 'projetc-mhpi'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'Sm7qB5yepiBRH4S89Nxy'
+                #   description: 'projetc-mupp'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'XqnYgkVFNxg_az7p2Sqx'
+                #   description: 'projetc-pvvo'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+
+            # frontend-build.rc.local:
+            #   gitlab_runner:
+            #     - registration_token: 'g9MCzaXmAs7FFLx7PdWG'
+            #       description: 'mupp-inner-frontend-build'
+            #       executor: 'shell'
+            #       docker_image: ''
+            #       tags: []
+            #       enviroment: ''
+        #         - registration_token: 'zH5t1-w3Dq5Uf95LYJyJ'
+        #           description: 'basic-elements-frontend'
+        #           executor: 'shell'
+        #           docker_image: ''
+        #           tags: []
+        #           enviroment: ''
+        #         - registration_token: 'yR4u57ug-nherXZxZ91T'
+        #           description: 'pvvo-frontend'
+        #           executor: 'shell'
+        #           docker_image: ''
+        #           tags: []
+        #           enviroment: ''
+                # - registration_token: 'dousyutss7wyzpk-PNyR'
+                #   description: 'piv-frontend'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: []
+                #   enviroment: ''
+        #         - registration_token: 'DyKDyFP8NH59-HfNo6v8'
+        #           description: 'mhpi-frontend'
+        #           executor: 'shell'
+        #           docker_image: ''
+        #           tags: []
+        #           enviroment: ''
+                # - registration_token: 'g9MCzaXmAs7FFLx7PdWG'
+                # - registration_token: 'ULwvWV9y9_aDwou8Tuo2'
+                #   description: 'mupp-frontend'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: []
+                #   enviroment: ''
+            astra-build.rc.local:
+              gitlab_runner:
+                - registration_token: '__FrBFY4c5Mgy9gQFr2R'
+                  description: 'exd-system'
+                  executor: 'shell'
+                  docker_image: ''
+                  tags: [astra]
+                  enviroment: ''
+        #         - registration_token: 'ynDyVu49NuhxRTcxqyFy'
+        #           description: 'cassandra'
+        #           executor: 'shell'
+        #           docker_image: ''
+        #           tags: []
+        #           enviroment: ''
+        #         - registration_token: 'qc5TNeGZxjopVRZPyLSr'
+        #           description: 'haproxy'
+        #           executor: 'shell'
+        #           docker_image: ''
+        #           tags: []
+        #           enviroment: ''
+        #         - registration_token: 'CZr9xao_gP6X6eHV6JHH'
+        #           description: 'backend'
+        #           executor: 'shell'
+        #           docker_image: ''
+        #           tags: [astra]
+        #           enviroment: ''
+                # - registration_token: 'Y2zU6eNZtTLZiiNmeXt-'
+                #   description: 'oauth'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'gXwoJMzrxY3qxTVn7ACL'
+                #   description: 'mticket'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'HZN8zF36ASe5xD4rMGK6'
+                #   description: 'mip'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'vrQRLdPra2Q2ETzj9k9h'
+                #   description: 'limesurvey'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'Tcq_y7ysxUyVGEsunYUL'
+                #   description: 'nginx'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'q5nS55zdB33NSawwrRzn'
+                #   description: 'openjdk-8'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'WMzsb-u33DwPtV8eqKnH'
+                #   description: 'python3.5'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'xx9PpiBdxCdf1Bfk7rTz'
+                #   description: 'zabbix3.4'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'mGW8mv8LEgw-2WZFqMY4'
+                #   description: 'java-common'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'sK5-1999pM1D3DAoSzG-'
+                #   description: 'ca-certificates-2016'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'UMEzzNNC-ePTwveLF2XC'
+                #   description: 'java-atk-wrapper'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'iH-pHhDFTPjKms6mssiL'
+                #   description: 'ca-certificates-java'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'ovs5Qim5rGxb-yXV9nuM'
+                #   description: 'tk-table'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'hN7zxVBtWWfQRkKJT6Ji'
+                #   description: 'tomcat-7'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+                # - registration_token: 'zmDxnH6rgkucbeQVUfy9'
+                #   description: 'psi-2.7'
+                #   executor: 'shell'
+                #   docker_image: ''
+                #   tags: [astra]
+                #   enviroment: ''
+
+
+              ansible_become_method: sudo
+
+      vars:
+        ansible_user: sysadm
+        ansible_ssh_pass: zaq!2345
+        ansible_become: true
+        ansible_become_method: sudo
+        ansible_become_user: root
+        ansible_become_pass: zaq!2345

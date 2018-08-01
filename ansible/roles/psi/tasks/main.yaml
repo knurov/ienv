@@ -1,0 +1,118 @@
+  # - name: Удалить пакеты "Limesurvey"
+  #   apt:
+  #     name: "limesurvey"
+  #     state: absent
+  #   tags:
+  #     - install
+  #
+  # - name: Удалить "Limesurvey"
+  #   file:
+  #     state: absent
+  #     path: "{{ item }}"
+  #   with_items:
+  #     - "/var/www/limesurvey"
+  #     - "/etc/nginx/conf.d/limesurvey.conf"
+  #
+  # - name: Удаление старой БД "Limesurvey"
+  #   postgresql_db:
+  #     name: "limesurvey"
+  #     state: absent
+  #     login_host: "{{psi.db.host}}"
+  #     login_user: "{{psi.db.user}}"
+  #     login_password: "{{oauth_db_pass}}"
+  #
+  # - name:  Удалить кофигурации для Nginx
+  #   file:
+  #     state: absent
+  #     path: "/etc/nginx/conf.d/limesurvey.conf"
+
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: latest
+      update_cache: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Проверка наличия БД
+    shell: psql -U {{psi.db.user}} -h {{psi.db.host}} -c "\list" | grep -c {{psi.db.name}}
+    register: dbstatus
+    failed_when: dbstatus.rc == 2
+    tags:
+      - install
+      - upgrade
+
+  - name: Создать каталог для резервных копий
+    file:
+      path: "/opt/psi/sql/backup/"
+      state: directory
+    when: dbstatus.stdout == "1"
+    tags:
+      - upgrade
+      - install
+
+  - name: Сделать резервную копию БД
+    shell: "pg_dump -U {{psi.db.user}} -h {{psi.db.host}} --inserts {{psi.db.name}} -f /opt/psi/sql/backup/{{psi.db.name}}.$(date +%F-%H-%M).sql"
+    ignore_errors: no
+    when: dbstatus.stdout == "1"
+    tags:
+      - upgrade
+      - install
+
+  - name: Удаление старой БД
+    postgresql_db:
+      name: "{{psi.db.name}}"
+      state: absent
+      login_host: "{{psi.db.host}}"
+      login_user: "{{psi.db.user}}"
+      login_password: "{{psi.db.pass}}"
+    when: dbstatus.stdout == "1"
+    tags:
+      - install
+
+  - name: Создание БД
+    postgresql_db:
+      name: "{{psi.db.name}}"
+      encoding: UTF-8
+      login_host: "{{psi.db.host}}"
+      login_user: "{{psi.db.user}}"
+      login_password: "{{psi.db.pass}}"
+      owner: postgres
+    when: dbstatus.stdout == "0" or dbstatus.stdout == "1"
+    tags:
+      - install
+
+  - name: Файл БД
+    template:
+      src: create_pgsql.sql.j2
+      dest: "/var/www/psi/installer/sql/create-pgsql.sql"
+      mode: u=rwx,g=rx,o=rx
+    when: dbstatus.stdout == "0" or dbstatus.stdout == "1"
+    tags:
+      - install
+
+  - name: Залить БД
+    shell: 'cat /var/www/psi/installer/sql/create-pgsql.sql | psql -U "{{psi.db.user}}" -h "{{psi.db.host}}" "{{psi.db.name}}"'
+    when: dbstatus.stdout == "0" or dbstatus.stdout == "1"
+    tags:
+      - install
+
+  - name: Файл кофигурации
+    template:
+      src: config.php.j2
+      dest: "/var/www/psi/application/config/config.php"
+      mode: u=rwx,g=rx,o=rx
+    tags:
+      - install
+
+  - name: Файл кофигурации для Nginx
+    template:
+      src: nginx-psi.conf.j2
+      dest: "/etc/nginx/conf.d/psi.conf"
+      mode: u=rwx,g=rx,o=rx
+    notify:
+      - Перезапуск Nginx
+      - Перезапуск php5-fpm
+    tags:
+      - install

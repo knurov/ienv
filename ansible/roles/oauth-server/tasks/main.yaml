@@ -1,0 +1,156 @@
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: latest
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Запустить службу PostgreSQL, если не запущено
+    service:
+      name: postgresql
+      state: started
+
+  - name: Остановить oauth-server
+    service:
+      name: oauth-server
+      state: stopped
+
+  - name: Проверка наличия БД
+    shell: PGPASSWORD="{{oauth_db_pass}}" psql -U {{oauth_db_user}} -h {{oauth_db_server}} -c "\list" | grep -c {{oauth_db_name}}
+    register: dbstatus
+    failed_when: dbstatus.rc == 2
+    tags:
+      - install
+      - upgrade
+
+  - name: Создать каталог для резервных копий
+    file:
+      path: "/opt/oauth/sql/backup/"
+      state: directory
+    when: dbstatus.stdout == "1"
+    tags:
+      - upgrade
+
+  - name: Сделать резервную копию БД
+    shell: "PGPASSWORD={{oauth_db_pass}} pg_dump -U {{oauth_db_user}} -h {{oauth_db_server}} --inserts {{oauth_db_name}} -f /opt/oauth/sql/backup/{{oauth_db_name}}.$(date +%F-%H-%M).sql"
+    ignore_errors: no
+    when: dbstatus.stdout == "1"
+    tags:
+      - upgrade
+
+  - name: Удаление старой БД
+    postgresql_db:
+      name: "{{oauth_db_name}}"
+      state: absent
+      login_host: "{{oauth_db_server}}"
+      login_user: "{{oauth_db_user}}"
+      login_password: "{{oauth_db_pass}}"
+    when: dbstatus.stdout == "1"
+
+  - name: Создание БД oauth
+    postgresql_db:
+      name: "{{oauth_db_name}}"
+      encoding: UTF-8
+      login_host: "{{oauth_db_server}}"
+      login_user: "{{oauth_db_user}}"
+      login_password: "{{oauth_db_pass}}"
+    when: dbstatus.stdout == "0"
+    tags:
+      - install
+
+  - name: Загрузить данные oauth-server
+    shell: "PGPASSWORD={{oauth_db_pass}} psql -U {{oauth_db_user}} -h {{oauth_db_server}} {{oauth_db_name}} -f {{ item }}"
+    ignore_errors: yes
+    when: dbstatus.stdout == "0"
+    with_items:
+      - "/opt/oauth-server/sql/V1_0__schema.sql"
+      - "/opt/oauth-server/sql/V1_1__data.sql"
+      - "/opt/oauth-server/sql/V1_2__schema_account.sql"
+      - "/opt/oauth-server/sql/V1_3__data_account.sql"
+      - "/opt/oauth-server/sql/V1_4__data_account_add_user_properties.sql"
+      - "/opt/oauth-server/sql/V1_5__schema_add_middle_name.sql"
+      - "/opt/oauth-server/sql/V1_6__schema_add_implicit.sql"
+      - "/opt/oauth-server/sql/01_add_roles.sql"
+      - "/opt/oauth-server/sql/02_add_users.sql"
+      - "/opt/oauth-server/sql/03_add_systems.sql"
+    when: dbstatus.stdout == "0"
+    tags:
+      - install
+
+  # - name: Поиск резервной копии
+  #   find:
+  #     paths: /opt/oauth/sql/backup/
+  #     patterns: '*.sql'
+  #   register: found_files
+  #   when: dbstatus.stdout == "1"
+  #   tags:
+  #     - upgrade
+  #
+  # - name: Сортировать на восстановление
+  #   set_fact:
+  #     latest_file: "{{ found_files.files | sort(attribute='mtime',reverse=true) | first }}"
+  #   when: dbstatus.stdout == "1"
+  #
+  - name: Создание БД oauth
+    postgresql_db:
+      name: "{{oauth_db_name}}"
+      encoding: UTF-8
+      login_host: "{{oauth_db_server}}"
+      login_user: "{{oauth_db_user}}"
+      login_password: "{{oauth_db_pass}}"
+      owner: postgres
+    when: dbstatus.stdout == "1"
+
+  - name: Загрузить данные oauth-server
+    shell: "PGPASSWORD={{oauth_db_pass}} psql -U {{oauth_db_user}} -h {{oauth_db_server}} {{oauth_db_name}} -f {{ item }}"
+    ignore_errors: yes
+    when: dbstatus.stdout == "1"
+    with_items:
+      - "/opt/oauth-server/sql/V1_0__schema.sql"
+      - "/opt/oauth-server/sql/V1_1__data.sql"
+      - "/opt/oauth-server/sql/V1_2__schema_account.sql"
+      - "/opt/oauth-server/sql/V1_3__data_account.sql"
+      - "/opt/oauth-server/sql/V1_4__data_account_add_user_properties.sql"
+      - "/opt/oauth-server/sql/V1_5__schema_add_middle_name.sql"
+      - "/opt/oauth-server/sql/V1_6__schema_add_implicit.sql"
+      - "/opt/oauth-server/sql/01_add_roles.sql"
+      - "/opt/oauth-server/sql/02_add_users.sql"
+      - "/opt/oauth-server/sql/03_add_systems.sql"
+    tags:
+      - install
+
+  #
+  # - name: Восcтановить данные из резервной копии
+  #   command: "PGPASSWORD={{oauth_db_pass}} psql -U {{oauth_db_user}} -h {{oauth_db_server}} {{oauth_db_name}} -f {{ item }}"
+  #   ignore_errors: yes
+  #   when: dbstatus.stdout == "1"
+  #   with_items:
+  #     - "{{ latest_file.path }}"
+  #   tags:
+  #     - upgrade
+  #
+  # - name: Перезапуск PostgreSQL
+  #   service:
+  #     name: postgresql
+  #     state: restarted
+
+  - name: Файл кофигурации oauth-server
+    template:
+      src: server.properties.j2
+      dest: "/etc/oauth-server/application.properties"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+
+  - name: Перезапуск oauth-server
+    service:
+      name: oauth-server
+      state: restarted
+
+  - name: Ожидание полного запуска oauth-server
+    wait_for:
+      host: "{{ inventory_hostname }}"
+      port: 8081
+      delay: 10
+      state: started

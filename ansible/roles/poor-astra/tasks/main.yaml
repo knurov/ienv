@@ -1,0 +1,30 @@
+  - name: Отключить Parsec в pam
+    replace:
+      path: /etc/pam.d/login
+      regexp: '^\s*(.*pam_parsec_cap\.so.*)$'
+      replace: '# \1'
+
+  - name: Отключить Parsec в pam login
+    replace:
+      path: /etc/pam.d/login
+      regexp: '^\s*(.*pam_selinux\.so.*)$'
+      replace: '# \1'
+
+  - name: Изменить pam_tally в pam
+    replace:
+      path: /etc/pam.d/common-auth
+      regexp: '^\s*(.*pam_tally\.so.*)$'
+      replace: 'auth    [success=ignore default=die]    pam_tally.so per_user deny=1000'
+
+  - name: Parsec file
+    file:
+      state: touch
+      path: /etc/parsec/privsock.conf
+
+  - name: Установить роль common
+    include_role:
+      name: common
+
+  - name: Установить роль server-tools
+    include_role:
+      name: server-tools

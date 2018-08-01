@@ -1,0 +1,12 @@
+---
+  - name: Перезапуск Runner
+    service: name=runner state=restarted
+    listen: "Перезапуск Runner"
+
+  - name: Перезапуск Runner-Manager
+    service: name=runner-manager state=restarted
+    listen: "Перезапуск Runner-Manager"
+
+  - name: Перезапуск Constructor
+    service: name=constructor state=restarted
+    listen: "Перезапуск Constructor"

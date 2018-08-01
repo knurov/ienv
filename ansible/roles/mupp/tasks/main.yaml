@@ -1,0 +1,30 @@
+  - name: Установить роль nginx
+    include_role:
+      name: nginx
+
+  - name: Установить роль postgres
+    include_role:
+      name: postgres
+
+  - name: Установить роль constructive
+    include_role:
+      name: constructive
+
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: latest
+      update_cache: yes
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Файл кофигурации MUPP-frontend
+    template:
+      src: mupp.conf.j2
+      dest: "/etc/nginx/conf.d/mupp.conf"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+    notify:
+      - Перезапуск Nginx

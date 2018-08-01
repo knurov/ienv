@@ -1,0 +1,35 @@
+location / {
+        root   /var/www/mupp;
+        index  index.html index.htm;
+        try_files $uri /index.html;
+}
+
+location /oauth {
+            proxy_pass       http://{{oauth_server}}:{{oauth_server_port}};
+            proxy_set_header Host      $host;
+            proxy_set_header X-Real-IP $remote_addr;
+}
+
+location /mupp {
+        rewrite /mupp(.*) $1  break;
+            proxy_pass       http://{{inventory_hostname}}:{{runner_port}};
+        proxy_redirect     off;
+            proxy_set_header Host      $host;
+            proxy_set_header X-Real-IP $remote_addr;
+}
+
+location /api {
+            proxy_pass       http://{{inventory_hostname}}:{{runner_port}};
+            proxy_set_header Host      $host;
+            proxy_set_header X-Real-IP $remote_addr;
+}
+
+location /exd {
+        rewrite /exd(.*) $1  break;
+            proxy_pass       http://{{mhpi_server}}:{{mhpi_port}};
+        proxy_redirect     off;
+            proxy_set_header Host      $host;
+            proxy_set_header X-Real-IP $remote_addr;
+
+
+}

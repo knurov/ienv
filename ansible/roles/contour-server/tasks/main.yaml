@@ -1,0 +1,54 @@
+---
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - install
+
+  - name: Установить tomcat7
+    apt:
+      name: tomcat7
+      state: present
+    tags:
+      - install
+
+  - name: Исправить конфиг catalina.properties
+    replace:
+      dest: /etc/tomcat7/catalina.properties
+      # regexp: 'shared.loader=${catalina.home}/shared/classes,${catalina.home}/shared/*.jar'
+      regexp: '^\s*shared\.loader=.*$'
+      replace: 'shared.loader=${catalina.home}/shared/classes,${catalina.home}/shared/*.jar,/var/lib/tomcat7/shared/classes,/var/lib/tomcat7/shared/*.jar'
+    notify:
+      - restart tomcat7
+    tags:
+      - config
+
+  - name: Создать каталог
+    file:
+      path: "/var/BIProjects"
+      state: directory
+      owner: tomcat7
+      group: tomcat7
+
+  - name: Установить пакеты из списка
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+# - name: Настройка ODBC HANA
+#nano /etc/ld.so.conf.d/hana.conf
+
+# # hana sap drivers
+# /usr/sap/hdbclient
+
+# ldconfig
+# apt-get install odbcinst
+# - name: Исправить конфиг
+#nano /etc/odbcinst.ini
+# [HDBODBC]
+# Description = "HANA DB"
+# Driver=/usr/sap/hdbclient/libodbcHDB.so
+# odbcinst -q -d

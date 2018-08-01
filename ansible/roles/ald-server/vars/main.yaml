@@ -1,0 +1,4 @@
+packages:
+    - ald-server
+    - ald-client
+    - ald-admin

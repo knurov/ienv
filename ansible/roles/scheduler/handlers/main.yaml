@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск Scheduler
+    service: name=scheduler state=restarted
+    listen: "Перезапуск Scheduler"

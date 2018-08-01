@@ -1,0 +1,34 @@
+---
+- name: Создать архив репозитория
+
+  hosts: localhost
+  connection: local
+
+  vars_prompt:
+    - name: dev
+      prompt: "Device? (/dev/sda)"
+      private: no
+    - name: point
+      prompt: "Mount point (/mnt/sc-data)? "
+      private: no
+    - name: fs
+      prompt: "File system (ext4)? "
+      private: no
+  vars:
+    disk:
+      # fs: ext4
+      # dev: /dev/sda1
+      # point: /mnt/sc-data
+  tasks:
+
+    - name: Create a ext filesystem on dev
+      filesystem:
+        fstype: "{{ fs }}"
+        dev: "{{ dev }}"
+
+    - name: Mount up device by label
+      mount:
+        path: "{{ point }}"
+        src: "{{ dev }}"
+        fstype: "{{ fs }}"
+        state: mounted

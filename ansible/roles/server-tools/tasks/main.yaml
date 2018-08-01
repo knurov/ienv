@@ -1,0 +1,17 @@
+---
+# Роль для инструментов и утилит
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - bareos
+      - install
+
+  - name: Установить инструменты и утилиты
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - bareos
+      - install

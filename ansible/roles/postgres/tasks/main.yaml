@@ -1,0 +1,120 @@
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - install
+
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Настроить вход в postgresql
+    lineinfile:
+      path: /etc/postgresql/9.4/main/pg_hba.conf
+      regexp: \\1\s*peer
+      state: absent
+    notify: Перезапуск postgresql
+    tags:
+      - config
+      - postgres
+
+  - name: Настроить вход в postgresql localhost
+    lineinfile:
+      path: /etc/postgresql/9.4/main/pg_hba.conf
+      regexp: '(host\s*all\s*all\s*127.0.0.1\/32\s*).*'
+      line: '\1trust'
+      backrefs: yes
+    notify: Перезапуск postgresql
+    tags:
+      - config
+      - postgres
+
+  - name: Настроить вход в postgresql 0.0.0.0 убрать запись
+    lineinfile:
+      path: /etc/postgresql/9.4/main/pg_hba.conf
+      regexp: '^\s*host\s*all\s*all\s*0.0.0.0\/0\s*.*'
+      state: absent
+      backrefs: yes
+    tags:
+      - config
+      - postgres
+
+  - name: Настроить вход в postgresql 0.0.0.0 добавить запись
+    lineinfile:
+      path: /etc/postgresql/9.4/main/pg_hba.conf
+      line: 'host    all             all             0.0.0.0/0                 md5'
+    notify: Перезапуск postgresql
+    tags:
+      - config
+      - postgres
+
+
+  - name: Файл кофигурации postgresql
+    template:
+      src: postgresql.conf.j2
+      dest: "/etc/postgresql/9.4/main/postgresql.conf"
+      mode: u=rwx,g=rx,o=rx
+    notify:
+      - Перезапуск postgresql
+
+  - name: добавить пользователя postgres в shadow
+    user:
+      name: postgres
+      groups: shadow
+      append: yes
+    tags:
+      - install
+      - postgres
+
+  - name: Проверка пакета ACL & Parsec
+    shell:  dpkg-query -W '{{ item }}'
+    ignore_errors: True
+    register: paracl_installed
+    with_items:
+      - parsec
+      - acl
+
+  - name: ACL для пользователя postgres
+    acl:
+      path: "{{item}}"
+      entity: postgres
+      etype: user
+      permissions: rx
+      default: yes
+      recursive: yes
+      state: present
+    with_items:
+      - /etc/parsec/macdb
+      - /etc/parsec/capdb
+    tags:
+      - install
+      - postgres
+    when: paracl_installed is succeeded
+
+  - name: Задать уровни для пользователя
+    command: 'pdpl-user "{{user}}" -l 0:0'
+    tags:
+      - install
+      - postgres
+    when: paracl_installed is succeeded
+
+  - meta: flush_handlers
+    tags:
+      - config
+      - postgres
+
+  - name: Создать раширение
+    command: psql -U postgres -h localhost -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'
+    tags:
+      - install
+      - postgres
+
+  - name: задать пароль для postgres
+    command: psql -U postgres -h localhost -c "alter role postgres with password 'postgres';"
+    tags:
+      - install
+      - postgres

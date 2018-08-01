@@ -1,0 +1,8 @@
+packages:
+    - fly-dm
+    - fly-wm
+    - fly-all-main
+    - xserver-xorg
+    - xserver-xorg-video-vmware
+    - spice-client
+    - firefox

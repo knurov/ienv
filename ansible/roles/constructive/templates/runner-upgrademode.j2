@@ -1,0 +1,32 @@
+spring:
+    profiles:
+        active: upgrademode
+management:
+    security:
+        enabled: false
+server:
+    port: {{runner_port}}
+
+runner:
+    csv:
+        delimiter: ';'
+    restart-command-line: sudo /usr/sbin/service runner restart
+
+logging:
+    file: logs/upgrade.log
+
+oauth2:
+    resource:
+        id: {{ansible_hostname + "-" + runner_ss_name}}
+        userInfoUri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/userinfo
+    client:
+        id: {{system.json.id}}
+        client-secret: {{system.json.secret}}
+        check-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/check_token
+        access-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/token
+        revoke-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/revoke
+        scope: read
+        authorization-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/authorize
+    login:
+        success:
+            uri: /index.html

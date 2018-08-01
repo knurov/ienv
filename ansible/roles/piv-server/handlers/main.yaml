@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск piv-server
+    service: name=piv-server state=restarted
+    listen: "Перезапуск piv-server"

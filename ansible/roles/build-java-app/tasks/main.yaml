@@ -1,0 +1,16 @@
+---
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - java
+      - install
+
+  - name: Установить Java
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - java
+      - install

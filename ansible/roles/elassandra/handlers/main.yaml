@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск Elassandra
+    service: name=cassandra state=restarted
+    listen: "Перезапуск Elassandra"

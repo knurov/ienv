@@ -1,0 +1,88 @@
+---
+all:
+  children:
+    RootCellar:
+      vars:
+        ansible_user: sysadm
+        ansible_ssh_pass: zaq!2345
+        ansible_become: true
+        ansible_become_method: sudo
+        ansible_become_user: root
+        ansible_become_pass: zaq!2345
+      children:
+# Основные роли
+        # config-interfaces:
+        #   hosts:
+        #     bev-mhpi.rc.local:
+        repo:
+          hosts:
+            bev-mhpi.rc.local:
+          vars:
+            apt_repository:
+              - deb http://aptly.rc.local/astra smolensk main contrib non-free
+              - deb http://aptly.rc.local/sc SC main testing
+            repositories_keys:
+              - http://aptly.rc.local/rc.center.sc.gpg.key
+
+        postgres:
+          hosts:
+            bev-mhpi.rc.local:
+
+        oauth-server:
+          hosts:
+            bev-mhpi.rc.local:
+              oauth_db_server: bev-mhpi.rc.local
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+
+        oauth-webadmin:
+          hosts:
+            bev-mhpi.rc.local:
+              oauth_db_server: bev-mhpi.rc.local
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+              oauth_server: bev-mhpi.rc.local
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+
+        oauth-account:
+          hosts:
+            bev-mhpi.rc.local:
+              oauth_db_server: bev-mhpi.rc.local
+              oauth_server: bev-mhpi.rc.local
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+              oauth_account: bev-mhpi.rc.local
+              account_id: '4567738254125'
+              account_key: MKUs3L
+
+        mhpi:
+          hosts:
+            bev-mhpi.rc.local:
+              activemq_server: piv.scb.in
+              oauth_server: bev-mhpi.rc.local
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              filestorage_ss_name: filestorage
+              dv_server_db_name: dvserver
+              dv_server_ss_name: dv-server
+              dv_server_db_server: bev-mhpi.rc.local
+              dv_server_db_user: postgres
+              dv_server_db_pass: postgres
+              runner_db_server: bev-mhpi.rc.local
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_db_user: postgres
+              runner_db_pass: postgres
+              runnerm_ss_name: runner-manager
+              runnerm_db_name: runner
+              runnerm_db_user: postgres
+              runnerm_db_pass: postgres
+              constructor_db_server: bev-mhpi.rc.local
+              constructor_ss_name: constructor
+              constructor_db_name: constructor
+              constructor_db_user: postgres
+              constructor_db_pass: postgres

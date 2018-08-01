@@ -1,0 +1,3 @@
+packages:
+    - bind9
+    - bind9-host

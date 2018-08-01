@@ -1,0 +1,8 @@
+auto lo
+iface lo inet loopback
+
+auto {{ host.interface }}
+iface {{ host.interface }} inet static
+        address {{ host.ip }}
+        netmask {{ host.netmask }}
+        gateway {{ host.gateway }}

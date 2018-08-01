@@ -1,0 +1,27 @@
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: present
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Отключить Parsec в pam
+    replace:
+      path: "{{ item }}"
+      regexp: '^\s*(.*pam_parsec_mac\.so.*)$'
+      replace: '# \1'
+    with_items:
+      - /etc/pam.d/login
+      - /etc/pam.d/passwd
+      - /etc/pam.d/common-account
+      - /etc/pam.d/fly-dm
+      - /etc/pam.d/fly-dm-np
+
+  - name: Удаление ненужных пакетов
+    apt:
+      name: "{{item}}"
+      state: absent
+    with_items:
+      - fly-admin-wicd

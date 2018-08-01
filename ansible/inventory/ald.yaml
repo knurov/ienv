@@ -1,0 +1,79 @@
+---
+all:
+  children:
+    RootCellar:
+      children:
+        proxmox:
+          vars:
+            proxmox_user: 'a.knurov@ldap.rc.center'
+            proxmox_passwd: !vault |
+              $ANSIBLE_VAULT;1.1;AES256
+              34393166643333353764373638353734626632393266613236303938343834336664323331313465
+              3065343231316263393232646438386438643934653032350a613434346465646163343464623862
+              30646462336638643836383865343534633463366461353833393465623165346338323163633039
+              3663653434353439310a656531646436353633323834363834303631313132346532643166313935
+              3439
+            ansible_become: true
+            ansible_become_method: sudo
+            ansible_become_user: root
+            ansible_become_pass: !vault |
+              $ANSIBLE_VAULT;1.1;AES256
+              34393166643333353764373638353734626632393266613236303938343834336664323331313465
+              3065343231316263393232646438386438643934653032350a613434346465646163343464623862
+              30646462336638643836383865343534633463366461353833393465623165346338323163633039
+              3663653434353439310a656531646436353633323834363834303631313132346532643166313935
+              3439
+          hosts:
+            proxmox.rc.center:
+        proxmox_VMs:
+        #   hosts:
+        #     sc-node-1.rc.local:
+        #       # vars:
+        #       #   mac: 6A:99:D9:83:C5:A7
+        #       #   bridge: vmbr0
+        #     sc-node-2.rc.local:
+        #       # vars:
+        #       #   mac: 92:00:83:64:05:8C
+        #       #   bridge: vmbr0
+        #     sc-node-3.rc.local:
+        #       # vars:
+        #       #   mac: 62:8C:55:3D:B1:86
+        #       #   bridge: vmbr0
+        dhcpd-fixed:
+          # hosts:
+          #   openvpn:
+          #     vars:
+          #       include_path: /etc/dhcp/dhcpd.fixed
+        common:
+          hosts:
+            ald-server.rc.local:
+            ald-client.rc.local:
+        ssh:
+          # hosts:
+        java-app:
+          # hosts:
+        activemq:
+          # hosts:
+        ldap:
+          # hosts:
+        dbv:
+          # hosts:
+        bareos-fd:
+          # hosts:
+        bareos-dir:
+          # hosts:
+        server-tools:
+          # hosts:
+        sudo-user:
+          # hosts:
+        repo:
+          hosts:
+            ald-server.rc.local:
+            ald-client.rc.local:
+        cluster:
+          # hosts:
+      vars:
+        ansible_become: true
+        ansible_become_method: su
+        ansible_become_user: root
+        ansible_become_pass: zaq!2345

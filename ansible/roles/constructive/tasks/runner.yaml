@@ -1,0 +1,78 @@
+  - name: Добавление подсистемы Runner
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/system
+      method: POST
+      body: '{"name": "{{ansible_hostname + "-" + runner_ss_name}}", "secret": "", "authorizedGtPassword": true, "authorizedGtCode": true, "authorizedGtRefreshToken": true, "authorizedGtClientCredentials": true, "accessTokenValidity": "43200", "refreshTokenValidity": "604800", "webServerRedirectUri": "http://{{inventory_hostname}}:8082/web-api/login/code", "description": "", "createUser": "{{createuser.json.user_name}}"}'
+      body_format: json
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+      status_code: 201
+      return_content: yes
+    register: system
+
+  - name: Добавление пермишена для Runner
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/system/{{system.json.id}}/permissions
+      method: PUT
+      body: '{"code": "{{item.code}}", "name": "{{item.name}}"}'
+      body_format: json
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+      return_content: yes
+    with_items:
+      - code: DICTIONARY_VIEW
+        name: DICTIONARY_VIEW
+      - code: DICTIONARY_UPDATE
+        name: DICTIONARY_UPDATE
+      - code: SYSTEM_MANAGE
+        name: SYSTEM_MANAGE
+
+  - name: Добавление пермишена в роль Runner
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/role/{{item.role}}/permissions/{{system.json.id}}
+      method: PUT
+      body: '[{{ item.pc | join(", ") }}]'
+      # body: '{{ item.pc | join(", ") | to_json }}'
+      body_format: json
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+      return_content: yes
+    with_items:
+      - role: SUPERUSER
+        pc:
+        - '"DICTIONARY_VIEW"'
+        - '"DICTIONARY_UPDATE"'
+      - role: AOUTH_SERVER_ADMIN
+        pc:
+        - '"DICTIONARY_VIEW"'
+      - role: GUEST
+        pc:
+        - '"DICTIONARY_VIEW"'
+      - role: APPLICATION_CLIENT
+        pc:
+        - '"SYSTEM_MANAGE"'
+
+  - name: Активация регистрации Runner`a
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/system/{{system.json.id}}/activation
+      method: PUT
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+
+  - name: Файл кофигурации Runner
+    template:
+      src: runner.j2
+      dest: "/etc/constructive/runner.yml"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+    notify:
+      - Перезапуск Runner
+
+  - name: Файл кофигурации Runner-upgrademode
+    template:
+      src: runner-upgrademode.j2
+      dest: "/opt/runner/application-upgrademode.yml"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+    notify:
+      - Перезапуск Runner

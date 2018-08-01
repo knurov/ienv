@@ -1,0 +1,86 @@
+---
+- name: Add GitLab's official repository
+  shell: curl -L https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh | bash
+  when: ansible_distribution == 'Debian'
+  tags:
+    - install-pkg
+
+- name: Add GitLab's LFS
+  shell: curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
+  when: ansible_distribution == 'Debian'
+  tags:
+    - install-pkg
+
+- name: Update apt cache.
+  apt: update_cache=yes cache_valid_time=3600
+  tags:
+    - install-pkg
+
+- name: Ensure packages is installed.
+  apt: "name={{ item }} state={{ git_packages_state }}"
+  with_items: "{{ git_packages }}"
+  when: ansible_distribution == 'Debian'
+  tags:
+    - install-pkg
+
+- name: Ensure astra packages is installed.
+  apt: "name={{ item }} state={{ git_packages_state }}"
+  with_items: "{{ astra_packages }}"
+  when: ansible_distribution != 'Debian'
+  tags:
+    - install-pkg
+
+- name: Set concurrent option
+  lineinfile:
+    dest: /etc/gitlab-runner/config.toml
+    regexp: ^concurrent =
+    line: concurrent = {{ gitlab_runner_concurrent }}
+    state: present
+  tags:
+    - set-cpu
+    - reg-runner
+
+- name: List configured runners
+  command: gitlab-runner list
+  register: configured_runners
+  changed_when: False
+  tags:
+    - reg-runner
+
+
+- name: UnRegister runner to GitLab
+  command: gitlab-runner unregister -n '{{ item.description }}'
+  with_items:
+    '{{gitlab_runner}}'
+  ignore_errors: yes
+  # when: configured_runners.stderr.find(ansible_hostname) == -1
+  tags:
+    - reg-runner
+
+- name: Register runner to GitLab
+  command: gitlab-runner register >
+    --non-interactive
+    --url '{{ coordinator_url }}'
+    --registration-token '{{ item.registration_token }}'
+    --description '{{ item.description }}'
+    --tag-list '{{ item.tags | join(",") }}'
+    --executor '{{ item.executor }}'
+    --docker-image '{{ item.docker_image }}'
+    --env '{{ item.enviroment }}'
+  with_items:
+    '{{gitlab_runner}}'
+  # when: configured_runners.stderr.find(ansible_hostname) == -1
+  tags:
+    - reg-runner
+
+- name: Добавить sudo на отдельные приложения
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    line: 'gitlab-runner	ALL=(root) NOPASSWD: {{ item }}'
+    validate: 'visudo -cf %s'
+  with_items:
+    - /usr/bin/apt-get
+    - /usr/sbin/service
+  tags:
+    - runner-sudo

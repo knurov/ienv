@@ -1,0 +1,64 @@
+---
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - dbv
+      - install
+
+  - name: Установить DHCP/BIND/VPN
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - dbv
+      - install
+
+  - name: Включить автозапуск служб DHCP/BIND/VPN
+    service:
+      name: "{{ item }}"
+      enabled: yes
+      state: started
+    with_items: "{{ packages }}"
+    tags:
+      - dbv
+      - install
+
+  - name: Создать каталог для кастомных фактов
+    file:
+      path: "/etc/ansible/facts.d"
+      state: "directory"
+    tags:
+      - dbv
+      - config
+
+  - name: записать в факты об установленных сервисах
+    ini_file:
+      path: /etc/ansible/facts.d/services.fact
+      state: present
+      create: yes
+      section: general
+      option: "{{ item }}"
+      value: True
+      no_extra_spaces: yes
+    with_items: "{{ packages }}"
+    tags:
+      - dbv
+      - config
+
+
+  - name: setup
+    setup: filter=ansible_local
+    tags:
+      - dbv
+      - config
+
+  # - name: debug
+  #   debug:
+  #     msg: "{{ item }}"
+  #   with_items: "{{ ansible_local.services.general.keys() }}"
+
+  # - name: stop!!!!
+  #   fail:
+  #     msg: "ну хватит"

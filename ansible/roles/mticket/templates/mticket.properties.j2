@@ -1,0 +1,40 @@
+# suppress inspection "SpringBootApplicationProperties" for whole file
+server.contextPath = /
+server.port = {{mticket_port}}
+#тип работы с БД
+spring.jpa.hibernate.ddl-auto = validate
+logging.file=logs/app.log
+
+#spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.url = jdbc:postgresql://{{mticket_db_server}}:5432/{{mticket_db_name}}
+spring.datasource.username = {{mticket_db_user}}
+spring.datasource.password = {{mticket_db_pass}}
+spring.jpa.database = postgresql
+#spring.jpa.show-sql=true
+#logging.level.org.springframework.security=INFO
+logging.level.center.rc.mticket = INFO
+
+#properties for JMS
+spring.activemq.broker-url=tcp://{{activemq_server}}:61616
+spring.activemq.ticket.destination = mailTicket
+spring.activemq.event.destination = mailEvent
+
+#properties for oauth
+oauth2.client.authorization-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/authorize
+oauth2.client.id = {{system.json.id}}
+oauth2.client.client-secret = {{system.json.secret}}
+oauth2.client.check-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/check_token
+oauth2.client.access-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/token
+oauth2.client.revoke-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/revoke
+oauth2.login.success.uri = http://{{inventory_hostname}}:{{mticket_port}}/tickets/New/Request/1/1
+oauth2.client.scope = read
+oauth.callback.redirect = /redirect
+
+#properties for scheduler
+scheduler.ticket.period = 2
+scheduler.ticket.cron = 0 17 17 * *  ?
+
+#flyway properties
+flyway.user=postgres
+flyway.password=postgres
+flyway.schemas=public

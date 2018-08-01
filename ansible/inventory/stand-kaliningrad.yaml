@@ -1,0 +1,355 @@
+---
+all:
+  children:
+    RootCellar:
+      children:
+# Роль PXElinux
+        pxe:
+          vars:
+            host:
+              interface: eth0
+              ip: 10.0.10.254
+              netmask: 255.255.255.0
+              subnet: 10.0.10.0
+              gateway: 10.0.10.1
+              domain: kgd
+            data:
+              dir: /mnt/sc-data
+              astra: /mnt/sc-data/Astra
+              netinstall: /mnt/sc-data/Astra/netinst
+            user:
+              name: sysadm
+              password: zaq!2345
+              password-enc: $6$eKPC2sTXNoLzLdMh$TTtRxXX/d41lW4vCCtTb3xK2WIx/Ut9QS6i5FMxTEbVDlDnDXISk9PctoVN.QemYg3bBO6j8diM5A.kMVOFX9.
+            ansible_connection: local
+            ansible_ssh_user: root
+            ansible_ssh_pass: zaq!2345
+
+          hosts:
+            localhost:
+              connection: local
+
+# Основные роли
+        config-interfaces:
+          hosts:
+            pvvo.kgd:
+            pvvo-inner.kgd:
+            integra.kgd:
+            manager.kgd:
+            arm.kgd:
+
+        poor-astra:
+          hosts:
+            pvvo.kgd:
+            pvvo-inner.kgd:
+            integra.kgd:
+            manager.kgd:
+            arm.kgd:
+
+        repo:
+          hosts:
+            pvvo.kgd:
+            pvvo-inner.kgd:
+            integra.kgd:
+            manager.kgd:
+            arm.kgd:
+          vars:
+            apt_repository:
+              - deb http://10.0.0.241/astra smolensk main contrib non-free
+              - deb http://10.0.0.241/sc SC main testing
+            repositories_keys:
+              - http://10.0.0.241/rc.center.sc.gpg.key
+
+        oauth-server:
+          hosts:
+            manager.kgd:
+              oauth_db_server: manager.kgd
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+              oauth_server_port: 8081
+
+        oauth-webadmin:
+          hosts:
+            manager.kgd:
+              oauth_db_server: manager.kgd
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+              oauth_webadmin_port: 8085
+              oauth_server: manager.kgd
+              oauth_server_port: 8081
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+
+        oauth-account:
+          hosts:
+            manager.kgd:
+              oauth_db_server: manager.kgd
+              oauth_server: manager.kgd
+              oauth_server_port: 8081
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+              oauth_account: manager.kgd
+              oauth_account_port: 8089
+              account_id: '4567738254125'
+              account_key: MKUs3L
+
+        piv-server:
+          hosts:
+            integra.kgd:
+              oauth_server: manager.kgd
+              oauth_server_port: 8081
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              mhpi_server: integra.kgd
+              mhpi_port: 8082
+              activemq_server: integra.kgd
+              piv_db_server: integra.kgd
+              piv_db_name: repo
+              piv_db_user: postgres
+              piv_db_pass: postgres
+              piv_server_port: 8091
+              piv_conn_name: repo_connection
+              piv_repo_name: repo_remote
+              scheduler_ss_name: scheduler
+              scheduler_server_port: 8081
+              mticket_ss_name: mticket
+              mticket_db_server: integra.kgd
+              mticket_port: 8088
+              mticket_db_name: mticket
+              mticket_db_user: postgres
+              mticket_db_pass: postgres
+              mip_ss_name: mip
+              mip_db_server: integra.kgd
+              mip_port: 8079
+              mip_db_name: mip
+              mip_db_user: postgres
+              mip_db_pass: postgres
+
+        piv-client:
+          hosts:
+            integra.kgd:
+              piv_client_port: 8090
+
+        mupp:
+          hosts:
+            manager.kgd:
+              oauth_server: manager.kgd
+              oauth_server_port: 8081
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              mhpi_server: integra.kgd
+              mhpi_port: 8082
+              runner_db_server: manager.kgd
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_port: 8082
+              runner_db_user: postgres
+              runner_db_pass: postgres
+              runnerm_ss_name: runner-manager
+              runnerm_db_name: runner
+              runnerm_port: 8083
+              runnerm_db_user: postgres
+              runnerm_db_pass: postgres
+              constructor_db_server: manager.kgd
+              constructor_ss_name: constructor
+              constructor_db_name: constructor
+              constructor_port: 8080
+              constructor_db_user: postgres
+              constructor_db_pass: postgres
+
+        pvvo:
+          hosts:
+            pvvo.kgd:
+              oauth_server: manager.kgd
+              oauth_server_port: 8081
+              oauth_account_port: 8089
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              runner_db_server: pvvo.kgd
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_port: 8082
+              runner_db_user: postgres
+              runner_db_pass: postgres
+              runnerm_ss_name: runner-manager
+              runnerm_db_name: runner
+              runnerm_port: 8083
+              runnerm_db_user: postgres
+              runnerm_db_pass: postgres
+              constructor_db_server: pvvo.kgd
+              constructor_ss_name: constructor
+              constructor_db_name: constructor
+              constructor_port: 8080
+              constructor_db_user: postgres
+              constructor_db_pass: postgres
+
+        pvvo-inner:
+          hosts:
+            pvvo-inner.kgd:
+              oauth_server: manager.kgd
+              oauth_server_port: 8081
+              oauth_webadmin_port: 8085
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              runner_db_server: pvvo-inner.kgd
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_port: 8082
+              runner_db_user: postgres
+              runner_db_pass: postgres
+
+        mhpi:
+          hosts:
+            integra.kgd:
+              activemq_server: integra.kgd
+              oauth_server: manager.kgd
+              oauth_server_port: 8081
+              oauth_account_port: 8089
+              mticket_port: 8088
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              filestorage_ss_name: filestorage
+              dv_server_db_name: dvserver
+              dv_server_ss_name: dv-server
+              dv_server_port: 8087
+              dv_server_db_server: integra.kgd
+              dv_server_db_user: postgres
+              dv_server_db_pass: postgres
+              runner_db_server: integra.kgd
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_port: 8082
+              runner_db_user: postgres
+              runner_db_pass: postgres
+              runnerm_ss_name: runner-manager
+              runnerm_db_name: runner
+              runnerm_db_user: postgres
+              runnerm_db_pass: postgres
+              runnerm_port: 8083
+              constructor_db_server: integra.kgd
+              constructor_ss_name: constructor
+              constructor_db_name: constructor
+              constructor_port: 8080
+              constructor_db_user: postgres
+              constructor_db_pass: postgres
+
+        bind:
+          hosts:
+            manager.kgd:
+
+        contour-server:
+          hosts:
+            integra.kgd:
+
+        psi:
+          hosts:
+            pvvo.kgd:
+
+        postgres:
+          hosts:
+            pvvo.kgd:
+            pvvo-inner.kgd:
+            integra.kgd:
+            manager.kgd:
+
+        nginx:
+          hosts:
+            pvvo.kgd:
+            pvvo-inner.kgd:
+            integra.kgd:
+            manager.kgd:
+
+        repo-copy:
+          hosts:
+            manager.kgd:
+
+        desktop-astra:
+          hosts:
+            arm.kgd:
+
+        ald-server:
+          hosts:
+            manager.kgd:
+
+        ald-client:
+          hosts:
+            pvvo.kgd:
+            pvvo-inner.kgd:
+            integra.kgd:
+            manager.kgd:
+            arm.kgd:
+
+        landingpage:
+          hosts:
+            manager.kgd:
+              sity: Калининград
+
+      vars:
+        object_list:
+          groups:
+            ex:
+              domain: kgd
+              dns: 10.0.10.115
+              subnet: 10.0.10.0
+              netmask: 255.255.255.0
+              hosts:
+                10.0.10.111:
+                  network:
+                    - mac: 56-e5-b7-0a-c9-68
+                      ip: 10.0.10.111
+                      hostname: pvvo
+                      domain: kgd
+                      dns: 10.0.10.115
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                      gateway: 10.0.10.1
+                10.0.10.112:
+                  network:
+                    - mac: c2-6f-cd-7c-59-7e
+                      ip: 10.0.10.112
+                      hostname: pvvo-inner
+                      domain: kgd
+                      dns: 10.0.10.115
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                      gateway: 10.0.10.1
+                10.0.10.113:
+                  network:
+                    - mac: 02-d4-0b-22-87-e1
+                      ip: 10.0.10.113
+                      hostname: integra
+                      domain: kgd
+                      dns: 10.0.10.115
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                      gateway: 10.0.10.1
+                10.0.10.115:
+                  network:
+                    - mac: 0e-04-b9-c6-88-c6
+                      ip: 10.0.10.115
+                      hostname: manager
+                      domain: kgd
+                      dns: 10.0.10.115
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                      gateway: 10.0.10.1
+                10.0.10.116:
+                  network:
+                    - mac: 96-8d-9f-12-f6-e5
+                      ip: 10.0.10.116
+                      hostname: arm
+                      domain: kgd
+                      dns: 10.0.10.115
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                      gateway: 10.0.10.1
+
+        ansible_user: sysadm
+        ansible_ssh_pass: zaq!2345
+        ansible_become: true
+        ansible_become_method: sudo
+        ansible_become_user: root
+        ansible_become_pass: zaq!2345

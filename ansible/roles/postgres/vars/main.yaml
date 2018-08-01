@@ -1,0 +1,6 @@
+user: postgres
+packages:
+    - postgresql
+    - python-psycopg2
+    - python-lxml
+    - postgresql-contrib

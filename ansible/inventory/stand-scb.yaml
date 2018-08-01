@@ -1,0 +1,311 @@
+---
+all:
+  children:
+    RootCellar:
+      children:
+        # apache:
+        #   hosts:
+        #     scb-oauth.rc.local:
+        #     scb-exd.rc.local:
+        #     scb-mupp.rc.local:
+        #     scb-integ.rc.local:
+        #     scb-portal.rc.local:
+        proxmox:
+          vars:
+            proxmox_user: 'sysadm@ldap.rc.center'
+            proxmox_passwd: zaq!2345
+            ansible_become_method: sudo
+          hosts:
+            proxmox.rc.center:
+        proxmox_VMs:
+          # hosts:
+          #   scb-portal-inner.rc.local:
+          #     ip: 10.0.0.46
+          #     template: Astra-1.5
+          #     pool: scb
+            # scb-oauth.rc.local:
+            #   ip: 10.0.0.35
+            #   template: Astra-1.5
+            #   pool: scb
+            # scb-exd.rc.local:
+            #   ip: 10.0.0.36
+            #   template: Astra-1.5
+            #   pool: scb
+            # scb-mupp.rc.local:
+            #   ip: 10.0.0.37
+            #   template: Astra-1.5
+            #   pool: scb
+            # scb-integ.rc.local:
+            #   ip: 10.0.0.38
+            #   template: Astra-1.5
+            #   pool: scb
+            # scb-portal.rc.local:
+            #   ip: 10.0.0.39
+            #   template: Astra-1.5
+            #   pool: scb
+        repo:
+          hosts:
+            scb-portal-inner.rc.local:
+            scb-oauth.rc.local:
+            scb-exd.rc.local:
+            scb-mupp.rc.local:
+            scb-integ.rc.local:
+            scb-portal.rc.local:
+          vars:
+            apt_repository:
+              - deb http://aptly.rc.local/sc SC main testing
+              - deb http://aptly.rc.local/astra smolensk contrib main non-free
+              - deb http://aptly.rc.local/astra-build wheezy main
+              - deb http://aptly.rc.local/astra-dev smolensk main
+            exclude_apt_repository:
+              - deb http://aptly.rc.local/astra-build smolensk main
+              - deb ftp://astra-repo/build smolensk main
+              - deb ftp://astra-repo/sc smolensk main
+              - deb http://aptly.rc.local/sc sc main testing
+              - deb http://aptly.rc.local sc main testing
+              - deb http://aptly.rc.local SC main testing
+              - deb http://aptly.rc.local/ sc main testing
+              - deb http://aptly.rc.local/ SC main testing
+              - deb ftp://astra-repo/stable smolensk contrib main non-free
+              - deb ftp://astra-repo/dev smolensk contrib main non-free
+              - deb ftp://astra-repo/test smolensk main
+              - deb ftp://astra-repo/27102017SE15 smolensk contrib main non-free
+            repositories_keys:
+              - http://aptly.rc.local/rc.center.build.gpg.key
+              - http://aptly.rc.local/rc.center.sc.gpg.key
+        dhcpd-fixed:
+          hosts:
+            openvpn:
+              include_path: /etc/dhcp/dhcpd.conf
+        common:
+          hosts:
+            scb-portal-inner.rc.local:
+            # scb-oauth.rc.local:
+            # scb-exd.rc.local:
+            # scb-mupp.rc.local:
+            # scb-integ.rc.local:
+            # scb-portal.rc.local:
+        ssh:
+          hosts:
+            scb-portal-inner.rc.local:
+            # scb-oauth.rc.local:
+            # scb-exd.rc.local:
+            # scb-mupp.rc.local:
+            # scb-integ.rc.local:
+            # scb-portal.rc.local:
+        java-app:
+          # hosts:
+          #   scb-portal-inner.rc.local:
+            # scb-oauth.rc.local:
+            # scb-exd.rc.local:
+            # scb-mupp.rc.local:
+            # scb-integ.rc.local:
+            # scb-portal.rc.local:
+        activemq:
+          # hosts:
+        ldap:
+          # hosts:
+        dbv:
+          # hosts:
+        bareos-fd:
+          # hosts:
+        bareos-dir:
+          # hosts:
+        server-tools:
+          hosts:
+            scb-portal-inner.rc.local:
+            # scb-oauth.rc.local:
+            # scb-exd.rc.local:
+            # scb-mupp.rc.local:
+            # scb-integ.rc.local:
+            # scb-portal.rc.local:
+        sudo-user:
+          hosts:
+            scb-portal-inner.rc.local:
+            # scb-oauth.rc.local:
+            # scb-exd.rc.local:
+            # scb-mupp.rc.local:
+            # scb-integ.rc.local:
+            # scb-portal.rc.local:
+        astra-build-gosjava:
+          # hosts:
+          #   astra-build-java.rc.local:
+        cluster:
+        #   # hosts:
+        nginx:
+          hosts:
+            scb-exd.rc.local:
+              subsystems:
+                  - mhpi
+            scb-mupp.rc.local:
+              subsystems:
+                  - mupp
+            scb-integ.rc.local:
+              subsystems:
+                  - piv
+            scb-portal.rc.local:
+              subsystems:
+                  - pvvo
+            scb-portal-inner.rc.local:
+              subsystems:
+                  - pvvo-inner
+        frontend:
+          hosts:
+            scb-exd.rc.local:
+              subsystems:
+                  - mhpi
+            scb-mupp.rc.local:
+              subsystems:
+                  - mupp
+            scb-integ.rc.local:
+              subsystems:
+                  - piv
+            scb-portal.rc.local:
+              subsystems:
+                  - pvvo
+            scb-portal-inner.rc.local:
+              subsystems:
+                  - pvvo-inner
+        constructive_mvn:
+          hosts:
+            scb-portal-inner.rc.local:
+              artifactory_repository:
+                - artifact_id: runner
+                  group_id: ru.constructive
+                  repository: constructive-release-local
+                  config_path: BOOT-INF/classes
+                  config: application.yml
+                  database: ''
+                  migration: ''
+                - artifact_id: constructor
+                  group_id: ru.constructive
+                  repository: constructive-release-local
+                  config_path: BOOT-INF/classes
+                  config: application.properties
+                  database: ''
+                  migration: ''
+                - artifact_id: runner-manager
+                  group_id: ru.constructive
+                  repository: constructive-release-local
+                  config_path: BOOT-INF/classes
+                  config: application.properties
+                  database: ''
+                  migration: ''
+            scb-exd.rc.local:
+            scb-mupp.rc.local:
+            scb-integ.rc.local:
+            scb-portal.rc.local:
+          vars:
+              artifactory_repository:
+                - artifact_id: runner
+                  group_id: ru.constructive
+                  repository: constructive-release-local
+                  config_path: BOOT-INF/classes
+                  config: application.yml
+                  database: runner
+                  migration: ''
+                - artifact_id: constructor
+                  group_id: ru.constructive
+                  repository: constructive-release-local
+                  config_path: BOOT-INF/classes
+                  config: application.properties
+                  database: constructor
+                  migration: ''
+                  # migration: db.migration/V1.1.1_1__Project.sql #Отключено обновление обновление структуры бд конструктора
+                - artifact_id: runner-manager
+                  group_id: ru.constructive
+                  repository: constructive-release-local
+                  config_path: BOOT-INF/classes
+                  config: application.properties
+                  database: ''
+                  migration: ''
+        oauth:
+          hosts:
+            scb-oauth.rc.local:
+          vars:
+              artifactory_repository:
+                - artifact_id: oauth-server
+                  group_id: rc.center.oauth.server
+                  repository: oauth-server-release-local
+                  config_path: BOOT-INF/classes
+                  config: application.properties
+                  database: oauth
+                  migration: ''
+                - artifact_id: oauth-web-admin
+                  group_id: rc.center.oauth.server
+                  repository: oauth-server-release-local
+                  config_path: BOOT-INF/classes
+                  config: application.properties
+                  database: ''
+                  migration: ''
+        contour-server:
+          hosts:
+            scb-qemu.rc.local:
+        psi:
+          hosts:
+            scb-portal.rc.local:
+        elassandra:
+          hosts:
+            scb-exd.rc.local:
+        gitlab-agent:
+          vars:
+            coordinator_url: 'http://gitlab.rc.center/'
+          hosts:
+            # scb-integ.rc.local:
+            #   gitlab_runner:
+            #     - registration_token: 'dousyutss7wyzpk-PNyR'
+            #       description: 'piv-frontend'
+            #       executor: 'shell'
+            #       docker_image: ''
+            #       tags: [deploy]
+            #       enviroment: 'stand-scb'
+            # scb-exd.rc.local:
+            #   gitlab_runner:
+            #     - registration_token: 'DyKDyFP8NH59-HfNo6v8'
+            #       description: 'mhpi-frontend'
+            #       executor: 'shell'
+            #       docker_image: ''
+            #       tags: [deploy]
+            #       enviroment: 'stand-scb'
+            # scb-mupp.rc.local:
+            #   gitlab_runner:
+            #     - registration_token: 'ULwvWV9y9_aDwou8Tuo2'
+            #       description: 'mupp-frontend'
+            #       executor: 'shell'
+            #       docker_image: ''
+            #       tags: [deploy]
+            #       enviroment: 'stand-scb'
+            # scb-portal.rc.local:
+            #   gitlab_runner:
+            #     - registration_token: 'yR4u57ug-nherXZxZ91T'
+            #       description: 'pvvo-frontend'
+            #       executor: 'shell'
+            #       docker_image: 'stand-scb'
+            #       tags: [deploy]
+            #       enviroment: ''
+            scb-portal.rc.local:
+              gitlab_runner:
+                - registration_token: 'zmDxnH6rgkucbeQVUfy9'
+                  description: 'psi-2.7'
+                  executor: 'shell'
+                  docker_image: ''
+                  tags: [deploy]
+                  enviroment: 'stand-scb'
+            # scb-portal-inner.rc.local:
+            #   gitlab_runner:
+            #     - registration_token: 'g9MCzaXmAs7FFLx7PdWG'
+            #       description: 'pvvo-inner-frontend'
+            #       executor: 'shell'
+            #       docker_image: ''
+            #       tags: [deploy]
+            #       enviroment: 'stand-scb'
+
+      vars:
+        postgres_user: postgres
+        postgres_password: postgres
+        ansible_user: sysadm
+        ansible_ssh_pass: zaq!2345
+        ansible_become: true
+        ansible_become_method: sudo
+        ansible_become_user: root
+        ansible_become_pass: zaq!2345

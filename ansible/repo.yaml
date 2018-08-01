@@ -1,0 +1,21 @@
+---
+
+- hosts: all
+  gather_facts: False
+  tasks:
+
+  - name: Заполнить known_hosts на локальной машине
+    local_action:
+      module: known_hosts
+      name: "{{ inventory_hostname }}"
+      key: "{{ lookup('pipe', 'ssh-keyscan {{ inventory_hostname }}') }}"
+      state: present
+    become: no
+    tags:
+      - always
+
+- hosts: repo-copy
+  roles:
+    - repo-copy
+  tags:
+    - repo-copy

@@ -1,0 +1,97 @@
+---
+# Работает только для http така ка используем ftp - будем жонглировать файликами!!!!
+#   - name: Добавить ключи для репозиториев
+#     apt_key:
+#       url: "{{item}}"
+#       state: present
+#     with_items: "{{ repositories_keys }}"
+#     tags:
+#       - common
+#       - install
+
+  # - debug: msg="{{item}}"
+  #   with_items: "{{ hostvars[inventory_hostname].repositories }}"
+
+  - name: Скачать ключи
+    get_url:
+      url: "{{item}}"
+      dest: /tmp/
+    with_items: "{{ hostvars[inventory_hostname].repositories_keys }}"
+    register: repositories_keys_result
+    tags:
+      - install
+
+  # - debug: msg="{{item.dests}}"
+  #   with_items: "{{ repositories_keys_result.results }}"
+
+  - name: Добавить ключи для репозиториев
+    apt_key:
+      file: "{{item.dest}}"
+      state: present
+    with_items: "{{ repositories_keys_result.results }}"
+    tags:
+      - install
+
+  # - name: Убрать репозитории (чтобы избежать дубликатов)
+  #   lineinfile:
+  #     path: /etc/apt/sources.list.d/*.list
+  #     regexp: ^\s*#+\s*{{ item }}\s*$
+  #     state: absent
+  #   with_items: "{{ hostvars[inventory_hostname].repositories }}"
+  #   tags:
+  #     - repo
+  #     - install
+  #
+
+  # - name: Удалить репозитории
+  #   debug:
+  #     msg: "{{ item }}"
+  #   with_items: "{{ hostvars[inventory_hostname].exclude_apt_repository | union( hostvars[inventory_hostname].apt_repository )}}"
+  #   tags:
+  #     - repo
+  #     - install
+
+
+  # - name: Удалить репозитории
+  #   apt_repository:
+  #     repo: "{{ item }}"
+  #     state: absent
+  #     update_cache: no
+  #   with_items: "{{ hostvars[inventory_hostname].exclude_apt_repository | union( hostvars[inventory_hostname].apt_repository )}}"
+  #   tags:
+  #     - install
+
+  - name: Найти подключенные репизитории
+    find:
+      paths: /etc/apt/sources.list.d/
+      patterns: "*.list"
+    register: files_to_delete
+
+  - name: Удалить репозитории
+    file:
+      state: absent
+      path: "{{ item.path }}"
+    with_items: "{{ files_to_delete.files }}"
+
+  - name: Закоментировать неизвесные репозитории
+    lineinfile:
+      path: /etc/apt/sources.list
+      regexp: '^\s*[^\#]\s*(.*)$'
+      line: '# \1'
+      backrefs: yes
+    tags:
+      - install
+
+  - name: Добавить репозитории
+    apt_repository:
+      repo: "{{ item }}"
+      state: present
+    with_items: "{{ hostvars[inventory_hostname].apt_repository }}"
+    tags:
+      - install
+
+  - name: update apt
+    apt:
+      update_cache: yes
+    tags:
+      - install

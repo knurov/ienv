@@ -1,0 +1,32 @@
+#!/usr/bin/python
+
+qemu_vm_path = '/etc/pve/local/qemu-server/'
+# qemu_vm_path = '/tmp/qemu-server/'
+
+import os
+import json
+import re
+
+res = {}
+name_pattern = u'name:\s*(.*)\s*'
+net_pattern = u'(net\d):.*=(.*),'
+
+if not os.path.exists(qemu_vm_path):
+    print json.dumps({})
+    exit(0)
+
+for filename in os.listdir(qemu_vm_path):
+    if filename.endswith(".conf"):
+        vm_description = {}
+        name = None
+        for line in open(os.path.join(qemu_vm_path, filename), 'r'):
+            searchres = re.search(name_pattern, line)
+            if searchres and searchres.group(1):
+                res[searchres.group(1)] = vm_description
+            searchres = re.search(net_pattern, line)
+            if searchres and searchres.group(1) and searchres.group(2):
+                vm_description[searchres.group(1)] = searchres.group(2)
+                break
+
+print json.dumps(res)
+exit(0)

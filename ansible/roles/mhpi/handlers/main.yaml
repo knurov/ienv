@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск Nginx
+    service: name=nginx state=restarted
+    listen: "Перезапуск Nginx"

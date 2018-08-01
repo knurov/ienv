@@ -1,0 +1,140 @@
+---
+all:
+  children:
+    RootCellar:
+      children:
+        apache:
+          # hosts:
+        proxmox:
+          vars:
+            proxmox_user: 'sysadm@ldap.rc.center'
+            proxmox_passwd: zaq!2345
+            ansible_become_method: sudo
+          hosts:
+            proxmox.rc.center:
+        proxmox_VMs:
+          # hosts:
+          #   .rc.local:
+          #     ip:
+          #     template:
+          #     pool:
+        repo:
+          # hosts:
+          #   .rc.local:
+          # vars:
+          #   apt_repository:
+          #     - deb :/// smolensk contrib main non-free
+          #   exclude_apt_repository:
+          #   repositories_keys:
+          #     - :///test/rc.center.test.gpg.key
+          hosts:
+            elassandra.rc.local:
+          vars:
+            apt_repository:
+              - deb ftp://astra-repo/stable smolensk contrib main non-free
+              - deb ftp://astra-repo/dev smolensk contrib main non-free
+              - deb ftp://astra-repo/test smolensk main
+            exclude_apt_repository:
+              - deb ftp://astra-repo/sc smolensk main
+              - deb http://aptly.rc.local/ SC main testing
+              - deb ftp://astra-repo/27102017SE15 smolensk contrib main non-free
+              - deb ftp://astra-repo/build smolensk main
+            repositories_keys:
+              - ftp://astra-repo/test/rc.center.test.gpg.key
+              - http://aptly.rc.local/rc.center.sc.gpg.key
+        dhcpd-fixed:
+          # hosts:
+          #   openvpn:
+          #     include_path: /etc/dhcp/dhcpd.conf
+        common:
+          hosts:
+            # scb-geo.rc.local:
+            # pip.rc.local:
+            elassandra.rc.local:
+        ssh:
+          hosts:
+            # scb-geo.rc.local:
+            # pip.rc.local:
+            elassandra.rc.local:
+        java-app:
+          hosts:
+            elassandra.rc.local:
+        activemq:
+          # hosts:
+        ldap:
+          # hosts:
+        dbv:
+          # hosts:
+        bareos-fd:
+          # hosts:
+        bareos-dir:
+          # hosts:
+        server-tools:
+          hosts:
+            # scb-geo.rc.local:
+            # pip.rc.local:
+            elassandra.rc.local:
+        sudo-user:
+          hosts:
+            # scb-geo.rc.local:
+            # pip.rc.local:
+            elassandra.rc.local:
+        build-java:
+          # hosts:
+          #   astra-build-java.rc.local:
+        cluster:
+        #   # hosts:
+        frontend:
+          # hosts:
+          #   scb-exd.rc.local:
+        deploy-from-artifactory:
+          # hosts:
+          #   scb-exd.rc.local:
+          #     artifactory_base_repository:
+          #         - repository: mhpi-frontend
+          #           file_name: mhpi.tar.gz
+        pip-server:
+          # hosts:
+          #   pip.rc.local:
+        django:
+          # hosts:
+          #   scb-geo.rc.local:
+        constructive:
+          # hosts:
+          #   .rc.local:
+          # vars:
+          #     artifactory_repository:
+          #       - artifact_id: runner
+          #         group_id: ru.constructive
+          #         repository: constructive-release-local
+          #         config_path: BOOT-INF/classes
+          #         config: application.yml
+          #         database: runner
+          #         migration: ''
+        oauth:
+          # hosts:
+          #   scb-oauth.rc.local:
+          # vars:
+          #     artifactory_repository:
+          #       - artifact_id: oauth-server
+          #         group_id: rc.center.oauth.server
+          #         repository: oauth-server-release-local
+          #         config_path: BOOT-INF/classes
+          #         config: application.properties
+          #         database: oauth
+          #       - artifact_id: oauth-web-admin
+          #         group_id: rc.center.oauth.server
+          #         repository: oauth-server-release-local
+          #         config_path: BOOT-INF/classes
+          #         config: application.properties
+          #         database: ''
+      vars:
+        postgres_user: postgres
+        postgres_password: postgres
+        ansible_user: sysadm
+        ansible_ssh_pass: zaq!2345
+        ansible_become: true
+        ansible_become_method: sudo
+        ansible_become_user: root
+        ansible_become_pass: zaq!2345
+        # host_key_checking: False

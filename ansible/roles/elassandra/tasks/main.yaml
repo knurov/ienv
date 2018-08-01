@@ -1,0 +1,63 @@
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - install
+
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: present
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Файл кофигурации Cassandra
+    template:
+      src: cassandra.conf.j2
+      dest: "/etc/cassandra/cassandra.yaml"
+      mode: u=rwx,g=rx,o=rx
+    notify:
+      - Перезапуск Elassandra
+
+  - name: Файл кофигурации Elasticsearch
+    template:
+      src: elasticsearch.conf.j2
+      dest: "/etc/cassandra/elasticsearch.yml"
+      mode: u=rwx,g=rx,o=rx
+    notify:
+      - Перезапуск Elassandra
+
+  - meta: flush_handlers
+
+  - name: cassandra должна быть запущена
+    service:
+      name: cassandra
+      state: started
+      enabled: yes
+
+  - name: Ожидание полного запуска cassandra
+    wait_for:
+      host: "{{ inventory_hostname }}"
+      port: 9200
+      delay: 10
+      state: started
+
+  - uri:
+      url: http://{{ inventory_hostname }}:9200
+      return_content: yes
+    register: webpage
+
+  - name: Ты знаешь что искать ?
+    fail:
+    when: "'You Know, for Search' not in webpage.content"
+
+    #elasticsearch-plugin install ingest-attachment
+  - name: Включить плагин
+    uri:
+      url: http://{{ inventory_hostname }}:9200/_ingest/pipeline/attachment?pretty
+      method: PUT
+      body: '{"description": "Extract attachment information encoded in Base64 with UTF-8 charset","processors": [{"attachment" : {"field" : "data"}}]}'
+      body_format: json
+    when: "'You Know, for Search' in webpage.content"

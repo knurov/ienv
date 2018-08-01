@@ -1,0 +1,7 @@
+# Custom rsync options
+rsync_cmd_opts:
+  - "--recursive"
+  - "--links"
+  - "--perms"
+  - "--times"
+  - "--delete"

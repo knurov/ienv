@@ -1,0 +1,62 @@
+
+location / {
+        root   /var/www/mhpi;
+        index  index.html index.htm;
+        try_files $uri /index.html;
+}
+
+location /oauth {
+            proxy_pass       http://{{oauth_server}}:{{oauth_server_port}};
+            proxy_set_header Host      $host;
+            proxy_set_header X-Real-IP $remote_addr;
+}
+
+
+location /api {
+            proxy_pass       http://{{inventory_hostname}}:{{runner_port}};
+            proxy_set_header Host      $host;
+            proxy_set_header X-Real-IP $remote_addr;
+}
+
+location /exd {
+        rewrite /exd(.*) $1  break;
+            proxy_pass       http://{{inventory_hostname}}:{{runner_port}};
+        proxy_redirect     off;
+            proxy_set_header Host      $host;
+            proxy_set_header X-Real-IP $remote_addr;
+
+}
+
+location /exd-constructive {
+        proxy_read_timeout 300;
+        rewrite /exd-constructive(.*) $1  break;
+        proxy_pass       http://{{inventory_hostname}}:{{constructor_port}};
+        proxy_redirect     off;
+        proxy_set_header Host      $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_next_upstream error timeout http_502;
+}
+
+location /files-storage {
+        rewrite /files-storage(.*) $1  break;
+            proxy_pass http://{{inventory_hostname}}:{{mticket_port}};
+            proxy_set_header Host      $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            client_max_body_size 100M;
+
+}
+
+location /exd-source {
+        rewrite /exd-source(.*) $1  break;
+        proxy_pass http://{{inventory_hostname}}:{{dv_server_port}};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        #fastcgi_read_timeout 300;
+}
+
+location /account {
+        #rewrite /account(.*) $1  break;
+        proxy_pass      http://{{oauth_server}}:{{oauth_account_port}}/account;
+        proxy_set_header Host   $host;
+        proxy_set_header X-Real-IP      $remote_addr;
+}

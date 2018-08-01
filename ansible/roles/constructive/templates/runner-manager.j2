@@ -1,0 +1,31 @@
+management.security.enabled=false
+server.port={{runnerm_port}}
+
+logging.file=logs/app.log
+
+runner.restartURL=http://{{inventory_hostname}}:{{runner_port}}/api/1/commands/restart
+runner.dburl=jdbc:postgresql://{{runner_db_server}}:5432/{{runnerm_db_name}}
+runner.dbuser={{runnerm_db_user}}
+runner.dbpassword={{runnerm_db_pass}}
+runner.runner-home=/opt/runner
+runner.runner-url=http://{{inventory_hostname}}:{{runner_port}}/
+runner.backup-dir=/opt/runner/ctv-backups
+runner.no-backup=false
+# For database backups create pgpass file (on constructive user):
+# 1. echo "hostname:port:database:username:password" >> ~/.pgpass
+# 2. chmod 0600 ~/.pgpass
+# 3. set runner.dbbackup on true
+runner.dbbackup=true
+runner.dbbackup-command-line=
+runner.eq-version-update=true
+
+oauth2.resource.id = {{ansible_hostname + "-" + runnerm_ss_name}}
+oauth2.client.id = {{system.json.id}}
+oauth2.client.client-secret = {{system.json.secret}}
+oauth2.client.check-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/check_token
+oauth2.client.access-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/token
+oauth2.client.revoke-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/revoke
+oauth2.client.scope = read
+oauth2.client.authorization-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/authorize
+
+spring.profiles.active = production

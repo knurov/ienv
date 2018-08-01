@@ -1,0 +1,76 @@
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: latest
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Запустить службу PostgreSQL, если не запущено
+    service:
+      name: postgresql
+      state: started
+
+  - name: Перезапуск oauth-account
+    service:
+      name: oauth-account
+      state: stopped
+
+  - name: Проверка наличия БД oauth
+    shell: PGPASSWORD="{{oauth_db_pass}}" psql -U {{oauth_db_user}} -h {{oauth_db_server}} -c "\list" | grep -c {{oauth_db_name}}
+    register: dbstatus
+    failed_when: dbstatus.rc == 2
+    tags:
+      - install
+      - upgrade
+
+  - debug:
+    msg: БАЗЫ ДАННЫХ НЕ СУЩЕСТВУЕТ !
+    when: dbstatus.stdout == "0"
+    tags:
+      - install
+
+  - name: Создать каталог для резервных копий
+    file:
+      path: "/opt/oauth/sql/backup/"
+      state: directory
+    when: dbstatus.stdout == "1"
+    tags:
+      - upgrade
+
+  - name: Сделать резервную копию БД
+    shell: "PGPASSWORD={{oauth_db_pass}} pg_dump -U {{oauth_db_user}} -h {{oauth_db_server}} --inserts {{oauth_db_name}} -f /opt/oauth/sql/backup/{{oauth_db_name}}.$(date +%F-%H-%M).sql"
+    ignore_errors: no
+    when: dbstatus.stdout == "1"
+    tags:
+      - upgrade
+
+  - name: Загрузить данные oauth-account
+    shell: "PGPASSWORD={{oauth_db_pass}} psql -U {{oauth_db_user}} -h {{oauth_db_server}} {{oauth_db_name}} -f {{ item }}"
+    ignore_errors: yes
+    when: dbstatus.stdout == "1"
+    with_items:
+      - "/opt/oauth-account/sql/01_Add_Oauth_Data.sql"
+    tags:
+      - install
+
+  - name: Обновить systems в БД
+    shell: PGPASSWORD={{oauth_db_pass}} psql -U {{oauth_db_user}} -h {{oauth_db_server}} -d {{oauth_db_name}} -c "update systems set web_server_redirect_uri = 'http://{{inventory_hostname}}:8089/web-api/login/code' where id = '{{account_id}}';"
+    when: dbstatus.stdout == "1"
+
+  - name: Обновить oauth_client_details в БД
+    shell: PGPASSWORD={{oauth_db_pass}} psql -U {{oauth_db_user}} -h {{oauth_db_server}} -d {{oauth_db_name}} -c "update oauth_client_details set web_server_redirect_uri = 'http://{{inventory_hostname}}:8089/web-api/login/code' where client_id = '{{account_id}}';"
+    when: dbstatus.stdout == "1"
+
+  - name: Файл кофигурации oauth-acconunt
+    template:
+      src: account.properties.j2
+      dest: "/etc/oauth-account/application.properties"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+
+  - name: Перезапуск oauth-account
+    service:
+      name: oauth-account
+      state: restarted

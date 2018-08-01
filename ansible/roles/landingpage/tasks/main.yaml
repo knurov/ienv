@@ -1,0 +1,23 @@
+  - name: Файл конфигурации
+    template:
+      src: landingpage.j2
+      dest: "/etc/nginx/sites-enabled/landingpage"
+      mode: u=rwx,g=rx,o=rx
+
+  - name: Создать каталог
+    file:
+      path: "/var/www/lp"
+      state: "directory"
+
+  - name: Скопировать файлы
+    copy:
+      src: website/
+      dest: /var/www/lp
+      owner: www-data
+      group: www-data
+
+  - name: Файл индекс
+    template:
+      src: index.html.j2
+      dest: "/var/www/lp/index.html"
+      mode: u=rwx,g=rx,o=rx

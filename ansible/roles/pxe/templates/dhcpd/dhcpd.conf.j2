@@ -1,0 +1,26 @@
+ddns-update-style none;
+option domain-name "{{ host.domain }}";
+default-lease-time 600;
+max-lease-time 7200;
+log-facility local7;
+option domain-name-servers {{ host.ip }};
+subnet {{ host.subnet }} netmask {{ host.netmask }} {
+    range 10.0.10.100 10.0.10.200;
+    option routers {{ host.gateway }};
+    max-lease-time 86400;
+    filename "pxelinux.0";
+    next-server {{ host.ip }};
+
+    host cinnamon { hardware ethernet {{ ansible_eth0.macaddress }}; fixed-address  {{ host.ip }}; }
+
+{% for group_name in object_list.groups.keys()  %}
+{% for group in object_list.groups.values() %}
+{% for vm in object_list.groups[group_name].hosts.values() %}
+{% for net in vm.network  %}
+    host {{ net.hostname }}.{{ group.domain }} { hardware ethernet {{ net.mac | regex_replace("-",":") }}; fixed-address  {{ net.ip }}; option host-name {{ net.hostname }};}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+
+}

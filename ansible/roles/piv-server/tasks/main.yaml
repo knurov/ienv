@@ -1,0 +1,74 @@
+  - name: Установить роль postgres
+    include_role:
+      name: postgres
+
+  - name: Установить роль activemq
+    include_role:
+      name: activemq
+
+  - name: Установить роль Mticket
+    include_role:
+      name: mticket
+
+  - name: Установить роль MIP
+    include_role:
+      name: mip
+
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: yes
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Проверка наличия БД
+    shell: PGPASSWORD="{{piv_db_pass}}" psql -U {{piv_db_user}} -h {{piv_db_server}} -c "\list" | grep -c {{piv_db_name}}
+    register: dbstatus
+    failed_when: dbstatus.rc == 2
+    when: piv_db_server is defined
+    tags:
+      - install
+
+  - name: Создание БД
+    postgresql_db:
+      name: "{{piv_db_name}}"
+      encoding: UTF-8
+      login_host: "{{piv_db_server}}"
+      login_user: "{{piv_db_user}}"
+      login_password: "{{piv_db_pass}}"
+      owner: postgres
+    when: dbstatus.stdout == "0" and piv_db_server is defined
+    tags:
+      - install
+
+  - name: БД существует
+    debug:
+      msg: "БД существует !!!"
+    when: piv_db_server is defined and dbstatus.stdout == "1"
+    tags:
+      - install
+
+  - name: Файл кофигурации piv-server
+    template:
+      src: carte-config.xml.j2
+      dest: "/opt/piv-server/carte-config.xml"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+    notify:
+      - Перезапуск piv-server
+
+  - name: Файл кофигурации репозитория
+    template:
+      src: repositories.xml.j2
+      dest: "/root/.piv/repositories.xml"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+    notify:
+      - Перезапуск piv-server
+
+  - name: Установить роль scheduler
+    include_role:
+      name: scheduler

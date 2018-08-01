@@ -1,0 +1,6 @@
+Client {
+  Name = "{{hostvars[item].ansible_hostname}}"
+  Description = "Client."
+  Address = {{ item }}
+  Password = "{{hostvars[item].ansible_local.bareos_fd.Password}}"
+}

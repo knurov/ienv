@@ -1,0 +1,52 @@
+---
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - activemq
+      - install
+
+  - name: Установить activemq
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - activemq
+      - install
+
+  - name: Создать ссылку на конфиг
+    file:
+      src: /opt/activemq/conf
+      dest: /etc/activemq/instances-available/main
+      state: link
+
+  - name: Разрешить activemq обробатывать сообщения с внешних адресов
+    replace:
+      path: "/etc/activemq/instances-available/{{ item }}/activemq.xml"
+      regexp: '^(.*uri="tcp\:\/\/)[0-9.]*(\:[0-9]*".*)?$'
+      replace: '\g<1>0.0.0.0\g<2>'
+    with_items:
+      - main
+    tags:
+      - activemq
+      - config
+    notify: restart activemq
+
+  - name: Включить инстанс main для activemq
+    file:
+      src: "/etc/activemq/instances-available/{{ item }}"
+      dest: "/etc/activemq/instances-enabled/{{ item }}"
+      state: link
+    with_items:
+      - main
+    tags:
+      - activemq
+      - config
+    notify: restart activemq
+
+  - name: Включить автозапуск службы activemq
+    service:
+      name: activemq
+      enabled: yes
+      state: started

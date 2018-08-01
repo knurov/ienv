@@ -1,0 +1,8 @@
+---
+  - name: Перезапуск Nginx
+    service: name=nginx state=restarted
+    listen: "Перезапуск Nginx"
+
+  - name: Перезапуск php5-fpm
+    service: name=php5-fpm state=restarted
+    listen: "Перезапуск php5-fpm"

@@ -1,0 +1,4 @@
+---
+  - name: Перезапуск dhcp
+    service: name=isc-dhcp-server state=restarted
+    listen: "Перезапуск dhcp"

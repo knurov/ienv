@@ -1,0 +1,32 @@
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: present
+      update_cache: yes
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Файл кофигурации Nginx
+    template:
+      src: nginx.conf.j2
+      dest: "/etc/nginx/nginx.conf"
+      mode: u=rwx,g=rx,o=rx
+    tags:
+      - install
+
+  - name: Удалить site default
+    file:
+      state: absent
+      path: "/etc/nginx/sites-available/default"
+
+  - name: Перезапуск Nginx
+    service:
+      name: nginx
+      state: restarted
+
+  # - name: Перезапуск php5-fpm
+  #   service:
+  #     name: php5-fpm
+  #     state: started

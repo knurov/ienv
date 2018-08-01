@@ -1,0 +1,23 @@
+$ORIGIN .
+$TTL 604800     ; 1 week
+{{ item.domain }}                IN SOA  ns.{{ item.domain }}. root.{{ item.domain }}. (
+                                1015       ; serial
+                                604800     ; refresh (1 week)
+                                86400      ; retry (1 day)
+                                2419200    ; expire (4 weeks)
+                                604800     ; minimum (1 week)
+                                )
+                        NS      ns.{{ item.domain }}.
+$ORIGIN {{ item.domain }}.
+$TTL 604800     ; 1 week
+ns                      A       {{ item.dns }}
+{% if groups['landingpage'] is defined %}
+home                    A   {{ item.dns }}
+start                   A   {{ item.dns }}
+{% else %}
+{% endif %}
+{% for vm in item.hosts.values()  %}
+{% for net in vm.network  %}
+{{ net.hostname }}                      A       {{ net.ip }}
+{% endfor %}
+{% endfor %}

@@ -1,0 +1,55 @@
+---
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - install
+
+  - name: Установить пакеты из списка
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Установка пакетов из pip
+    pip:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ pip }}"
+    tags:
+      - install
+
+  - name: Создать пользователя Unix
+    user:
+      name: "{{user}}"
+    tags:
+      - install
+
+  - name: Создание службы gunicorn
+    template:
+      src: gunicorn.j2
+      dest: "/etc/init.d/gunicorn"
+      mode: u=rwx,g=rx,o=rx
+    tags:
+      - install
+
+  - name: Создание служб
+    template:
+      src: service.j2
+      dest: "/etc/init.d/{{item.name}}"
+      mode: u=rwx,g=rx,o=rx
+    with_items: "{{ services }}"
+    tags:
+      - install
+
+  - name: Выключить службы
+    service:
+      name: "{{item.name}}"
+      state: stopped
+      sleep: 3
+    with_items: "{{ services }}"
+    ignore_errors: yes
+    tags:
+      - install

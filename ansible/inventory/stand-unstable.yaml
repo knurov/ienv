@@ -1,0 +1,355 @@
+---
+all:
+  children:
+    RootCellar:
+      children:
+# Роль PXElinux
+        pxe:
+          vars:
+            host:
+              interface: eth0
+              ip: 10.0.10.254
+              netmask: 255.255.255.0
+              subnet: 10.0.10.0
+              gateway: 10.0.10.1
+              domain: test
+            data:
+              dir: /mnt/sc-data
+              astra: /mnt/sc-data/Astra
+              netinstall: /mnt/sc-data/Astra/netinst
+            user:
+              name: sysadm
+              password: zaq!2345
+              password-enc: $6$eKPC2sTXNoLzLdMh$TTtRxXX/d41lW4vCCtTb3xK2WIx/Ut9QS6i5FMxTEbVDlDnDXISk9PctoVN.QemYg3bBO6j8diM5A.kMVOFX9.
+            ansible_connection: local
+            ansible_ssh_user: root
+            ansible_ssh_pass: zaq!2345
+
+          hosts:
+            localhost:
+              connection: local
+
+# Основные роли
+        config-interfaces:
+          hosts:
+            pvvo.test:
+            pvvo-inner.test:
+            integra.test:
+            manager.test:
+            arm.test:
+
+        poor-astra:
+          hosts:
+            pvvo.test:
+            pvvo-inner.test:
+            integra.test:
+            manager.test:
+            arm.test:
+
+        repo:
+          hosts:
+            pvvo.test:
+            pvvo-inner.test:
+            integra.test:
+            manager.test:
+            arm.test:
+          vars:
+            apt_repository:
+              - deb http://10.0.0.241/astra smolensk main contrib non-free
+              - deb http://10.0.0.241/sc SC main testing
+            repositories_keys:
+              - http://10.0.0.241/rc.center.sc.gpg.key
+
+        oauth-server:
+          hosts:
+            manager.test:
+              oauth_db_server: manager.test
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+              oauth_server_port: 8081
+
+        oauth-webadmin:
+          hosts:
+            manager.test:
+              oauth_db_server: manager.test
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+              oauth_webadmin_port: 8085
+              oauth_server: manager.test
+              oauth_server_port: 8081
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+
+        oauth-account:
+          hosts:
+            manager.test:
+              oauth_db_server: manager.test
+              oauth_server: manager.test
+              oauth_server_port: 8081
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+              oauth_account: manager.test
+              oauth_account_port: 8089
+              account_id: '4567738254125'
+              account_key: MKUs3L
+
+        piv-server:
+          hosts:
+            integra.test:
+              oauth_server: manager.test
+              oauth_server_port: 8081
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              mhpi_server: integra.test
+              mhpi_port: 8082
+              activemq_server: integra.test
+              piv_db_server: integra.test
+              piv_db_name: repo
+              piv_db_user: postgres
+              piv_db_pass: postgres
+              piv_server_port: 8091
+              piv_conn_name: repo_connection
+              piv_repo_name: repo_remote
+              scheduler_ss_name: scheduler
+              scheduler_server_port: 8081
+              mticket_ss_name: mticket
+              mticket_db_server: integra.test
+              mticket_port: 8088
+              mticket_db_name: mticket
+              mticket_db_user: postgres
+              mticket_db_pass: postgres
+              mip_ss_name: mip
+              mip_db_server: integra.test
+              mip_port: 8079
+              mip_db_name: mip
+              mip_db_user: postgres
+              mip_db_pass: postgres
+
+        piv-client:
+          hosts:
+            integra.test:
+              piv_client_port: 8090
+
+        mupp:
+          hosts:
+            manager.test:
+              oauth_server: manager.test
+              oauth_server_port: 8081
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              mhpi_server: integra.test
+              mhpi_port: 8082
+              runner_db_server: manager.test
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_port: 8082
+              runner_db_user: postgres
+              runner_db_pass: postgres
+              runnerm_ss_name: runner-manager
+              runnerm_db_name: runner
+              runnerm_port: 8083
+              runnerm_db_user: postgres
+              runnerm_db_pass: postgres
+              constructor_db_server: manager.test
+              constructor_ss_name: constructor
+              constructor_db_name: constructor
+              constructor_port: 8080
+              constructor_db_user: postgres
+              constructor_db_pass: postgres
+
+        pvvo:
+          hosts:
+            pvvo.test:
+              oauth_server: manager.test
+              oauth_server_port: 8081
+              oauth_account_port: 8089
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              runner_db_server: pvvo.test
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_port: 8082
+              runner_db_user: postgres
+              runner_db_pass: postgres
+              runnerm_ss_name: runner-manager
+              runnerm_db_name: runner
+              runnerm_port: 8083
+              runnerm_db_user: postgres
+              runnerm_db_pass: postgres
+              constructor_db_server: pvvo.test
+              constructor_ss_name: constructor
+              constructor_db_name: constructor
+              constructor_port: 8080
+              constructor_db_user: postgres
+              constructor_db_pass: postgres
+
+        pvvo-inner:
+          hosts:
+            pvvo-inner.test:
+              oauth_server: manager.test
+              oauth_server_port: 8081
+              oauth_webadmin_port: 8085
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              runner_db_server: pvvo-inner.test
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_port: 8082
+              runner_db_user: postgres
+              runner_db_pass: postgres
+
+        mhpi:
+          hosts:
+            integra.test:
+              activemq_server: integra.test
+              oauth_server: manager.test
+              oauth_server_port: 8081
+              oauth_account_port: 8089
+              mticket_port: 8088
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              filestorage_ss_name: filestorage
+              dv_server_db_name: dvserver
+              dv_server_ss_name: dv-server
+              dv_server_port: 8087
+              dv_server_db_server: integra.test
+              dv_server_db_user: postgres
+              dv_server_db_pass: postgres
+              runner_db_server: integra.test
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_port: 8082
+              runner_db_user: postgres
+              runner_db_pass: postgres
+              runnerm_ss_name: runner-manager
+              runnerm_db_name: runner
+              runnerm_db_user: postgres
+              runnerm_db_pass: postgres
+              runnerm_port: 8083
+              constructor_db_server: integra.test
+              constructor_ss_name: constructor
+              constructor_db_name: constructor
+              constructor_port: 8080
+              constructor_db_user: postgres
+              constructor_db_pass: postgres
+
+        bind:
+          hosts:
+            manager.test:
+
+        contour-server:
+          hosts:
+            integra.test:
+
+        psi:
+          hosts:
+            pvvo.test:
+
+        postgres:
+          hosts:
+            pvvo.test:
+            pvvo-inner.test:
+            integra.test:
+            manager.test:
+
+        nginx:
+          hosts:
+            pvvo.test:
+            pvvo-inner.test:
+            integra.test:
+            manager.test:
+
+        repo-copy:
+          hosts:
+            manager.test:
+
+        desktop-astra:
+          hosts:
+            arm.test:
+
+        ald-server:
+          hosts:
+            manager.test:
+
+        ald-client:
+          hosts:
+            pvvo.test:
+            pvvo-inner.test:
+            integra.test:
+            manager.test:
+            arm.test:
+
+        landingpage:
+          hosts:
+            manager.test:
+              sity: не стабильный Калининград
+
+      vars:
+        object_list:
+          groups:
+            ex:
+              domain: test
+              dns: 10.0.10.125
+              subnet: 10.0.10.0
+              netmask: 255.255.255.0
+              hosts:
+                10.0.10.111:
+                  network:
+                    - mac: 1e-cc-29-6a-e6-c5
+                      ip: 10.0.10.121
+                      hostname: pvvo
+                      domain: test
+                      dns: 10.0.10.125
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                      gateway: 10.0.10.1
+                10.0.10.112:
+                  network:
+                    - mac: d6-eb-d9-96-16-bd
+                      ip: 10.0.10.122
+                      hostname: pvvo-inner
+                      domain: test
+                      dns: 10.0.10.125
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                      gateway: 10.0.10.1
+                10.0.10.113:
+                  network:
+                    - mac: 66-61-aa-12-c4-3b
+                      ip: 10.0.10.123
+                      hostname: integra
+                      domain: test
+                      dns: 10.0.10.125
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                      gateway: 10.0.10.1
+                10.0.10.115:
+                  network:
+                    - mac: 2e-5a-ab-92-79-e5
+                      ip: 10.0.10.125
+                      hostname: manager
+                      domain: test
+                      dns: 10.0.10.125
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                      gateway: 10.0.10.1
+                10.0.10.116:
+                  network:
+                    - mac: 66-ab-f0-a8-28-cf
+                      ip: 10.0.10.126
+                      hostname: arm
+                      domain: test
+                      dns: 10.0.10.125
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                      gateway: 10.0.10.1
+
+        ansible_user: sysadm
+        ansible_ssh_pass: zaq!2345
+        ansible_become: true
+        ansible_become_method: sudo
+        ansible_become_user: root
+        ansible_become_pass: zaq!2345

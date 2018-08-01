@@ -1,0 +1,10 @@
+FileSet {
+  Name = "{{item.0.hostname}}_{{item.1}}"
+  Include {
+    File = /etc/bind/
+    Options {
+        Signature = MD5 # calculate md5 checksum per file
+        compression = GZIP
+    }
+  }
+}

@@ -1,0 +1,451 @@
+---
+all:
+  children:
+    RootCellar:
+      children:
+# Роль PXElinux
+        pxe:
+          vars:
+            host:
+              interface: eth0
+              ip: 10.0.10.254
+              netmask: 255.255.255.0
+              subnet: 10.0.10.0
+              gateway: 10.0.10.1
+              domain: scb
+            data:
+              dir: /mnt/sc-data
+              astra: /mnt/sc-data/Astra
+              netinstall: /mnt/sc-data/Astra/netinst
+            user:
+              name: sysadm
+              password: zaq!2345
+              password-enc: $6$eKPC2sTXNoLzLdMh$TTtRxXX/d41lW4vCCtTb3xK2WIx/Ut9QS6i5FMxTEbVDlDnDXISk9PctoVN.QemYg3bBO6j8diM5A.kMVOFX9.
+            ansible_connection: local
+            ansible_ssh_user: root
+            ansible_ssh_pass: zaq!2345
+
+          hosts:
+            localhost:
+              connection: local
+
+          # hosts:
+          #   10.0.10.254
+# Основные роли
+        config-interfaces:
+          hosts:
+            oauth.scb.in:
+            pdi.scb.in:
+            piv.scb.in:
+            mhpi.scb.in:
+            sheduler.scb.in:
+            contour.scb.in:
+            mupp.scb.in:
+            oauth-pub.scb:
+            piv.scb:
+            pvvo-pub.scb:
+            oauth.scb:
+            pvvo.scb:
+            arm.scb:
+            arm.scb.in:
+
+        poor-astra:
+          hosts:
+            oauth.scb.in:
+            pdi.scb.in:
+            piv.scb.in:
+            mhpi.scb.in:
+            sheduler.scb.in:
+            contour.scb.in:
+            mupp.scb.in:
+            oauth-pub.scb:
+            piv.scb:
+            pvvo-pub.scb:
+            oauth.scb:
+            pvvo.scb:
+            arm.scb:
+            arm.scb.in:
+
+        repo:
+          hosts:
+            oauth.scb.in:
+            pdi.scb.in:
+            piv.scb.in:
+            mhpi.scb.in:
+            sheduler.scb.in:
+            contour.scb.in:
+            mupp.scb.in:
+            oauth-pub.scb:
+            piv.scb:
+            pvvo-pub.scb:
+            oauth.scb:
+            pvvo.scb:
+            arm.scb:
+            arm.scb.in:
+          vars:
+            apt_repository:
+              - deb http://10.0.10.2/astra smolensk main contrib non-free
+              - deb http://10.0.10.2/sc SC main testing
+            repositories_keys:
+              - http://10.0.10.2/sc/rc.center.sc.gpg.key
+
+        oauth-server:
+          hosts:
+            oauth.scb:
+              oauth_db_server: oauth.scb
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+
+        oauth-webadmin:
+          hosts:
+            oauth.scb:
+              oauth_db_server: oauth.scb
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+              oauth_server: oauth.scb
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+
+        oauth-account:
+          hosts:
+            oauth.scb:
+              oauth_db_server: oauth.scb
+              oauth_server: oauth.scb
+              oauth_db_user: postgres
+              oauth_db_pass: postgres
+              oauth_db_name: oauth
+              oauth_account: oauth.scb
+              account_id: '4567738254125'
+              account_key: MKUs3L
+
+        piv-server:
+          hosts:
+            piv.scb.in:
+              oauth_server: oauth.scb
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              mhpi_server: mhpi.scb.in
+              activemq_server: piv.scb.in
+              piv_db_server: piv.scb.in
+              piv_db_name: repo
+              piv_db_user: postgres
+              piv_db_pass: postgres
+              piv_conn_name: repo_connection
+              piv_repo_name: repo_remote
+              scheduler_ss_name: scheduler
+              mticket_ss_name: mticket
+              mticket_db_server: piv.scb.in
+              mticket_db_name: mticket
+              mticket_db_user: postgres
+              mticket_db_pass: postgres
+              mip_ss_name: mip
+              mip_db_server: piv.scb.in
+              mip_db_name: mip
+              mip_db_user: postgres
+              mip_db_pass: postgres
+
+        piv-client:
+          hosts:
+            piv.scb:
+
+        mupp:
+          hosts:
+            mupp.scb.in:
+              oauth_server: oauth.scb
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              mhpi_server: mhpi.scb.in
+              runner_db_server: mupp.scb.in
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_db_user: postgres
+              runner_db_pass: postgres
+              runnerm_ss_name: runner-manager
+              runnerm_db_name: runner
+              runnerm_db_user: postgres
+              runnerm_db_pass: postgres
+              constructor_db_server: mupp.scb.in
+              constructor_ss_name: constructor
+              constructor_db_name: constructor
+              constructor_db_user: postgres
+              constructor_db_pass: postgres
+
+        pvvo:
+          hosts:
+            pvvo-pub.scb:
+              oauth_server: oauth.scb
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              runner_db_server: pvvo-pub.scb
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_db_user: postgres
+              runner_db_pass: postgres
+              runnerm_ss_name: runner-manager
+              runnerm_db_name: runner
+              runnerm_db_user: postgres
+              runnerm_db_pass: postgres
+              constructor_db_server: pvvo-pub.scb
+              constructor_ss_name: constructor
+              constructor_db_name: constructor
+              constructor_db_user: postgres
+              constructor_db_pass: postgres
+
+        pvvo-inner:
+          hosts:
+            pvvo.scb:
+              oauth_server: oauth.scb
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              runner_db_server: pvvo-pub.scb
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_db_user: postgres
+              runner_db_pass: postgres
+
+        mhpi:
+          hosts:
+            mhpi.scb.in:
+              activemq_server: piv.scb.in
+              oauth_server: oauth.scb
+              webadmin_id: '906673844563'
+              webadmin_key: TTUy8X
+              filestorage_ss_name: filestorage
+              dv_server_db_name: dvserver
+              dv_server_ss_name: dv-server
+              dv_server_db_server: mhpi.scb.in
+              dv_server_db_user: postgres
+              dv_server_db_pass: postgres
+              runner_db_server: mhpi.scb.in
+              runner_db_name: runner
+              runner_ss_name: runner
+              runner_db_user: postgres
+              runner_db_pass: postgres
+              runnerm_ss_name: runner-manager
+              runnerm_db_name: runner
+              runnerm_db_user: postgres
+              runnerm_db_pass: postgres
+              constructor_db_server: mhpi.scb.in
+              constructor_ss_name: constructor
+              constructor_db_name: constructor
+              constructor_db_user: postgres
+              constructor_db_pass: postgres
+
+        bind:
+          hosts:
+            oauth.scb.in:
+
+        contour-server:
+          hosts:
+            contour.scb.in:
+
+        psi:
+          hosts:
+            pvvo-pub.scb:
+            pvvo.scb:
+
+        postgres:
+          hosts:
+            oauth.scb.in:
+            pdi.scb.in:
+            sheduler.scb.in:
+            contour.scb.in:
+            oauth-pub.scb:
+            piv.scb:
+            oauth.scb:
+
+        nginx:
+          hosts:
+            oauth.scb.in:
+            pdi.scb.in:
+            piv.scb.in:
+            sheduler.scb.in:
+            contour.scb.in:
+            oauth-pub.scb:
+            piv.scb:
+            oauth.scb:
+
+        repo-copy:
+          hosts:
+            oauth.scb.in:
+
+        desktop-astra:
+          hosts:
+            arm.scb:
+            arm.scb.in:
+
+        ald-server:
+          hosts:
+            oauth.scb.in:
+
+        ald-client:
+          hosts:
+            pdi.scb.in:
+            piv.scb.in:
+            mhpi.scb.in:
+            sheduler.scb.in:
+            contour.scb.in:
+            mupp.scb.in:
+            oauth-pub.scb:
+            piv.scb:
+            pvvo-pub.scb:
+            oauth.scb:
+            pvvo.scb:
+            arm.scb:
+            arm.scb.in:
+
+        curl-info:
+          hosts:
+            localhost:
+              connection: local
+
+      vars:
+        object_list:
+          groups:
+            ex:
+              domain: scb
+              dns: 10.0.10.2
+              subnet: 10.0.10.0
+              netmask: 255.255.255.0
+              hosts:
+                10.0.10.101:
+                  network:
+                    - mac: 00-50-56-80-47-5d
+                      ip: 10.0.10.101
+                      hostname: pvvo
+                      domain: scb
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.102:
+                  network:
+                    - mac: 00-50-56-80-df-b7
+                      ip: 10.0.10.102
+                      hostname: pvvo-pub
+                      domain: scb
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.103:
+                  network:
+                    - mac: 00-50-56-80-b8-7f
+                      ip: 10.0.10.103
+                      hostname: oauth
+                      domain: scb
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.104:
+                  network:
+                    - mac: 00-50-56-80-8c-1f
+                      ip: 10.0.10.104
+                      hostname: oauth-pub
+                      domain: scb
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.105:
+                  network:
+                    - mac: 00-50-56-80-ac-cf
+                      ip: 10.0.10.105
+                      hostname: piv
+                      domain: scb
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.106:
+                  network:
+                    - mac: 00-50-56-80-d6-21
+                      ip: 10.0.10.106
+                      hostname: arm
+                      domain: scb
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+            inner:
+              domain: scb.in
+              dns: 10.0.10.2
+              subnet: 10.0.10.0
+              netmask: 255.255.255.0
+              hosts:
+                10.0.10.2:
+                  network:
+                    - mac: 00-50-56-80-95-19
+                      ip: 10.0.10.2
+                      hostname: oauth
+                      domain: scb.in
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.51:
+                  network:
+                    - mac: 00-50-56-80-b6-51
+                      ip: 10.0.10.51
+                      hostname: piv
+                      domain: scb.in
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.52:
+                  network:
+                    - mac: 00-50-56-80-1c-f5
+                      ip: 10.0.10.52
+                      hostname: pdi
+                      domain: scb.in
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.53:
+                  network:
+                    - mac: 00-50-56-80-12-97
+                      ip: 10.0.10.53
+                      hostname: sheduler
+                      domain: scb.in
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.54:
+                  network:
+                    - mac: 00-50-56-80-6b-2e
+                      ip: 10.0.10.54
+                      hostname: mhpi
+                      domain: scb.in
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.55:
+                  network:
+                    - mac: 00-50-56-80-7f-5b
+                      ip: 10.0.10.55
+                      hostname: mupp
+                      domain: scb.in
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.56:
+                  network:
+                    - mac: 00-50-56-80-6a-cd
+                      ip: 10.0.10.56
+                      hostname: contour
+                      domain: scb.in
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+                10.0.10.57:
+                  network:
+                    - mac: 00-50-56-80-54-84
+                      ip: 10.0.10.57
+                      hostname: arm
+                      domain: scb.in
+                      dns: 10.0.10.2
+                      subnet: 10.0.10.0
+                      netmask: 255.255.255.0
+
+        ansible_user: sysadm
+        ansible_ssh_pass: zaq!2345
+        ansible_become: true
+        ansible_become_method: sudo
+        ansible_become_user: root
+        ansible_become_pass: zaq!2345

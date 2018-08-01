@@ -1,0 +1,17 @@
+DirectoryIndex index.php index.html
+
+
+<VirtualHost *:80>
+#  ServerName 
+  DocumentRoot "/var/www/{{item}}"
+#  Alias / "/var/www/html"
+
+  <Directory "/var/www/{{item}}">
+    AuthPAM_Enabled on
+    AuthType Basic
+    AuthName "PAM authentication"
+    Require valid-user
+    AllowOverride None
+    Options Indexes FollowSymLinks MultiViews
+  </Directory>
+</VirtualHost>

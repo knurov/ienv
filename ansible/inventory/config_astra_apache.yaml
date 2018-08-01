@@ -1,0 +1,17 @@
+---
+all:
+  children:
+    RootCellar:
+      children:
+        apache:
+          hosts:
+            sc-node-1.rc.local:
+            sc-node-2.rc.local:
+            sc-node-3.rc.local:
+      vars:
+        ansible_user: sysadm
+        ansible_ssh_pass: zaq!2345
+        ansible_become: true
+        ansible_become_method: sudo
+        ansible_become_user: root
+        ansible_become_pass: zaq!2345

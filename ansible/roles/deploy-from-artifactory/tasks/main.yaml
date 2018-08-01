@@ -1,0 +1,11 @@
+---
+  - name: Забрать пакеты с artifactory
+    unarchive:
+      src: 'http://artifactory.rc.local:8081/artifactory/{{item.repository}}/{{item.file_name}}'
+      dest: "/var/www/"
+      remote_src: yes
+      owner: '{{user}}'
+      group: root 
+    with_items: "{{artifactory_base_repository}}"
+    tags:
+      - install

@@ -1,0 +1,27 @@
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - install
+      - zabbix-agent
+
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - install
+      - zabbix-agent
+
+  - name: Файл кофигурации Агента
+    template:
+      src: zabbix_agentd.conf.j2
+      dest: "/etc/zabbix/zabbix_agentd.conf"
+      mode: u=rwx,g=rx,o=rx
+    notify:
+      - Перезапуск Zabbix-agent
+    tags:
+      - install
+      - zabbix-agent
+    with_items: "{{ groups['zabbix-server'] }}"

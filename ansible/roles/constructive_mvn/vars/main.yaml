@@ -1,0 +1,6 @@
+packages:
+    - python-lxml
+    - postgresql
+    - python-psycopg2
+
+user: constructive

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repositories>
+        <connection>
+                <name>{{piv_conn_name}}</name>
+                          <server>psql</server>
+                          <type>POSTGRESQL</type>
+                          <access>Native</access>
+                          <database>{{piv_db_name}}</database>
+                          <port>5432</port>
+                          <username>{{piv_db_user}}</username>
+                          <password>{{piv_db_pass}}</password>
+                          <servername/>
+                          <data_tablespace/>
+                          <index_tablespace/>
+                          <attributes>
+                                  <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+                                  <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+                                  <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+                                  <attribute><code>PORT_NUMBER</code><attribute>5432</attribute></attribute>
+                                  <attribute><code>PRESERVE_RESERVED_WORD_CASE</code><attribute>Y</attribute></attribute>
+                                  <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+                                  <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>Y</attribute></attribute>
+                                  <attribute><code>SUPPORTS_TIMESTAMP_DATA_TYPE</code><attribute>Y</attribute></attribute>
+                                  <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+                          </attributes>
+        </connection>
+        <repository>
+                <id>PIVDatabaseRepository</id>
+                <name>{{piv_repo_name}}</name>
+                <description>Database repository</description>
+                <is_default>false</is_default>
+                <connection>{{piv_conn_name}}</connection>
+        </repository>
+ </repositories>

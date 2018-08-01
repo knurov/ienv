@@ -1,0 +1,20 @@
+packages:
+  - python-dev
+  - zlib1g-dev
+  - build-essential
+  - python-pip
+
+pip:
+  - localshop
+  - kombu==3.0.30
+
+services:
+  - name: localshop
+    command: /home/localshop/localshop/bin/python
+    command_args: /home/localshop/localshop/bin/celery worker -B -E
+  # - name: gunicorn
+  #   command: /home/localshop/localshop/bin/python
+  #   command_args: /home/localshop/localshop/bin/gunicorn localshop.wsgi --bind 0.0.0.0:8001 --workers 2
+
+user: localshop
+install_path: /home/localshop

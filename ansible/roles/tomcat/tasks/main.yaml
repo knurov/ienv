@@ -1,0 +1,32 @@
+  - name: Обновить метаданные репозитория
+    apt:
+      update_cache: yes
+    tags:
+      - install
+
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: present
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Файл кофигурации Runner
+    template:
+      src: tomcat7.j2
+      dest: "/etc/default/tomcat7"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+      
+  - name: Перезапуск Tomcat
+    service:
+      name: tomcat7
+      state: restarted
+
+  - name: Включить автозапуск службы tomcat7
+    service:
+      name: tomcat7
+      enabled: yes
+      state: started

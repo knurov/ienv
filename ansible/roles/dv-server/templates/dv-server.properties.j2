@@ -1,0 +1,46 @@
+server.contextPath = /
+server.port = {{dv_server_port}}
+
+spring.jpa.hibernate.ddl-auto = validate
+#spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.url = jdbc:postgresql://{{dv_server_db_server}}:5432/{{dv_server_db_name}}
+spring.datasource.username={{dv_server_db_user}}
+spring.datasource.password={{dv_server_db_pass}}
+
+spring.jpa.database = postgresql
+#spring.jpa.show-sql=false
+
+logging.file=logs/app.log
+#logging.level.org.springframework.security=INFO
+logging.level.center.rc.dv = DEBUG
+
+spring.activemq.broker-url = tcp://{{activemq_server}}:61616
+spring.activemq.user = admin
+spring.activemq.password = admin
+spring.profiles.active = production
+
+jms.queue.destination = test
+jms.queue.selector.message.type = mip_message
+
+oauth2.resource.id = {{ansible_hostname + "-" + dv_server_ss_name}}
+oauth2.client.id = {{system.json.id}}
+oauth2.client.client-secret = {{system.json.secret}}
+
+oauth2.client.check-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/check_token
+oauth2.client.access-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/token
+oauth2.client.revoke-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/revoke
+oauth2.client.scope = read
+oauth2.client.authorization-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/authorize
+oauth2.login.success.uri = /index.html
+oauth2.client.cookie.name = OAUTH2SESSION
+
+runner.entity.url = http://{{inventory_hostname}}:{{runner_port}}/
+
+scheduler.load.timeout = 1000
+scheduler.load.count = 2000
+load.count.max = 3
+
+signature.algorithm = SHA1withRSA
+signature.provider = SunRsaSign
+signature.private.key.dir = dv-service/keys/
+signature.private.key.file.name = private.key

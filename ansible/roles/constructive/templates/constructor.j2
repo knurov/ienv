@@ -1,0 +1,24 @@
+#constructive.project.name=TestProject
+#constructive.project.description=Description of TestProject
+#constructive.project.filename=project.ctv
+#constructive.project.dirname=/tmp
+server.port={{constructor_port}}
+
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.database=postgresql
+spring.datasource.url= jdbc:postgresql://{{constructor_db_server}}:5432/{{constructor_db_name}}
+#spring.datasource.username={{constructor_db_user}}
+#spring.datasource.password={{constructor_db_pass}}
+spring.http.multipart.max-file-size=-1
+
+logging.file=logs/app.log
+runner.runnerManagerDeployUrl=http://{{inventory_hostname}}:{{runnerm_port}}/api/1/commands/deploy3
+
+oauth2.resource.id = {{ansible_hostname + "-" + constructor_ss_name}}
+oauth2.client.id = {{system.json.id}}
+oauth2.client.client-secret = {{system.json.secret}}
+oauth2.client.check-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/check_token
+oauth2.client.access-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/token
+oauth2.client.revoke-token-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/revoke
+oauth2.client.scope = read
+oauth2.client.authorization-uri = http://{{oauth_server}}:{{oauth_server_port}}/oauth/authorize

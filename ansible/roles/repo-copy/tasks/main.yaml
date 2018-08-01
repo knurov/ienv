@@ -1,0 +1,107 @@
+---
+  # - name: install rsync
+  #   apt:
+  #     name: rsync
+  #     state: present
+  - name: Parsec file
+    file:
+      state: touch
+      path: /etc/parsec/privsock.conf
+
+  - name: Создать каталог
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: 0777
+    with_items:
+      - /var/lib/repo
+      - /var/lib/repo/astra
+      - /var/lib/repo/sc
+
+  - name: Set authorized key taken from file
+    authorized_key:
+      user: root
+      state: present
+      key: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+
+  - name: Установить пакет rsync
+    apt:
+      name: rsync
+      state: present
+      allow_unauthenticated: yes
+
+  - name: Run rsync
+    local_action: shell rsync {{ rsync_cmd_opts | join(' ') }}  /mnt/sc-data/{{ item.rsync_src_dir }} root@{{ inventory_hostname }}:/var/lib/repo/{{ item.rsync_dst_dir }}
+    with_items:
+      - { rsync_src_dir: 'Astra/dists', rsync_dst_dir: 'astra/'}
+      - { rsync_src_dir: 'Astra/pool', rsync_dst_dir: 'astra/'}
+      - { rsync_src_dir: 'Astra/SC/dists', rsync_dst_dir: 'sc/'}
+      - { rsync_src_dir: 'Astra/SC/pool', rsync_dst_dir: 'sc/'}
+    tags:
+      - rsync
+
+  - name: fix permission
+    file:
+      path: /var/lib/repo
+      mode: 0777
+      recurse: yes
+
+  - name: Копирование ключа
+    copy:
+      src: "/mnt/sc-data/{{ item.src }}"
+      dest: "/var/lib/repo/{{ item.dst }}"
+      directory_mode: yes
+      owner: www-data
+      group: www-data
+      mode: 0777
+    with_items:
+      - {src: 'Astra/SC/rc.center.sc.gpg.key', dst: 'sc/rc.center.sc.gpg.key'}
+
+  - name: Добавить ключи для репозиториев
+    apt_key:
+      file: "{{ item }}"
+      state: present
+    with_items:
+      - /var/lib/repo/sc/rc.center.sc.gpg.key
+
+  - name: Найти подключенные репизитории
+    find:
+      paths: /etc/apt/sources.list.d/
+      patterns: "*.list"
+    register: files_to_delete
+
+  - name: Удалить репозитории
+    file:
+      state: absent
+      path: "{{ item.path }}"
+    with_items: "{{ files_to_delete.files }}"
+    # shell: rm -rf /etc/apt/sources.list.d/*
+
+  - name: Добавить репозитории
+    apt_repository:
+      repo: "{{ item }}"
+      state: present
+    with_items:
+      - deb file:///var/lib/repo/astra smolensk main contrib non-free
+      - deb file:///var/lib/repo/sc SC main testing
+
+  - name: Настроить Nginx
+    include_role:
+      name: nginx
+
+  - name: Файл кофигурации для Nginx(repository)
+    template:
+      src: repo.conf.j2
+      dest: "/etc/nginx/conf.d/repo.conf"
+      mode: u=rwx,g=rx,o=rx
+    notify:
+      - Перезапуск Nginx
+
+  - name: Установить права на файлы репозитория
+    file:
+      path: /var/lib/repo/
+      owner: www-data
+      group: www-data
+      mode: 0777

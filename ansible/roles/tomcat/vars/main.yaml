@@ -1,0 +1,6 @@
+packages:
+    - tomcat7
+    - libtomcat7-java
+    - tomcat7-admin
+    - tomcat7-common
+    - tomcat7-docs

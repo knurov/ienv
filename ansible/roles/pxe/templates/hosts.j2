@@ -1,0 +1,10 @@
+127.0.0.1	localhost
+{% for group_name in object_list.groups.keys()  %}
+{% for group in object_list.groups.values() %}
+{% for vm in object_list.groups[group_name].hosts.values() %}
+{% for net in vm.network  %}
+{{ net.ip }} {{ net.hostname }}.{{ object_list.groups['ex'].domain }}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% endfor %}

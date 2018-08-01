@@ -1,0 +1,130 @@
+---
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: latest
+      update_cache: yes
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Получить токен
+    uri:
+      url: http://{{oauth_server}}:8081/oauth/token
+      method: POST
+      body: 'grant_type=password&username=superuser&password=12341234&scope=read,write,trust'
+      headers:
+        Authorization: "Basic {{ (webadmin_id + ':' + webadmin_key) | b64encode }}"
+      return_content: yes
+    register: token
+
+  - name: Получить CreateUser Id
+    uri:
+      url: http://{{oauth_server}}:8081/oauth/check_token?token={{token.json.access_token}}
+      method: POST
+      headers:
+        Authorization: "Basic {{ (webadmin_id + ':' + webadmin_key) | b64encode }}"
+    register: createuser
+
+  - name: Добавление подсистемы MIP
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/system
+      method: POST
+      body: '{"name": "{{ansible_hostname + "-" + mip_ss_name}}", "secret": "", "authorizedGtPassword": true, "authorizedGtCode": true, "authorizedGtRefreshToken": true, "authorizedGtClientCredentials": true, "accessTokenValidity": "43200", "refreshTokenValidity": "604800", "webServerRedirectUri": "http://{{inventory_hostname}}:8079/web-api/login/code", "description": "", "createUser": "{{createuser.json.user_name}}"}'
+      body_format: json
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+      status_code: 201
+      return_content: yes
+    register: system
+
+  - name: Добавление пермишена для MIP
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/system/{{system.json.id}}/permissions
+      method: PUT
+      body: '{"code": "{{item.code}}", "name": "{{item.name}}"}'
+      body_format: json
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+      return_content: yes
+    with_items:
+      - code: DICTIONARY_VIEW
+        name: DICTIONARY_VIEW
+      - code: DICTIONARY_UPDATE
+        name: DICTIONARY_UPDATE
+      - code: SYSTEM_MANAGE
+        name: SYSTEM_MANAGE
+
+  - name: Добавление пермишена в роль MIP
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/role/{{item.role}}/permissions/{{system.json.id}}
+      method: PUT
+      body: '[{{ item.pc | join(", ") }}]'
+      body_format: json
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+      return_content: yes
+    with_items:
+      - role: SUPERUSER
+        pc:
+        - '"DICTIONARY_VIEW"'
+        - '"DICTIONARY_UPDATE"'
+      - role: AOUTH_SERVER_ADMIN
+        pc:
+        - '"DICTIONARY_VIEW"'
+      - role: GUEST
+        pc:
+        - '"DICTIONARY_VIEW"'
+      - role: APPLICATION_CLIENT
+        pc:
+        - '"SYSTEM_MANAGE"'
+
+  - name: Активация регистрации MIP
+    uri:
+      url: http://{{oauth_server}}:8085/api/1/system/{{system.json.id}}/activation
+      method: PUT
+      headers:
+        Authorization: "Bearer {{token.json.access_token}}"
+
+  - name: Проверка наличия БД MIP
+    shell: PGPASSWORD="{{mip_db_pass}}" psql -U {{mip_db_user}} -h {{mip_db_server}} -c "\list" | grep -c {{mip_db_name}}
+    register: dbstatus
+    failed_when: dbstatus.rc == 2
+    when: mip_db_server is defined
+    tags:
+      - install
+
+  - name: MIP БД существует
+    debug:
+      msg: "mip БД существует !!!"
+    when: mip_db_server is defined and dbstatus.stdout == "1"
+    tags:
+      - install
+
+  - name: Создание БД MIP
+    postgresql_db:
+      name: "{{mip_db_name}}"
+      encoding: UTF-8
+      login_host: "{{mip_db_server}}"
+      login_user: "{{mip_db_user}}"
+      login_password: "{{mip_db_pass}}"
+      owner: postgres
+    when: mip_db_server is defined and dbstatus.stdout == "0"
+    tags:
+      - install
+
+  - name: Файл кофигурации MIP
+    template:
+      src: mip.properties.j2
+      dest: "/etc/mip-server/application.yml"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+    notify:
+      - Перезапуск MIP
+
+  - name: Включить автозапуск службы MIP
+    service:
+      name: mip-server
+      enabled: yes
+      state: started

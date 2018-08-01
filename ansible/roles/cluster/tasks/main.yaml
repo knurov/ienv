@@ -1,0 +1,111 @@
+---
+# Роль директора для bareos
+
+  # - debug: msg="{{ hostvars[item].ansible_all_ipv4_addresses }}"
+  #   with_items: "{{ groups['cluster'] }}"
+  #   tags:
+  #     - debug
+
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - cluster
+      - install
+
+  - name: Установить пакеты из списка
+    apt:
+      name: "{{ item }}"
+      state: present
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - cluster
+      - install
+
+  - name: Установить демона журнализации
+    apt:
+      name: "{{logdaemon}}"
+      state: present
+    tags:
+      - cluster
+      - install
+
+  - name: Включить демона журнализации
+    service:
+      name: "{{logdaemon}}"
+      enabled: yes
+      state: restarted
+    tags:
+      - cluster
+      - config
+
+  - name: Выбрать ноду для конфигурирования кластера
+    set_fact:
+      head_node: "{{ groups['cluster'][0] }}"
+    tags:
+      - cluster
+      - config
+
+  - name: Проверить наличия ключа
+    stat:
+      path: /etc/corosync/authkey
+    when: inventory_hostname == head_node
+    register: corosync_key
+    tags:
+      - cluster
+      - config
+
+  - name: Создать ключь авторизации кластера Corosync
+    command: corosync-keygen
+    when: inventory_hostname == head_node and not corosync_key.stat.exists
+    tags:
+      - cluster
+      - config
+
+  - name: Скопировать ключь авторизации кластера Corosync
+    fetch:
+      src: /etc/corosync/authkey
+      dest: /tmp/corosync_authkey
+    when: inventory_hostname == head_node
+    tags:
+      - cluster
+      - config
+
+  - name: Распростронить ключь авторизации кластера Corosync по всем нодам
+    copy:
+      src: /tmp/corosync_authkey
+      dest: /etc/corosync/authkey
+      owner: root
+      group: root
+      mode: 400
+    when: inventory_hostname != head_node
+    tags:
+      - cluster
+      - config
+
+  - name: Настройка тотема
+    template:
+      src: corosync.conf.j2
+      dest: /etc/corosync/corosync.conf
+    tags:
+      - cluster
+      - config
+
+  - name: Разрешить старт кластера
+    replace:
+      path: /etc/default/corosync
+      regexp: ^START=.*$
+      replace: START=yes
+    tags:
+      - cluster
+      - config
+
+  - name: Запуск Кластера
+    service:
+      name: corosync
+      enabled: yes
+      state: restarted
+    tags:
+      - cluster
+      - config

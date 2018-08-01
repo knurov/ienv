@@ -1,0 +1,73 @@
+# curl -X DELETE http://aptly.rc.local:8080/api/publish/export/SC
+# curl -X POST -H 'Content-Type: application/json' --data '{"Name":"unstable-main"}' http://aptly.rc.local:8080/api/repos/main-sc/snapshots
+# curl -X POST -H 'Content-Type: application/json' --data '{"Name":"unstable-testing"}' http://aptly.rc.local:8080/api/repos/testing-sc/snapshots
+# curl -X POST -H 'Content-Type: application/json' --data '{"SourceKind": "snapshot", "Sources": [{"Name": "unstable-main", "Component": "main"}, {"Name": "unstable-testing", "Component": "testing"}], "Architectures": ["amd64"], "Distribution": "SC"}' http://aptly.rc.local:8080/api/publish/:export
+---
+- name: Создать архив репозитория
+
+  hosts: localhost
+  connection: local
+
+  vars:
+    aptly:
+      snapshot: unstable
+      prefix: export
+      components:
+        - testing
+        - main
+
+  vars_prompt:
+    - name: repo_dir
+      prompt: "Dir? "
+      private: no
+
+  tasks:
+    - name: Создать слепок
+      uri:
+        url: http://aptly.rc.local:8080/api/repos/{{item}}-sc/snapshots
+        method: POST
+        body: "{'Name':'{{aptly.snapshot}}-{{ansible_date_time.iso8601}}-{{item}}'}"
+        body_format: json
+        status_code: 201
+      with_items: "{{aptly.components}}"
+
+    - name: Cоздать публикацию
+      uri:
+        url: http://aptly.rc.local:8080/api/publish/:{{aptly.prefix}}
+        method: POST
+        # body: "{'SourceKind': 'snapshot', 'Sources': [{'Name': '{{aptly.snapshot}}-{{components}}', 'Component': '{{components}}'},], 'Architectures': ['amd64'], 'Distribution': 'SC'}"
+        body: "{'SourceKind': 'snapshot', 'Sources': [ {% for item in aptly.components %} {'Name': '{{aptly.snapshot}}-{{ansible_date_time.iso8601}}-{{ item }}', 'Component': '{{ item }}'} {{ ',' if not loop.last else '' }} {% endfor %} ], 'Architectures': ['amd64'], 'Distribution': 'SC'}"
+        status_code: 201
+        body_format: json
+
+    - name: Создать структуру каталогов
+      file:
+        path: "{{repo_dir}}/{{ item }}"
+        state: directory
+      with_items:
+          - "Repo-SC"
+
+    - name: Download repo
+      shell: "wget -r -np -nH --cut-dirs=1 --no-parent --reject 'index.html*' --reject '*.gif' -P {{repo_dir}}/Repo-SC 'http://aptly.rc.local/{{aptly.prefix}}/'"
+
+    - name: Download key
+      get_url:
+        url: http://aptly.rc.local/rc.center.sc.gpg.key
+        dest: "{{repo_dir}}/Repo-SC"
+        mode: 0777
+      # shell: "wget -P {{repo_dir}}/REPO/SC 'http://aptly.rc.center/rc.center.sc.gpg.key'"
+
+    - name: Удаляем публикацию
+      uri:
+        url: http://aptly.rc.local:8080/api/publish/{{aptly.prefix}}/SC
+        method: DELETE
+
+    # - name: Архивировать репозиторий
+    #   archive:
+    #     path: "{{repo_dir}}/Repo-SC"
+    #     dest: "{{repo_dir}}/Repo-SC.tgz"
+    #
+    # - name: Удалить мусор
+    #   file:
+    #     state: absent
+    #     path: "{{repo_dir}}/Repo-SC"

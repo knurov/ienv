@@ -1,0 +1,13 @@
+
+  - name: Файл кофигурации
+    template:
+      src: index.j2
+      dest: "/root/index"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+    # with_items:
+    #   - {{ groups['mhpi'] }}
+    #   - {{ groups['mupp'] }}
+
+  # - name: Netcat!
+  #   shell: while true; do { sh index | nc -vl -s 0.0.0.0 -p 8080 -q 1; } done &2>1

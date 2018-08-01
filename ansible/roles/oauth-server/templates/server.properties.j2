@@ -1,0 +1,31 @@
+server.contextPath=/
+server.port={{oauth_server_port}}
+
+logging.file=logs/app.log
+
+server.session.cookie.name=OAUTH2SESSION
+
+#spring.profiles.active=kerberos-ldap
+
+app.ad-domain: RC.LOCAL
+app.ad-server: ldap://ald-server.rc.local/
+app.service-principal: HTTP/ald-server.rc.local@RC.LOCAL
+app.keytab-location: /home/sysadm/http.keytab
+app.ldap-search-base: ou=users,dc=rc,dc=local
+app.ldap-search-filter: (uid={0})
+
+spring.datasource.driver-class-name=org.postgresql.Driver
+spring.datasource.url=jdbc:postgresql://{{oauth_db_server}}:5432/{{oauth_db_name}}
+spring.datasource.username={{oauth_db_user}}
+spring.datasource.password={{oauth_db_pass}}
+
+#spring.jpa.hibernate.naming-strategy=org.hibernate.cfg.DefaultNamingStrategy
+spring.jpa.hibernate.naming-strategy=org.hibernate.cfg.ImprovedNamingStrategy
+spring.jpa.database=POSTGRESQL
+spring.jpa.show-sql=false
+spring.jpa.hibernate.ddl-auto=validate
+
+logging.level.org.springframework.security=INFO
+logging.level.rc.center.oauth=DEBUG
+
+client.login.uri=/oauth/login-form.html

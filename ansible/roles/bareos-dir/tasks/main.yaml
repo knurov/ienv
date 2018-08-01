@@ -1,0 +1,114 @@
+---
+# Роль директора для bareos
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - bareos
+      - install
+
+  - name: Установить bareos-dir
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - bareos
+      - install
+
+  - name: Включить автозапуск службы bareos-dir
+    service:
+      name: bareos-dir
+      enabled: yes
+      state: started
+    tags:
+      - bareos
+      - install
+
+  - name: Настройка клиента
+    template:
+      src: client.conf.j2
+      dest: "/etc/bareos/bareos-dir.d/client/{{hostvars[item].ansible_hostname}}.conf"
+    with_items: "{{ groups['bareos-fd'] }}"
+    tags:
+      - bareos
+      - config
+
+  - name: Перечитать настройки для Bareos-dir
+    shell: echo "reload" | bconsole
+    tags:
+      - bareos
+      - config
+
+  # reload не реализован!?!?!?!?!
+  # - name: Перечитать настройки для Bareos-dir ()
+  #   service:
+  #     name: bareos-dir
+  #     enabled: yes
+  #     state: reloaded
+  #   tags:
+  #     - bareos
+
+  - name: Положить факты о установленных сервисах в словарь 'hostname:host, instaled:package'
+    set_fact:
+      services: "{{ services|default([]) + [{'hostname': hostvars[item].ansible_hostname , 'instaled': hostvars[item].ansible_local.services.general.keys()|list } ] }} "
+    with_items: "{{ groups['bareos-fd'] }}"
+    when:
+      not hostvars[item].ansible_local.services is undefined
+    tags:
+      - bareos
+      - config
+
+  - name: Получить список шаблонов
+    local_action: stat path=roles/bareos-dir/templates/fileset.{{item.1}}.conf.j2
+    register: template_fileset_exist_raw
+    with_subelements:
+      - "{{ services }}"
+      - instaled
+    tags:
+      - bareos
+      - config
+
+  - name: Список шаблонов в словарь
+    set_fact:
+      template_fileset_exist: "{{ template_fileset_exist|default({}) | combine( {item.item.1: item.stat.exists} ) }}"
+    with_items: "{{ template_fileset_exist_raw.results }}"
+    tags:
+      - bareos
+      - config
+
+  - name: Настройка наборов файлов Bareos
+    template:
+      src: fileset.{{item.1}}.conf.j2
+      dest: "/etc/bareos/bareos-dir.d/fileset/{{item.0.hostname}}_{{item.1}}.conf"
+      group: "{{group}}"
+      owner: "{{user}}"
+    when:
+      template_fileset_exist[item.1] == true
+    with_subelements:
+      - "{{ services }}"
+      - instaled
+    tags:
+      - bareos
+      - config
+
+  - name: Настройка Заданий Bareos
+    template:
+      src: job.conf.j2
+      dest: "/etc/bareos/bareos-dir.d/job/{{item.0.hostname}}_{{item.1}}.conf"
+      group: "{{group}}"
+      owner: "{{user}}"
+    when:
+      template_fileset_exist[item.1] == true
+    with_subelements:
+      - "{{ services }}"
+      - instaled
+    tags:
+      - bareos
+      - config
+
+  - name: Перечитать настройки для Bareos-dir
+    shell: echo "reload" | bconsole
+    tags:
+      - bareos
+      - config

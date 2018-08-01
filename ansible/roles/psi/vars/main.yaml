@@ -1,0 +1,19 @@
+packages:
+    - psi
+    - php5
+    - php5-gd
+    - php5-pgsql
+    - php5-imap
+    - php5-ldap
+    - php5-fpm
+
+
+psi:
+  admin:
+    email: 'your-email@example.net'
+    password: '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'
+  db:
+    name: psi
+    user: postgres
+    host: localhost
+    pass: postgres

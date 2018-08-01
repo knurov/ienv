@@ -1,0 +1,53 @@
+---
+
+#TODO: убрать гвозди
+
+- name: Получить список хостов из всех груп (костыль1)
+  set_fact:
+    host_list: "{{ host_list | default({}) | combine(item.hosts,  recursive=True) }}"
+  with_items: "{{object_list.groups.values()}}"
+  tags:
+    - debug
+
+- name: Получить список хостов из всех груп (костыль2)
+  set_fact:
+    host_list: "{{ host_list | default({}) | combine( object_list.groups['ex'].hosts,  recursive=True) }}"
+  tags:
+    - debug
+
+- name: Заполнение interfaces_temp из object_list
+  set_fact:
+    interfaces_temp: "{{ interfaces_temp|default([]) + [{'device': 'eth0', 'bootproto': 'static', 'address': item.1.ip, 'netmask': item.1.netmask, 'dnsnameservers': item.1.dns, 'dnssearch': item.1.domain, 'hostname': item.1.hostname, 'gateway': item.1.gateway } ] }} "
+  with_subelements:
+    - "{{host_list.values()}}"
+    - network
+
+- name: Заполнение interfaces_ether_interfaces из object_list
+  set_fact:
+    interfaces_ether_interfaces: "{{ interfaces_ether_interfaces|default([]) + [{'device': 'eth0', 'bootproto': 'static', 'address': item.address, 'netmask': '255.255.255.0', 'dnsnameservers': item.dnsnameservers, 'dnssearch': item.dnssearch, 'gateway': item.gateway } ] }} "
+  with_items: "{{interfaces_temp}}"
+  when: item.hostname + '.' + item.dnssearch  == inventory_hostname and (interfaces_ether_interfaces is undefined or interfaces_ether_interfaces == [])
+
+- include: 'debian.yml'
+  when: ansible_os_family == 'Astra Linux (Smolensk)'
+
+- include: 'debian.yml'
+  when: ansible_os_family == 'Debian'
+
+- include: 'redhat.yml'
+  when: ansible_os_family == 'RedHat'
+
+- include: 'route_table_configuration.yml'
+  tags: configuration
+
+- include: 'ethernet_configuration.yml'
+  when: interfaces_ether_interfaces is defined
+  tags: configuration
+
+- include: 'bond_configuration.yml'
+  when: interfaces_bond_interfaces is defined
+  tags: configuration
+
+- include: 'bridge_configuration.yml'
+  when: interfaces_bridge_interfaces is defined
+  tags: configuration

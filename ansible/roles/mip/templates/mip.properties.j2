@@ -1,0 +1,61 @@
+amel:
+    springboot:
+        name: mip-service
+        xmlRests: true
+        xmlRoutes: true
+
+    component:
+        servlet:
+          mapping:
+            contextPath: /endpoint/*
+
+spring:
+    datasource:
+        url: jdbc:postgresql://{{mip_db_server}}:5432/{{mip_db_name}}
+        username: {{mip_db_user}}
+        password: {{mip_db_pass}}
+        driver-class-name: org.postgresql.Driver
+
+    profiles:
+        active: production
+
+management:
+    security:
+        enabled: false
+    endpoints:
+        web:
+            expose: '*'
+
+flyway:
+  enabled: true
+  locations: classpath:migration
+
+servlet:
+    cxf:
+        contextPath: "/cxf/*"
+    camel:
+        contextPath: "/camel/*"
+
+mticket:
+    brokerUrl: tcp://{{activemq_server}}:61616
+    queue: mticket
+
+integration:
+    brokerUrl: tcp://{{activemq_server}}:61616
+    defaultQueue: integration
+
+oauth2:
+    resource:
+        id: {{ansible_hostname + "-" + mip_ss_name}}
+    client:
+        id: {{system.json.id}}
+        client-secret: {{system.json.secret}}
+        check-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/check_token
+        access-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/token
+        revoke-token-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/revoke
+        scope: read
+        authorization-uri: http://{{oauth_server}}:{{oauth_server_port}}/oauth/authorize
+        login-success-uri: http://{{inventory_hostname}}:{{mip_port}}
+
+server:
+    port: {{mip_port}}

@@ -1,0 +1,49 @@
+  - name: Установить пакеты
+    apt:
+      name: "{{ item }}"
+      state: latest
+      allow_unauthenticated: yes
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Файл кофигурации oauth-web-admin
+    template:
+      src: webadmin.properties.j2
+      dest: "/etc/oauth-web-admin/application.properties"
+      mode: u=rwx,g=rx,o=rx
+      follow: yes
+
+  - name: Проверка наличия БД oauth
+    shell: PGPASSWORD="{{oauth_db_pass}}" psql -U {{oauth_db_user}} -h {{oauth_db_server}} -c "\list" | grep -c {{oauth_db_name}}
+    register: dbstatus
+    failed_when: dbstatus.rc == 2
+    tags:
+      - install
+      - upgrade
+
+  - debug:
+    msg: БАЗЫ ДАННЫХ НЕ СУЩЕСТВУЕТ !
+    when: dbstatus.stdout == "0"
+    tags:
+      - install
+
+  - name: Обновить systems в БД
+    shell: PGPASSWORD="{{oauth_db_pass}}" psql -U {{oauth_db_user}} -h {{oauth_db_server}} -d {{oauth_db_name}} -c "update systems set web_server_redirect_uri = 'http://{{inventory_hostname}}:8085/web-api/login/code' where id = '{{webadmin_id}}';"
+    when: dbstatus.stdout == "1"
+
+  - name: Обновить oauth_client_details в БД
+    shell: PGPASSWORD="{{oauth_db_pass}}" psql -U {{oauth_db_user}} -h {{oauth_db_server}} -d {{oauth_db_name}} -c "update oauth_client_details set web_server_redirect_uri = 'http://{{inventory_hostname}}:8085/web-api/login/code' where client_id = '{{webadmin_id}}';"
+    when: dbstatus.stdout == "1"
+
+  - name: Перезапуск oauth-web-admin
+    service:
+      name: oauth-web-admin
+      state: restarted
+
+  - name: Ожидание полного запуска oauth-web-admin
+    wait_for:
+      host: "{{ inventory_hostname }}"
+      port: 8085
+      delay: 10
+      state: started
