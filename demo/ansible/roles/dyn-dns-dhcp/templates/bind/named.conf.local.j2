@@ -6,16 +6,19 @@
 // organization
 //include "/etc/bind/zones.rfc1918";
 
+include "/etc/bind/rndc.key";
 
 {% for group in object_list.groups.values() %}
 zone "{{ group.domain }}" {
     type master;
     file "/etc/bind/db.{{ group.domain }}";
+    allow-update { key rndc-key; };
 };
 {% endfor %}
 {% for group in object_list.groups.values() %}
 zone "{{ group.domain }}.arpa" {
     type master;
     file "/etc/bind/{{ group.domain }}.arpa.zone";
+    allow-update { key rndc-key; };
 };
 {% endfor %}

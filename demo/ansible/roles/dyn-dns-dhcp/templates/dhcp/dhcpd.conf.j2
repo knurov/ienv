@@ -22,7 +22,7 @@ max-lease-time 7200;
 
 key "rndc-key" {
         algorithm hmac-md5;
-        secret "hhSEZL3jWeC77Y0pzAY48asFtu8ffsB6YseBQMAcUUVQWy22ZA0HBjXZqQFJNx0e4TPwOGhbPD5E5EOklUkutA==";
+        secret "{{ rndc-key }}";
 };
 
 zone {{ item.domain }}. {

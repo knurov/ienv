@@ -13,26 +13,20 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   with_items:
-    - src: 10.0.0.in-addr.arpa.zone.j2
+    - src: bind/10.0.0.in-addr.arpa.zone.j2
       dest: /etc/bind/{{ item.domain }}.arpa.zone
-    - src: db.domain.j2
+    - src: bind/db.domain.j2
       dest: "/etc/bind/db.{{ item.domain }}"
-    - src: named.conf.local.j2
+    - src: bind/named.conf.local.j2
       dest: /etc/bind/named.conf.local
-    - src: named.conf.options.j2
+    - src: bind/named.conf.options.j2
       dest: /etc/bind/named.conf.options
   notify:
     - Перезапуск Bind9
 
-- name: Файл кофигурации dhcpd
-  template:
-    src: dhcpd/dhcpd.conf.j2
-    dest: "/etc/dhcp/dhcpd.conf"
-    mode: u=rwx,g=rx,o=rx
-
 - name: Файл кофигурации default dhcpd
   template:
-    src: dhcpd/isc-dhcp-server.j2
+    src: dhcp/isc-dhcp-server.j2
     dest: "/etc/default/isc-dhcp-server"
     mode: u=rwx,g=rx,o=rx
 
