@@ -7,35 +7,34 @@ all:
     ansible_become_method: sudo
     # ansible_become_user: root
     ansible_become_pass: xsw!2345
-
   children:
     dyn-dns-dhcp:
       hosts:
         10.0.0.254:
-          - domain: 4dir
-          - dns: 10.0.0.254
+          domain: 4dir
+          dns: 10.0.0.254
     common:
       hosts:
-        - ns.4dir
-        - openvpn.4dir
-        - ldap.4dir
-        - gitlab.4dir
-        - jira.4dir
-        - svn.4dir
-        - zabbix.4dir
-        - nginx.4dir
-        - bareos.4dir
+        ns.4dirq:
+        openvpn.4dir:
+        ldap.4dir:
+        gitlab.4dir:
+        jira.4dir:
+        svn.4dir:
+        zabbix.4dir:
+        nginx.4dir:
+        bareos.4dir:
     server-tools:
       hosts:
-        - ns.4dir
-        - openvpn.4dir
-        - ldap.4dir
-        - gitlab.4dir
-        - jira.4dir
-        - svn.4dir
-        - zabbix.4dir
-        - nginx.4dir
-        - bareos.4dir
+        ns.4dir:
+        openvpn.4dir:
+        ldap.4dir:
+        gitlab.4dir:
+        jira.4dir:
+        svn.4dir:
+        zabbix.4dir:
+        nginx.4dir:
+        bareos.4dir:
     openvpn:
       hosts:
         openvpn.4dir:
