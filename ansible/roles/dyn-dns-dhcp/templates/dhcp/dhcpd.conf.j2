@@ -20,10 +20,7 @@ option broadcast-address 10.0.0.255;
 default-lease-time 4800;
 max-lease-time 7200;
 
-key "rndc-key" {
-        algorithm hmac-md5;
-        secret "{{ rndc-key }}";
-};
+{{lookup('file','/etc/bind/rndc.key')}}
 
 zone {{ item.domain }}. {
         primary {{ item.dns }};
