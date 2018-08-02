@@ -1,0 +1,13 @@
+$ORIGIN .
+$TTL 604800     ; 1 week
+{{ item.domain }}.arpa     IN SOA  ns.{{ item.domain }}. root.{{ item.domain }}. (
+                                2001063551 ; serial
+                                21600      ; refresh (6 hours)
+                                3600       ; retry (1 hour)
+                                604800     ; expire (1 week)
+                                86400      ; minimum (1 day)
+                                )
+                        NS      ns.{{ item.domain }}.
+$ORIGIN {{ item.domain }}.arpa.
+$TTL 604800     ; 1 week
+{{ item.dns }}                       PTR     ns.{{ item.domain }}.

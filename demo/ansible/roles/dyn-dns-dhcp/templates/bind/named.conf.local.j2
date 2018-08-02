@@ -1,0 +1,21 @@
+//
+// Do any local configuration here
+//
+
+// Consider adding the 1918 zones here, if they are not used in your
+// organization
+//include "/etc/bind/zones.rfc1918";
+
+
+{% for group in object_list.groups.values() %}
+zone "{{ group.domain }}" {
+    type master;
+    file "/etc/bind/db.{{ group.domain }}";
+};
+{% endfor %}
+{% for group in object_list.groups.values() %}
+zone "{{ group.domain }}.arpa" {
+    type master;
+    file "/etc/bind/{{ group.domain }}.arpa.zone";
+};
+{% endfor %}

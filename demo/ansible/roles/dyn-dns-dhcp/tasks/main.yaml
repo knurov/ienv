@@ -1,0 +1,47 @@
+ - name: Установка пакетов
+   apt:
+     name: "{{ item }}"
+     state: present
+     update_cache: yes
+     allow_unauthenticated: yes
+   with_items: "{{ packages }}"
+   tags:
+     - install
+
+- name: Файл кофигурации Bind9
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - src: 10.0.0.in-addr.arpa.zone.j2
+      dest: /etc/bind/{{ item.domain }}.arpa.zone
+    - src: db.domain.j2
+      dest: "/etc/bind/db.{{ item.domain }}"
+    - src: named.conf.local.j2
+      dest: /etc/bind/named.conf.local
+    - src: named.conf.options.j2
+      dest: /etc/bind/named.conf.options
+  notify:
+    - Перезапуск Bind9
+
+- name: Файл кофигурации dhcpd
+  template:
+    src: dhcpd/dhcpd.conf.j2
+    dest: "/etc/dhcp/dhcpd.conf"
+    mode: u=rwx,g=rx,o=rx
+
+- name: Файл кофигурации default dhcpd
+  template:
+    src: dhcpd/isc-dhcp-server.j2
+    dest: "/etc/default/isc-dhcp-server"
+    mode: u=rwx,g=rx,o=rx
+
+- name: Перезапуск dhcpd
+  service:
+    name: isc-dhcp-server
+    state: restarted
+
+- name: Перезапуск Bind9
+  service:
+    name: bind9
+    state: restarted

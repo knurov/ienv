@@ -1,0 +1,41 @@
+ddns-updates on;
+update-static-leases on;
+ddns-domainname "{{ item.domain }}";
+ddns-update-style interim;
+ignore client-updates;
+update-static-leases true;
+
+default-lease-time 3600;
+max-lease-time 7200;
+authoritative;
+log-facility local7;
+
+subnet 10.0.0.0 netmask 255.255.255.0 {
+range 10.0.0.100 10.0.0.254;
+option domain-name-servers 10.0.0.8;
+option domain-name "{{ item.domain }}";
+option routers 10.0.0.1;
+option time-servers 10.0.0.1;
+option broadcast-address 10.0.0.255;
+default-lease-time 4800;
+max-lease-time 7200;
+
+key "rndc-key" {
+        algorithm hmac-md5;
+        secret "hhSEZL3jWeC77Y0pzAY48asFtu8ffsB6YseBQMAcUUVQWy22ZA0HBjXZqQFJNx0e4TPwOGhbPD5E5EOklUkutA==";
+};
+
+zone {{ item.domain }}. {
+        primary {{ item.dns }};
+        key rndc-key;
+}
+
+zone {{ item.domain }}.arpa. {
+        primary {{ item.dns }};
+        key rndc-key;
+}
+
+update-conflict-detection false;
+
+ddns-domainname "{{ item.domain }}.";
+ddns-rev-domainname "{{ item.domain }}.arpa.";
