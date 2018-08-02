@@ -1,7 +1,7 @@
 ---
 all:
   ansible_user: sysadm
-  ansible_ssh_pass: zaq!2345
+  ansible_ssh_pass: xsw!2345
   ansible_become: true
   ansible_become_method: sudo
   # ansible_become_user: root
@@ -12,6 +12,31 @@ all:
       10.0.0.254:
     vars:
       domain: 4dir
+      dns: 10.0.0.254
+
+  common:
+    hosts:
+      - ns.4dir
+      - openvpn.4dir
+      - ldap.4dir
+      - gitlab.4dir
+      - jira.4dir
+      - svn.4dir
+      - zabbix.4dir
+      - nginx.4dir
+      - bareos.4dir
+
+  server-tools:
+    hosts:
+      - ns.4dir
+      - openvpn.4dir
+      - ldap.4dir
+      - gitlab.4dir
+      - jira.4dir
+      - svn.4dir
+      - zabbix.4dir
+      - nginx.4dir
+      - bareos.4dir
 
   openvpn:
     hosts:

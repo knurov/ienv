@@ -10,3 +10,15 @@
     - dyn-dns-dhcp
   tags:
     - dyn-dns-dhcp
+
+- hosts: common
+  roles:
+    - common
+  tags:
+    - common
+
+- hosts: server-tools
+  roles:
+    - server-tools
+  tags:
+    - server-tools
