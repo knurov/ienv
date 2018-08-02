@@ -12,7 +12,7 @@ log-facility local7;
 
 subnet 10.0.0.0 netmask 255.255.255.0 {
 range 10.0.0.100 10.0.0.254;
-option domain-name-servers 10.0.0.8;
+option domain-name-servers {{ item.dns }};
 option domain-name "{{ item.domain }}";
 option routers 10.0.0.1;
 option time-servers 10.0.0.1;
