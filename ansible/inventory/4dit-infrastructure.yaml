@@ -10,9 +10,8 @@ all:
   dyn-dns-dhcp:
     hosts:
       10.0.0.254:
-    vars:
-      domain: 4dir
-      dns: 10.0.0.254
+        - domain: 4dir
+        - dns: 10.0.0.254
 
   common:
     hosts:

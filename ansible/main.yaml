@@ -4,6 +4,8 @@
   gather_facts: False
   roles:
     - known_hosts
+  tags:
+    - always
 
 - hosts: dyn-dns-dhcp
   roles:
