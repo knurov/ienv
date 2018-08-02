@@ -24,6 +24,12 @@
   notify:
     - Перезапуск Bind9
 
+- name: Файл кофигурации dhcpd
+  template:
+    src: dhcp/dhcpd.conf.j2
+    dest: "/etc/dhcp/dhcpd.conf"
+    mode: u=rwx,g=rx,o=rx
+
 - name: Файл кофигурации default dhcpd
   template:
     src: dhcp/isc-dhcp-server.j2
