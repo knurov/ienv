@@ -1,0 +1,12 @@
+---
+
+- hosts: all
+  gather_facts: False
+  roles:
+    - known_hosts
+
+- hosts: dyn-dns-dhcp
+  roles:
+    - dyn-dns-dhcp
+  tags:
+    - dyn-dns-dhcp

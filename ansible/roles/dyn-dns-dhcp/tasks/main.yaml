@@ -1,12 +1,12 @@
- - name: Установка пакетов
-   apt:
-     name: "{{ item }}"
-     state: present
-     update_cache: yes
-     allow_unauthenticated: yes
-   with_items: "{{ packages }}"
-   tags:
-     - install
+- name: Установка пакетов
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+    allow_unauthenticated: yes
+  with_items: "{{ packages }}"
+  tags:
+    - install
 
 - name: Файл кофигурации Bind9
   template:

@@ -1,0 +1,54 @@
+---
+all:
+  ansible_user: sysadm
+  ansible_ssh_pass: zaq!2345
+  ansible_become: true
+  ansible_become_method: sudo
+  # ansible_become_user: root
+  ansible_become_pass: zaq!2345
+
+  dyn-dns-dhcp:
+    hosts:
+      10.0.0.254:
+    vars:
+      domain: 4dir
+
+  openvpn:
+    hosts:
+      openvpn.4dir:
+        description: Сервер OpenVPN
+
+  ldap:
+    hosts:
+      ldap.4dir:
+        description: Катало пользователей и групп
+
+  gitlab:
+    hosts:
+      gitlab.4dir:
+        description: Репозитории GIT
+
+  jira:
+    hosts:
+      jira.4dir:
+        description: Трекер и управление проектами
+
+  svn:
+    hosts:
+      svn.4dir:
+        description: Репозиторий с документацией
+
+  zabbix:
+    hosts:
+      zabbix.4dir:
+        description: Мониторинг инфраструктуры
+
+  nginx:
+    hosts:
+      nginx.4dir:
+        description: Прокси сервер для доступа извне
+
+  bareos:
+    hosts:
+      bareos.4dir:
+        description: Резервное копирование
