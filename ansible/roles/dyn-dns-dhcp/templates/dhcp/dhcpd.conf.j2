@@ -11,28 +11,29 @@ authoritative;
 log-facility local7;
 
 subnet 10.0.0.0 netmask 255.255.255.0 {
-range 10.0.0.100 10.0.0.254;
-option domain-name-servers {{ dns }};
-option domain-name "{{ domain }}";
-option routers 10.0.0.1;
-option time-servers 10.0.0.1;
-option broadcast-address 10.0.0.255;
-default-lease-time 4800;
-max-lease-time 7200;
+  range 10.0.0.100 10.0.0.254;
+  option domain-name-servers {{ dns }};
+  option domain-name "{{ domain }}";
+  option routers 10.0.0.1;
+  option time-servers 10.0.0.1;
+  option broadcast-address 10.0.0.255;
+  default-lease-time 4800;
+  max-lease-time 7200;
 
-{{ rndc['content'] | b64decode }}
+  {{ rndc['content'] | b64decode }}
 
-zone {{ domain }}. {
-        primary {{ dns }};
-        key rndc-key;
+  zone {{ domain }}. {
+          primary {{ dns }};
+          key rndc-key;
+  }
+
+  zone {{ domain }}.arpa. {
+          primary {{ dns }};
+          key rndc-key;
+  }
+
+  update-conflict-detection false;
+
+  ddns-domainname "{{ domain }}.";
+  ddns-rev-domainname "{{ domain }}.arpa.";
 }
-
-zone {{ domain }}.arpa. {
-        primary {{ dns }};
-        key rndc-key;
-}
-
-update-conflict-detection false;
-
-ddns-domainname "{{ domain }}.";
-ddns-rev-domainname "{{ domain }}.arpa.";
