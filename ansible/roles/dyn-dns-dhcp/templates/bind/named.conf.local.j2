@@ -8,17 +8,13 @@
 
 include "/etc/bind/rndc.key";
 
-{% for group in object_list.groups.values() %}
-zone "{{ group.domain }}" {
+zone "{{ domain }}" {
     type master;
-    file "/etc/bind/db.{{ group.domain }}";
+    file "/etc/bind/db.{{ domain }}";
     allow-update { key rndc-key; };
 };
-{% endfor %}
-{% for group in object_list.groups.values() %}
-zone "{{ group.domain }}.arpa" {
+zone "{{ domain }}.arpa" {
     type master;
-    file "/etc/bind/{{ group.domain }}.arpa.zone";
+    file "/etc/bind/{{ domain }}.arpa.zone";
     allow-update { key rndc-key; };
 };
-{% endfor %}
