@@ -10,8 +10,8 @@ $TTL 604800     ; 1 week
                         NS      ns.{{ domain }}.
 $ORIGIN {{ domain }}.
 $TTL 604800     ; 1 week
-ns                      A       {{ item.dns }}
+ns                      A       {{ dns }}
 {% if groups['landingpage'] is defined %}
-home                    A   {{ item.dns }}
-start                   A   {{ item.dns }}
+home                    A   {{ dns }}
+start                   A   {{ dns }}
 {% endif %}
