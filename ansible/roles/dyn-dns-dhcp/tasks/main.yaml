@@ -13,8 +13,6 @@
     src: /etc/bind/rndc.key
   register: rndc
 
-- debug: msg="{{ rndc['content'] | b64decode }}"
-
 - name: Файл кофигурации Bind9
   template:
     src: "{{ item.src }}"
