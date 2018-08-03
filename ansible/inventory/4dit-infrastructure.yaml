@@ -13,6 +13,7 @@ all:
         10.0.0.254:
           domain: 4dir
           dns: 10.0.0.254
+          dhcp_interface: ens18
     common:
       hosts:
         ns.4dirq:
