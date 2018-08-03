@@ -6,7 +6,11 @@
       key: "{{ lookup('pipe', 'ssh-keyscan {{ inventory_hostname }}') }}"
       state: present
       become: no
+      vars:
+        ansible_become: no
     become: no
+    vars:
+      ansible_become: no
     tags:
       - always
 
