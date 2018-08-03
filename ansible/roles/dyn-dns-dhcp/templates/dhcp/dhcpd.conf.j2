@@ -22,13 +22,13 @@ max-lease-time 7200;
 
 {{ rndc['content'] | b64decode }}
 
-zone {{ item.domain }}. {
-        primary {{ item.dns }};
+zone {{ domain }}. {
+        primary {{ dns }};
         key rndc-key;
 }
 
-zone {{ item.domain }}.arpa. {
-        primary {{ item.dns }};
+zone {{ domain }}.arpa. {
+        primary {{ dns }};
         key rndc-key;
 }
 
