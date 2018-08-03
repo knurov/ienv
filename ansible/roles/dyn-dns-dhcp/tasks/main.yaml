@@ -43,6 +43,12 @@
     dest: "/etc/default/isc-dhcp-server"
     mode: u=rwx,g=rx,o=rx
 
+- name: права на запимь для bind в /etc/bind/
+  file:
+    path: /etc/bind/
+    state: touch
+    mode: "g+rw"
+
 - name: Перезапуск dhcpd
   service:
     name: isc-dhcp-server
