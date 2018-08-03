@@ -5,6 +5,7 @@
       name: "{{ inventory_hostname }}"
       key: "{{ lookup('pipe', 'ssh-keyscan {{ inventory_hostname }}') }}"
       state: present
+      become: no
     become: no
     tags:
       - always
