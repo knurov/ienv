@@ -7,7 +7,7 @@
 
   - name: Создать системного пользователя
     user:
-      name: "{{ item.user }}"
+      name: "{{ item.name }}"
       password: "{{ item.pass }}"
       groups: sudo
       shell: "{{ item.shell }}"
