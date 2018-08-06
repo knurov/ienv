@@ -11,6 +11,6 @@
       password: "{{ item.pass }}"
       groups: sudo
       shell: "{{ item.shell }}"
-    with_item: "{{ users }}"
+    with_items: "{{ users }}"
     tags:
       - config
