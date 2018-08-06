@@ -25,8 +25,8 @@ all:
         bareos.4dir:
         openvpn.4dir:
       vars:
+        ansible_become_method: su
         users:
-          ansible_become_method: su
           - name: sysadm
             pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
             shell: /bin/bash
