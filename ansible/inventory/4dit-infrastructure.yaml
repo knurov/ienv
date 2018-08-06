@@ -39,6 +39,7 @@ all:
           - name: aleshkin
             pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
             shell: /bin/bash
+
     common:
       hosts:
         ns.4dir:
@@ -50,6 +51,7 @@ all:
         zabbix.4dir:
         nginx.4dir:
         bareos.4dir:
+
     server-tools:
       hosts:
         ns.4dir:
@@ -61,10 +63,14 @@ all:
         zabbix.4dir:
         nginx.4dir:
         bareos.4dir:
+
     openvpn:
       hosts:
         openvpn.4dir:
           description: Сервер OpenVPN
+          domain: 4dir
+          dns: 10.0.0.254
+
     ldap:
       hosts:
         ldap.4dir:

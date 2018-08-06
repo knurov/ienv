@@ -63,9 +63,9 @@ export KEY_EXPIRE=3650
 export KEY_COUNTRY="RU"
 export KEY_PROVINCE="MO"
 export KEY_CITY="Moscow"
-export KEY_ORG="4dir"
-export KEY_EMAIL="sysadm@4dir.ru"
-export KEY_OU="4dir"
+export KEY_ORG="{{ item.domain }}"
+export KEY_EMAIL="sysadm@{{ item.domain }}"
+export KEY_OU="{{ item.domain }}"
 
 # X509 Subject Field
 export KEY_NAME="openVPNServer"
@@ -76,4 +76,4 @@ export KEY_NAME="openVPNServer"
 
 # If you'd like to sign all keys with the same Common Name, uncomment the KEY_CN export below
 # You will also need to make sure your OpenVPN server config has the duplicate-cn option set
-export KEY_CN="CommonName"
+export KEY_CN="CommonName123"

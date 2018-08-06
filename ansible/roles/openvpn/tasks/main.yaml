@@ -49,13 +49,13 @@
   run_once: true
 
 - name: Создать CA
-  shell: export KEY_CN=CA . ./build-ca --initca --batch 2> /dev/null
+  shell: export KEY_CN=CA && . ./build-ca --initca --batch 2> /dev/null
   args:
       chdir: "/etc/openvpn/easy-rsa/keys"
   run_once: true
 
 - name: Создать Server Key
-  shell: export KEY_CN=SERVER . ./build-key-server --server --batch 2> /dev/null
+  shell: export KEY_CN=SERVER && . ./build-key-server --server --batch 2> /dev/null
   args:
       chdir: "/etc/openvpn/easy-rsa/keys"
   run_once: true

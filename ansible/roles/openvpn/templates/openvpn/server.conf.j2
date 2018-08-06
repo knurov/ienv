@@ -5,7 +5,7 @@ topology subnet
 port 1194
 proto udp
 keepalive 10 120
-crl-verify /etc/openvpn/crl.pem
+#crl-verify /etc/openvpn/easy-rsa/keys/crl.pem
 
 # Location of certificate authority's cert.
 ca /etc/openvpn/easy-rsa/keys/ca.crt
@@ -34,7 +34,7 @@ group nogroup
 # setting them here and not in client.ovpn. See
 # `openvpn --show-tls`, `openvpn --show-ciphers` and
 #`openvpn --show-digests` for all supported options.
-tls-auth /root/openvpn-ca/keys/ta.key 0
+tls-auth /etc/openvpn/easy-rsa/keys/ta.key 0
 tls-timeout 120
 auth SHA1
 cipher BF-CBC        # Blowfish (default)
