@@ -14,6 +14,30 @@ all:
           domain: 4dir
           dns: 10.0.0.254
           dhcp_interface: ens18
+    addusers:
+      hosts:
+        ns.4dirq:
+        ldap.4dir:
+        gitlab.4dir:
+        jira.4dir:
+        svn.4dir:
+        zabbix.4dir:
+        nginx.4dir:
+        bareos.4dir:
+      vars:
+        users:
+          - name: sysadm
+            pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
+            shell: /bin/bash
+          - name: knurov
+            pass: $6$2V9wExiHRDOdLNRX$siApJGAXctoumAaA15hwfdzLmFU/j1epEpxyDJUrZ3ezelEte5bafiMgZ3OQVXmT25sGSxIT4wig0BAL6oF6U.
+            shell: /bin/bash
+          - name: vtorov
+            pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
+            shell: /bin/bash
+          - name: aleshkin
+            pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
+            shell: /bin/bash
     common:
       hosts:
         ns.4dirq:
