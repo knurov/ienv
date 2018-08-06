@@ -32,6 +32,7 @@
     - dyn-dns-dhcp
 
 - hosts: ldap
-    - roles: ldap
+  roles: 
+    - ldap
   tags:
     - ldap

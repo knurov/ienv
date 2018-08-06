@@ -49,7 +49,7 @@
   #   tags:
   #     - config
 
-  - name: setup
-    setup: filter=ansible_local
-    tags:
-      - config
+#  - name: setup
+#    setup: filter=ansible_local
+#    tags:
+#      - config
