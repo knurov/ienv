@@ -15,7 +15,7 @@ all:
           dhcp_interface: ens18
     addusers:
       hosts:
-        ns.4dirq:
+        ns.4dir:
         ldap.4dir:
         gitlab.4dir:
         jira.4dir:
@@ -41,7 +41,7 @@ all:
             shell: /bin/bash
     common:
       hosts:
-        ns.4dirq:
+        ns.4dir:
         openvpn.4dir:
         ldap.4dir:
         gitlab.4dir:
