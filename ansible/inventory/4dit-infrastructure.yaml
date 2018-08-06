@@ -5,7 +5,6 @@ all:
     ansible_ssh_pass: xsw!2345
     ansible_become: true
     ansible_become_method: sudo
-    # ansible_become_user: root
     ansible_become_pass: xsw!2345
   children:
     dyn-dns-dhcp:
@@ -24,8 +23,10 @@ all:
         zabbix.4dir:
         nginx.4dir:
         bareos.4dir:
+        openvpn.4dir:
       vars:
         users:
+          ansible_become_method: su
           - name: sysadm
             pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
             shell: /bin/bash
