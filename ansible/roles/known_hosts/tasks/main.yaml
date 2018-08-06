@@ -9,6 +9,6 @@
     tags:
       - always
 
-  - name: Bootstrap a host without python installed
-    raw: apt-get install -y python
-    ignore_errors: yes
+#  - name: Bootstrap a host without python installed
+#    raw: apt-get install -y python
+#    ignore_errors: yes

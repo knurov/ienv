@@ -4,9 +4,35 @@
   gather_facts: False
   roles:
     - known_hosts
+  tags:
+    - always
+
+- hosts: addusers
+  roles:
+    - addusers
+  tags:
+    - addusers
+
+- hosts: common
+  roles:
+    - common
+  tags:
+    - common
+
+- hosts: server-tools
+  roles:
+    - server-tools
+  tags:
+    - server-tools
 
 - hosts: dyn-dns-dhcp
   roles:
     - dyn-dns-dhcp
   tags:
     - dyn-dns-dhcp
+
+- hosts: ldap
+  roles: 
+    - ldap
+  tags:
+    - ldap

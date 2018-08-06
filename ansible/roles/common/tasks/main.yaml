@@ -4,7 +4,6 @@
     apt:
       name: debconf-utils
     tags:
-      - common
       - install
 
   - name: generate locale
@@ -13,13 +12,11 @@
       state: present
     with_items: "{{ locales_list }}"
     tags:
-      - common
       - config
 
   - name: drop locales (Обход проблемы с неинтерактивным dpkg-reconfigure)
     command: "update-locale LANG="
     tags:
-      - common
       - config
 
   - name: set default locale
@@ -29,7 +26,6 @@
       value: "{{ locale }}"
       vtype: select
     tags:
-      - common
       - config
 
   - name: reconfigure locales
@@ -41,37 +37,4 @@
     timezone:
       name: "{{ timezone }}"
     tags:
-      - common
       - config
-
-  - name: Остановка ненужных служб
-    service:
-      name: "{{item}}"
-      enabled: no
-      state: stopped
-    with_items:
-      - bind9
-      - bluetooth
-      - cups
-      - openvpn
-      - samba
-      - winbind
-      - squid
-      - parlogd
-      - wicd
-      - exim4
-      - motd
-    ignore_errors: yes
-    tags:
-      - common
-      - config
-      - network
-
-  - name: Удаление ненужных пакетов
-    apt:
-      name: "{{item}}"
-      state: absent
-    with_items:
-      - squid
-      - wicd
-      - avahi-autopid

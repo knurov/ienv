@@ -8,15 +8,20 @@
   tags:
     - install
 
+- name: Забрать rndc.key (используется в dhcpd.conf.j2)
+  slurp:
+    src: /etc/bind/rndc.key
+  register: rndc
+
 - name: Файл кофигурации Bind9
   template:
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   with_items:
     - src: bind/10.0.0.in-addr.arpa.zone.j2
-      dest: /etc/bind/{{ item.domain }}.arpa.zone
+      dest: /etc/bind/{{ domain }}.arpa.zone
     - src: bind/db.domain.j2
-      dest: "/etc/bind/db.{{ item.domain }}"
+      dest: "/etc/bind/db.{{ domain }}"
     - src: bind/named.conf.local.j2
       dest: /etc/bind/named.conf.local
     - src: bind/named.conf.options.j2
@@ -35,6 +40,12 @@
     src: dhcp/isc-dhcp-server.j2
     dest: "/etc/default/isc-dhcp-server"
     mode: u=rwx,g=rx,o=rx
+
+- name: права на запимь для bind в /etc/bind/
+  file:
+    path: /etc/bind/
+    state: touch
+    mode: "g+rw"
 
 - name: Перезапуск dhcpd
   service:

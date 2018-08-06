@@ -1,54 +1,95 @@
 ---
 all:
-  ansible_user: sysadm
-  ansible_ssh_pass: zaq!2345
-  ansible_become: true
-  ansible_become_method: sudo
-  # ansible_become_user: root
-  ansible_become_pass: zaq!2345
-
-  dyn-dns-dhcp:
-    hosts:
-      10.0.0.254:
-    vars:
-      domain: 4dir
-
-  openvpn:
-    hosts:
-      openvpn.4dir:
-        description: Сервер OpenVPN
-
-  ldap:
-    hosts:
-      ldap.4dir:
-        description: Катало пользователей и групп
-
-  gitlab:
-    hosts:
-      gitlab.4dir:
-        description: Репозитории GIT
-
-  jira:
-    hosts:
-      jira.4dir:
-        description: Трекер и управление проектами
-
-  svn:
-    hosts:
-      svn.4dir:
-        description: Репозиторий с документацией
-
-  zabbix:
-    hosts:
-      zabbix.4dir:
-        description: Мониторинг инфраструктуры
-
-  nginx:
-    hosts:
-      nginx.4dir:
-        description: Прокси сервер для доступа извне
-
-  bareos:
-    hosts:
-      bareos.4dir:
-        description: Резервное копирование
+  vars:
+    ansible_user: sysadm
+    ansible_ssh_pass: xsw!2345
+    ansible_become: true
+    ansible_become_method: sudo
+    ansible_become_pass: xsw!2345
+  children:
+    dyn-dns-dhcp:
+      hosts:
+        10.0.0.254:
+          domain: 4dir
+          dns: 10.0.0.254
+          dhcp_interface: ens18
+    addusers:
+      hosts:
+        ns.4dir:
+        ldap.4dir:
+        gitlab.4dir:
+        jira.4dir:
+        svn.4dir:
+        zabbix.4dir:
+        nginx.4dir:
+        bareos.4dir:
+        openvpn.4dir:
+      vars:
+        ansible_become_method: su
+        users:
+          - name: sysadm
+            pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
+            shell: /bin/bash
+          - name: knurov
+            pass: $6$2V9wExiHRDOdLNRX$siApJGAXctoumAaA15hwfdzLmFU/j1epEpxyDJUrZ3ezelEte5bafiMgZ3OQVXmT25sGSxIT4wig0BAL6oF6U.
+            shell: /bin/bash
+          - name: vtorov
+            pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
+            shell: /bin/bash
+          - name: aleshkin
+            pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
+            shell: /bin/bash
+    common:
+      hosts:
+        ns.4dir:
+        openvpn.4dir:
+        ldap.4dir:
+        gitlab.4dir:
+        jira.4dir:
+        svn.4dir:
+        zabbix.4dir:
+        nginx.4dir:
+        bareos.4dir:
+    server-tools:
+      hosts:
+        ns.4dir:
+        openvpn.4dir:
+        ldap.4dir:
+        gitlab.4dir:
+        jira.4dir:
+        svn.4dir:
+        zabbix.4dir:
+        nginx.4dir:
+        bareos.4dir:
+    openvpn:
+      hosts:
+        openvpn.4dir:
+          description: Сервер OpenVPN
+    ldap:
+      hosts:
+        ldap.4dir:
+          description: Катало пользователей и групп
+    gitlab:
+      hosts:
+        gitlab.4dir:
+          description: Репозитории GIT
+    jira:
+      hosts:
+        jira.4dir:
+          description: Трекер и управление проектами
+    svn:
+      hosts:
+        svn.4dir:
+          description: Репозиторий с документацией
+    zabbix:
+      hosts:
+        zabbix.4dir:
+          description: Мониторинг инфраструктуры
+    nginx:
+      hosts:
+        nginx.4dir:
+          description: Прокси сервер для доступа извне
+    bareos:
+      hosts:
+        bareos.4dir:
+          description: Резервное копирование

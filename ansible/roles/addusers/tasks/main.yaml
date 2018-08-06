@@ -1,0 +1,16 @@
+---
+  - name: install sudo
+    apt:
+      name: sudo
+    tags:
+      - install
+
+  - name: Создать системного пользователя
+    user:
+      name: "{{ item.name }}"
+      password: "{{ item.pass }}"
+      groups: sudo
+      shell: "{{ item.shell }}"
+    with_items: "{{ users }}"
+    tags:
+      - config
