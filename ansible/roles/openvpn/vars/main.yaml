@@ -1,0 +1,6 @@
+packages:
+    - openvpn
+    - openssl
+    - easy-rsa
+    - iptables-persistent
+    - haveged

@@ -1,0 +1,98 @@
+- name: Установить перенаправление
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+
+- name: Файл кофигурации iptables
+  template:
+    src: iptables/iptables.rules.j2
+    dest: "/etc/iptables/rules.v4"
+    mode: u=rwx,g=rx,o=rx
+
+- name: Файл кофигурации openvpn
+  template:
+    src: openvpn/server.conf.j2
+    dest: "/etc/openvpn/server.conf"
+    mode: u=rwx,g=rx,o=rx
+
+- name: Скопировать файлы
+  copy:
+    src: /usr/share/easy-rsa/
+    dest: /etc/openvpn
+
+- name: Файл openssl
+  copy:
+    src: openvpn/openssl.j2
+    dest: /etc/openvpn/easy-rsa/openss.cnf
+
+- name: Файл vars
+  copy:
+    src: openvpn/easy-rsa-vars.j2
+    dest: /etc/openvpn/easy-rsa/vars
+
+- name: Файл pkitool
+  copy:
+    src: openvpn/pkitool.j2
+    dest: /etc/openvpn/easy-rsa/pkitool
+
+- name: Очистить EASY-RSA
+  shell: . ./vars && . ./clean-all 2> /dev/null
+  args:
+      chdir: "/etc/openvpn/easy-rsa"
+  run_once: true
+
+- name: Создать PEM
+  shell: . ./build-dh 2> /dev/null
+  run_once: true
+
+- name: Создать CA
+  shell: export KEY_CN=CA . ./build-ca --initca --batch 2> /dev/null
+  args:
+      chdir: "/etc/openvpn/easy-rsa/keys"
+  run_once: true
+
+- name: Создать Server Key
+  shell: export KEY_CN=SERVER . ./build-key-server --server --batch 2> /dev/null
+  args:
+      chdir: "/etc/openvpn/easy-rsa/keys"
+  run_once: true
+
+- name: Добавить TA
+  shell: openvpn --genkey --secret ta.key
+  args:
+      chdir: "/etc/openvpn/easy-rsa/keys"
+  run_once: true
+
+- file:
+    path: /dev/net
+    state: directory
+    mode: 0755
+
+- name: Добавить TUN
+  shell: mknod /dev/net/tun c 10 200
+
+- name: Включить TUN модуль
+  modprobe:
+    name: tun
+    state: present
+
+# adduser --system --shell /usr/sbin/nologin --no-create-home openvpn
+- name: Add the user 'openvpn'
+  user:
+    name: openvpn
+    shell: /usr/sbin/nologin
+    create_home: no
+    system: yes
+
+- name: Перезапуск openvpn
+  service:
+    name: openvpn@server
+    state: restarted
+
+- name: Перезапуск iptables
+  service:
+    name: netfilter-persistent
+    state: restarted

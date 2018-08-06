@@ -1,0 +1,61 @@
+dev tun
+persist-key
+persist-tun
+topology subnet
+port 1194
+proto udp
+keepalive 10 120
+crl-verify /etc/openvpn/crl.pem
+
+# Location of certificate authority's cert.
+ca /etc/openvpn/easy-rsa/keys/ca.crt
+
+# Location of VPN server's TLS cert.
+cert /etc/openvpn/easy-rsa/keys/server.crt
+
+# Location of server's TLS key
+key /etc/openvpn/easy-rsa/keys/server.key
+
+# Location of DH parameter file.
+dh /etc/openvpn/easy-rsa/keys/dh1024.pem
+
+topology subnet
+# The VPN's address block starts here.
+server 10.0.97.0 255.255.255.0
+explicit-exit-notify 1
+
+# Drop root privileges and switch to the `ovpn` user after startup.
+user openvpn
+
+# OpenVPN process is exclusive member of ovpn group.
+group nogroup
+
+# Cryptography options. We force these onto clients by
+# setting them here and not in client.ovpn. See
+# `openvpn --show-tls`, `openvpn --show-ciphers` and
+#`openvpn --show-digests` for all supported options.
+tls-auth /root/openvpn-ca/keys/ta.key 0
+tls-timeout 120
+auth SHA1
+cipher BF-CBC        # Blowfish (default)
+comp-lzo
+#auth SHA512    # This needs to be in client.ovpn too though.
+tls-version-min 1.2
+tls-cipher TLS-DHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
+ncp-ciphers AES-256-GCM:AES-256-CBC
+
+persist-key
+persist-tun
+
+# Logging options.
+ifconfig-pool-persist /etc/openvpn/ipp.txt
+#push "redirect-gateway"
+push "block-outside-dns"
+push "route 10.0.0.0 255.255.255.0"
+push "dhcp-option DNS {{ item.dns }}"
+push "dhcp-option DOMAIN {{ item.domain }}"
+client-to-client
+keepalive 10 120
+status openvpn-status.log
+log /var/log/openvpn.log
+verb 3
