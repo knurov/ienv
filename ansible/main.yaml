@@ -32,7 +32,13 @@
     - dyn-dns-dhcp
 
 - hosts: ldap
-  roles: 
+  roles:
     - ldap
   tags:
     - ldap
+
+- hosts: openvpn
+  roles:
+    - openvpn
+  tags:
+    - openvpn
