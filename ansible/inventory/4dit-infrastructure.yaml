@@ -4,7 +4,7 @@ all:
     ansible_user: sysadm
     ansible_ssh_pass: xsw!2345
     ansible_become: true
-    ansible_become_method: sudouser
+    ansible_become_method: sudo
     ansible_become_pass: xsw!2345
   children:
 

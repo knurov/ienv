@@ -52,8 +52,8 @@ ifconfig-pool-persist /etc/openvpn/ipp.txt
 #push "redirect-gateway"
 push "block-outside-dns"
 push "route 10.0.0.0 255.255.255.0"
-push "dhcp-option DNS {{ item.dns }}"
-push "dhcp-option DOMAIN {{ item.domain }}"
+push "dhcp-option DNS {{ dns }}"
+push "dhcp-option DOMAIN {{ domain }}"
 client-to-client
 keepalive 10 120
 status openvpn-status.log
