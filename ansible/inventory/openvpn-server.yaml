@@ -1,0 +1,44 @@
+---
+all:
+  vars:
+    ansible_user: sysadm
+    ansible_ssh_pass: xsw!2345
+    ansible_become: true
+    ansible_become_method: sudo
+    ansible_become_pass: xsw!2345
+  children:
+
+    addusers:
+      hosts:
+        openvpn.4dir:
+      vars:
+        ansible_become_method: su
+        users:
+          - name: sysadm
+            pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
+            shell: /bin/bash
+          - name: knurov
+            pass: $6$2V9wExiHRDOdLNRX$siApJGAXctoumAaA15hwfdzLmFU/j1epEpxyDJUrZ3ezelEte5bafiMgZ3OQVXmT25sGSxIT4wig0BAL6oF6U.
+            shell: /bin/bash
+          - name: vtorov
+            pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
+            shell: /bin/bash
+          - name: aleshkin
+            pass: $6$.taj9R7pEMDHeGf2$oHOM0mi9gSn6OjEnrSE4pD0T32ScPn3zSrIyb37onFe7iImdCF9ew43/pOZ5zdGgo68jqWU2elOjQnljAdUDg.
+            shell: /bin/bash
+
+    common:
+      hosts:
+        openvpn.4dir:
+
+    server-tools:
+      hosts:
+        openvpn.4dir:
+
+    openvpn:
+      hosts:
+        openvpn.4dir:
+          description: Сервер OpenVPN
+          domain: 4dir.ru
+          dns: 10.0.0.254
+          interface: eth0

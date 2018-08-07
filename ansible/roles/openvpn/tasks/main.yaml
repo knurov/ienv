@@ -51,30 +51,35 @@
   shell: ". ./vars; ./clean-all >/dev/null"
   args:
     chdir: "/etc/openvpn/easy-rsa"
+  run_once: True
 
 - name: Создать PEM
   shell: ". ./vars; ./build-dh >/dev/null"
   args:
     creates: "/etc/openvpn/easy-rsa/keys/dh1024.pem"
     chdir: "/etc/openvpn/easy-rsa"
+  run_once: True
 
 - name: Создать CA
   shell: ". ./vars; export KEY_CN=ca; ./pkitool --initca >/dev/null"
   args:
     chdir: "/etc/openvpn/easy-rsa"
     creates: "/etc/openvpn/easy-rsa/keys/ca.key"
+  run_once: True
 
 - name: Создать Server Key
   shell: ". ./vars; export KEY_CN=server; ./pkitool --server  >/dev/null"
   args:
     chdir: "/etc/openvpn/easy-rsa"
     creates: "/etc/openvpn/easy-rsa/keys/server.key"
+  run_once: True
 
 - name: Добавить TA
   shell: openvpn --genkey --secret ta.key
   args:
     chdir: "/etc/openvpn/easy-rsa/keys"
     executable: /bin/bash
+  run_once: True
 
 - file:
     path: /dev/net

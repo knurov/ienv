@@ -66,14 +66,6 @@ all:
         nginx.4dir:
         bareos.4dir:
 
-    openvpn:
-      hosts:
-        openvpn.4dir:
-          description: Сервер OpenVPN
-          domain: 4dir.ru
-          dns: 10.0.0.254
-          interface: eth0
-
     ldap:
       hosts:
         ldap.4dir:
