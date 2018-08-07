@@ -55,6 +55,8 @@
 
 - name: Создать PEM
   shell: . ./build-dh 2> /dev/null
+  args:
+      chdir: "/etc/openvpn/easy-rsa"
   run_once: true
 
 - name: Создать CA
