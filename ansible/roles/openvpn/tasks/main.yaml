@@ -27,24 +27,25 @@
     mode: u=rwx,g=rx,o=rx
 
 - name: Скопировать файлы
-  copy:
-    src: /usr/share/easy-rsa/
-    dest: /etc/openvpn
+  shell: cp -R /usr/share/easy-rsa/ /etc/openvpn/
 
 - name: Файл openssl
-  copy:
+  template:
     src: openvpn/openssl.j2
-    dest: /etc/openvpn/easy-rsa/openss.cnf
+    dest: /etc/openvpn/easy-rsa/openssl.cnf
+    mode: u=rwx,g=rx,o=rx
 
 - name: Файл vars
-  copy:
+  template:
     src: openvpn/easy-rsa-vars.j2
     dest: /etc/openvpn/easy-rsa/vars
+    mode: u=rwx,g=rx,o=rx
 
 - name: Файл pkitool
-  copy:
+  template:
     src: openvpn/pkitool.j2
     dest: /etc/openvpn/easy-rsa/pkitool
+    mode: u=rwx,g=rx,o=rx
 
 - name: Очистить EASY-RSA
   shell: . ./vars && . ./clean-all 2> /dev/null
