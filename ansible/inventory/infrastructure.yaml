@@ -70,7 +70,7 @@ all:
       hosts:
         openvpn.4dir:
           description: Сервер OpenVPN
-          domain: 4dir.ru
+          domain: 4dir
           dns: 10.0.0.254
           interface: eth0
     ldap:
