@@ -53,20 +53,25 @@
       chdir: "/etc/openvpn/easy-rsa"
   run_once: true
 
+- file:
+    path: /etc/openvpn/easy-rsa/keys
+    state: directory
+    mode: 0755
+
 - name: Создать PEM
   shell: . ./build-dh 2> /dev/null
   args:
-      chdir: "/etc/openvpn/easy-rsa"
+      chdir: "/etc/openvpn/easy-rsa/keys"
   run_once: true
 
 - name: Создать CA
-  shell: export KEY_CN=CA && . ./build-ca --initca --batch 2> /dev/null
+  shell: export KEY_CN=ca && . ./build-ca --initca --batch 2> /dev/null
   args:
       chdir: "/etc/openvpn/easy-rsa/keys"
   run_once: true
 
 - name: Создать Server Key
-  shell: export KEY_CN=SERVER && . ./build-key-server --server --batch 2> /dev/null
+  shell: export KEY_CN=server && . ./build-key-server --server --batch 2> /dev/null
   args:
       chdir: "/etc/openvpn/easy-rsa/keys"
   run_once: true
