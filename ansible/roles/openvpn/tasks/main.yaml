@@ -47,39 +47,58 @@
     dest: /etc/openvpn/easy-rsa/pkitool
     mode: u=rwx,g=rx,o=rx
 
+- name: Проверка наличия CA ключа
+  stat:
+    path: /etc/openvpn/easy-rsa/keys/ca.key
+  register: ca
+
 - name: Очистить EASY-RSA
   shell: ". ./vars; ./clean-all >/dev/null"
   args:
     chdir: "/etc/openvpn/easy-rsa"
-  run_once: True
+  when: not ca.stat.exists
+
+- name: Проверка наличия PEM ключа
+  stat:
+    path: /etc/openvpn/easy-rsa/keys/dh1024.pem
+  register: pem
 
 - name: Создать PEM
   shell: ". ./vars; ./build-dh >/dev/null"
   args:
     creates: "/etc/openvpn/easy-rsa/keys/dh1024.pem"
     chdir: "/etc/openvpn/easy-rsa"
-  run_once: True
+  when: not pem.stat.exists
 
 - name: Создать CA
   shell: ". ./vars; export KEY_CN=ca; ./pkitool --initca >/dev/null"
   args:
     chdir: "/etc/openvpn/easy-rsa"
     creates: "/etc/openvpn/easy-rsa/keys/ca.key"
-  run_once: True
+  when: not ca.stat.exists
+
+- name: Проверка наличия ключа сервера
+  stat:
+    path: /etc/openvpn/easy-rsa/keys/server.key
+  register: server
 
 - name: Создать Server Key
   shell: ". ./vars; export KEY_CN=server; ./pkitool --server  >/dev/null"
   args:
     chdir: "/etc/openvpn/easy-rsa"
     creates: "/etc/openvpn/easy-rsa/keys/server.key"
-  run_once: True
+  when: not server.stat.exists
+
+- name: Проверка наличия TA ключа
+  stat:
+    path: /etc/openvpn/easy-rsa/keys/ta.key
+  register: ta
 
 - name: Добавить TA
   shell: openvpn --genkey --secret ta.key
   args:
     chdir: "/etc/openvpn/easy-rsa/keys"
-    executable: /bin/bash
-  run_once: True
+  when: not ta.stat.exists
 
 - file:
     path: /dev/net
@@ -101,7 +120,7 @@
 #    state: present
 
 # adduser --system --shell /usr/sbin/nologin --no-create-home openvpn
-- name: Add the user 'openvpn'
+- name: Добавить пользователя 'openvpn'
   user:
     name: openvpn
     shell: /usr/sbin/nologin
