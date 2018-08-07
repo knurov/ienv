@@ -48,52 +48,52 @@
     mode: u=rwx,g=rx,o=rx
 
 - name: Очистить EASY-RSA
-  shell: . ./vars && . ./clean-all 2> /dev/null
+  shell: ". ./vars; ./clean-all >/dev/null"
   args:
-      chdir: "/etc/openvpn/easy-rsa"
-  run_once: true
-
-- file:
-    path: /etc/openvpn/easy-rsa/keys
-    state: directory
-    mode: 0755
+    chdir: "/etc/openvpn/easy-rsa"
 
 - name: Создать PEM
-  shell: . ./build-dh 2> /dev/null
+  shell: ". ./vars; ./build-dh >/dev/null"
   args:
-      chdir: "/etc/openvpn/easy-rsa/keys"
-  run_once: true
+    creates: "/etc/openvpn/easy-rsa/keys/dh1024.pem"
+    chdir: "/etc/openvpn/easy-rsa"
 
 - name: Создать CA
-  shell: export KEY_CN=ca && . ./build-ca --initca --batch 2> /dev/null
+  shell: ". ./vars; export KEY_CN=ca; ./pkitool --initca >/dev/null"
   args:
-      chdir: "/etc/openvpn/easy-rsa/keys"
-  run_once: true
+    chdir: "/etc/openvpn/easy-rsa"
+    creates: "/etc/openvpn/easy-rsa/keys/ca.key"
 
 - name: Создать Server Key
-  shell: export KEY_CN=server && . ./build-key-server --server --batch 2> /dev/null
+  shell: ". ./vars; export KEY_CN=server; ./pkitool --server  >/dev/null"
   args:
-      chdir: "/etc/openvpn/easy-rsa/keys"
-  run_once: true
+    chdir: "/etc/openvpn/easy-rsa"
+    creates: "/etc/openvpn/easy-rsa/keys/server.key"
 
 - name: Добавить TA
   shell: openvpn --genkey --secret ta.key
   args:
-      chdir: "/etc/openvpn/easy-rsa/keys"
-  run_once: true
+    chdir: "/etc/openvpn/easy-rsa/keys"
+    executable: /bin/bash
 
 - file:
     path: /dev/net
     state: directory
     mode: 0755
 
+- name: Получить статус TUN
+  stat:
+    path: "/dev/net/tun"
+  register: devtun
+
 - name: Добавить TUN
   shell: mknod /dev/net/tun c 10 200
+  when: not devtun.stat.exists
 
-- name: Включить TUN модуль
-  modprobe:
-    name: tun
-    state: present
+#- name: Включить TUN модуль
+#  modprobe:
+#    name: tun
+#    state: present
 
 # adduser --system --shell /usr/sbin/nologin --no-create-home openvpn
 - name: Add the user 'openvpn'
