@@ -42,3 +42,9 @@
     - openvpn
   tags:
     - openvpn
+
+- hosts: docker
+  roles:
+    - docker
+  tags:
+    - docker

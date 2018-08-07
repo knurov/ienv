@@ -26,6 +26,7 @@ all:
         nginx.4dir:
         bareos.4dir:
         openvpn.4dir:
+        green.4dir:
       vars:
         ansible_become_method: su
         users:
@@ -53,6 +54,7 @@ all:
         zabbix.4dir:
         nginx.4dir:
         bareos.4dir:
+        green.4dir:
 
     server-tools:
       hosts:
@@ -65,6 +67,26 @@ all:
         zabbix.4dir:
         nginx.4dir:
         bareos.4dir:
+        green.4dir:
+
+    docker:
+      hosts:
+        green.4dir:
+          docker_edition: "ce"
+          docker_channel: "edge"
+          docker_install_docker_compose: True
+          docker_compose_version: "1.21.0"
+          docker_users:
+          docker_cron_tasks:
+            - job: docker system prune -f
+              name: "Docker clean up"
+              schedule: ["0", "0", "*", "*", "0"]
+          docker_daemon_options: --dns 10.0.0.254
+          docker_daemon_environment: NO_PROXY=localhost,127.0.0.1
+          docker_apt_key: "9DC858229FC7DD38854AE2D88D81803C0EBFCD88"
+          docker_repository: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} {{ docker_channel }}"
+          docker_apt_package_name: "{{ docker_version }}~{{ docker_edition }}~3-0~{{ ansible_distribution | lower }}"
+          docker_apt_cache_time: 86400
 
     openvpn:
       hosts:
