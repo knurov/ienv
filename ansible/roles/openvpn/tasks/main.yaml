@@ -1,3 +1,11 @@
+- name: Установка пакетов
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+    allow_unauthenticated: yes
+  with_items: "{{ packages }}"
+
 - name: Установить перенаправление
   sysctl:
     name: net.ipv4.ip_forward
