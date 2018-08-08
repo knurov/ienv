@@ -11,22 +11,22 @@ all:
     dyn-dns-dhcp:
       hosts:
         10.0.0.254:
-          domain: smartsmall
+          domain: smartsmalls
           dns: 10.0.0.254
           dhcp_interface: ens18
 
     addusers:
       hosts:
-        ns.smartsmall:
-        ldap.smartsmall:
-        gitlab.smartsmall:
-        jira.smartsmall:
-        svn.smartsmall:
-        zabbix.smartsmall:
-        nginx.smartsmall:
-        bareos.smartsmall:
-        openvpn.smartsmall:
-        green.smartsmall:
+        ns.smartsmalls:
+        ldap.smartsmalls:
+        gitlab.smartsmalls:
+        jira.smartsmalls:
+        svn.smartsmalls:
+        zabbix.smartsmalls:
+        nginx.smartsmalls:
+        bareos.smartsmalls:
+        openvpn.smartsmalls:
+        green.smartsmalls:
       vars:
         ansible_become_method: su
         users:
@@ -45,33 +45,33 @@ all:
 
     common:
       hosts:
-        ns.smartsmall:
-        openvpn.smartsmall:
-        ldap.smartsmall:
-        gitlab.smartsmall:
-        jira.smartsmall:
-        svn.smartsmall:
-        zabbix.smartsmall:
-        nginx.smartsmall:
-        bareos.smartsmall:
-        green.smartsmall:
+        ns.smartsmalls:
+        openvpn.smartsmalls:
+        ldap.smartsmalls:
+        gitlab.smartsmalls:
+        jira.smartsmalls:
+        svn.smartsmalls:
+        zabbix.smartsmalls:
+        nginx.smartsmalls:
+        bareos.smartsmalls:
+        green.smartsmalls:
 
     server-tools:
       hosts:
-        ns.smartsmall:
-        openvpn.smartsmall:
-        ldap.smartsmall:
-        gitlab.smartsmall:
-        jira.smartsmall:
-        svn.smartsmall:
-        zabbix.smartsmall:
-        nginx.smartsmall:
-        bareos.smartsmall:
-        green.smartsmall:
+        ns.smartsmalls:
+        openvpn.smartsmalls:
+        ldap.smartsmalls:
+        gitlab.smartsmalls:
+        jira.smartsmalls:
+        svn.smartsmalls:
+        zabbix.smartsmalls:
+        nginx.smartsmalls:
+        bareos.smartsmalls:
+        green.smartsmalls:
 
     docker:
       hosts:
-        green.smartsmall:
+        green.smartsmalls:
           docker_edition: "ce"
           docker_channel: "edge"
           docker_install_docker_compose: True
@@ -90,37 +90,37 @@ all:
 
     openvpn:
       hosts:
-        openvpn.smartsmall:
+        openvpn.smartsmalls:
           description: Сервер OpenVPN
-          domain: smartsmall
+          domain: smartsmalls
           dns: 10.0.0.254
           vpnnet: 10.0.99.0
           interface: eth0
     ldap:
       hosts:
-        ldap.smartsmall:
+        ldap.smartsmalls:
           description: Катало пользователей и групп
     gitlab:
       hosts:
-        gitlab.smartsmall:
+        gitlab.smartsmalls:
           description: Репозитории GIT
     jira:
       hosts:
-        jira.smartsmall:
+        jira.smartsmalls:
           description: Трекер и управление проектами
     svn:
       hosts:
-        svn.smartsmall:
+        svn.smartsmalls:
           description: Репозиторий с документацией
     zabbix:
       hosts:
-        zabbix.smartsmall:
+        zabbix.smartsmalls:
           description: Мониторинг инфраструктуры
     nginx:
       hosts:
-        nginx.smartsmall:
+        nginx.smartsmalls:
           description: Прокси сервер для доступа извне
     bareos:
       hosts:
-        bareos.smartsmall:
+        bareos.smartsmalls:
           description: Резервное копирование
