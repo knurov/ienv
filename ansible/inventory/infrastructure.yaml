@@ -94,6 +94,7 @@ all:
           description: Сервер OpenVPN
           domain: smartsmall
           dns: 10.0.0.254
+          vpnnet: 10.0.99.0
           interface: eth0
     ldap:
       hosts:

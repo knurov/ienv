@@ -7,7 +7,7 @@
 -A INPUT -i {{ interface }} -p tcp -m state --state NEW,ESTABLISHED -m tcp --dport 22 -j ACCEPT
 -A INPUT -i {{ interface }} -p udp -m state --state NEW,ESTABLISHED -m udp --dport 1194 -j ACCEPT
 -A INPUT -i tun0 -j ACCEPT
--A FORWARD -s 10.0.97.0/24 -d 10.0.0.0/24 -i tun0 -j ACCEPT
+-A FORWARD -s {{ vpnnet }}/24 -d 10.0.0.0/24 -i tun0 -j ACCEPT
 -A OUTPUT -o lo -j ACCEPT
 -A OUTPUT -p icmp -j ACCEPT
 -A OUTPUT -o {{ interface }} -p tcp -m state --state ESTABLISHED -m tcp --sport 22 -j ACCEPT
@@ -21,6 +21,6 @@ COMMIT
 :INPUT ACCEPT [0:0]
 :OUTPUT ACCEPT [0:0]
 :POSTROUTING ACCEPT [0:0]
--A POSTROUTING -s 10.0.97.0/24 -o {{ interface }} -j MASQUERADE
+-A POSTROUTING -s {{ vpnnet }}/24 -o {{ interface }} -j MASQUERADE
 COMMIT
 # Completed on Tue Oct 31 10:33:26 2017

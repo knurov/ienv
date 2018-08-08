@@ -21,7 +21,7 @@ dh /etc/openvpn/easy-rsa/keys/dh1024.pem
 
 topology subnet
 # The VPN's address block starts here.
-server 10.0.97.0 255.255.255.0
+server {{ vpnnet }} 255.255.255.0
 explicit-exit-notify 1
 
 # Drop root privileges and switch to the `ovpn` user after startup.
