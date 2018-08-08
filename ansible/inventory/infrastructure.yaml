@@ -11,22 +11,22 @@ all:
     dyn-dns-dhcp:
       hosts:
         10.0.0.254:
-          domain: 4dir
+          domain: smartsmall
           dns: 10.0.0.254
           dhcp_interface: ens18
 
     addusers:
       hosts:
-        ns.4dir:
-        ldap.4dir:
-        gitlab.4dir:
-        jira.4dir:
-        svn.4dir:
-        zabbix.4dir:
-        nginx.4dir:
-        bareos.4dir:
-        openvpn.4dir:
-        green.4dir:
+        ns.smartsmall:
+        ldap.smartsmall:
+        gitlab.smartsmall:
+        jira.smartsmall:
+        svn.smartsmall:
+        zabbix.smartsmall:
+        nginx.smartsmall:
+        bareos.smartsmall:
+        openvpn.smartsmall:
+        green.smartsmall:
       vars:
         ansible_become_method: su
         users:
@@ -45,38 +45,38 @@ all:
 
     common:
       hosts:
-        ns.4dir:
-        openvpn.4dir:
-        ldap.4dir:
-        gitlab.4dir:
-        jira.4dir:
-        svn.4dir:
-        zabbix.4dir:
-        nginx.4dir:
-        bareos.4dir:
-        green.4dir:
+        ns.smartsmall:
+        openvpn.smartsmall:
+        ldap.smartsmall:
+        gitlab.smartsmall:
+        jira.smartsmall:
+        svn.smartsmall:
+        zabbix.smartsmall:
+        nginx.smartsmall:
+        bareos.smartsmall:
+        green.smartsmall:
 
     server-tools:
       hosts:
-        ns.4dir:
-        openvpn.4dir:
-        ldap.4dir:
-        gitlab.4dir:
-        jira.4dir:
-        svn.4dir:
-        zabbix.4dir:
-        nginx.4dir:
-        bareos.4dir:
-        green.4dir:
+        ns.smartsmall:
+        openvpn.smartsmall:
+        ldap.smartsmall:
+        gitlab.smartsmall:
+        jira.smartsmall:
+        svn.smartsmall:
+        zabbix.smartsmall:
+        nginx.smartsmall:
+        bareos.smartsmall:
+        green.smartsmall:
 
     docker:
       hosts:
-        green.4dir:
+        green.smartsmall:
           docker_edition: "ce"
           docker_channel: "edge"
           docker_install_docker_compose: True
           docker_compose_version: "1.21.0"
-          docker_users:
+          docker_users: sysadm
           docker_cron_tasks:
             - job: docker system prune -f
               name: "Docker clean up"
@@ -90,36 +90,36 @@ all:
 
     openvpn:
       hosts:
-        openvpn.4dir:
+        openvpn.smartsmall:
           description: Сервер OpenVPN
-          domain: 4dir
+          domain: smartsmall
           dns: 10.0.0.254
           interface: eth0
     ldap:
       hosts:
-        ldap.4dir:
+        ldap.smartsmall:
           description: Катало пользователей и групп
     gitlab:
       hosts:
-        gitlab.4dir:
+        gitlab.smartsmall:
           description: Репозитории GIT
     jira:
       hosts:
-        jira.4dir:
+        jira.smartsmall:
           description: Трекер и управление проектами
     svn:
       hosts:
-        svn.4dir:
+        svn.smartsmall:
           description: Репозиторий с документацией
     zabbix:
       hosts:
-        zabbix.4dir:
+        zabbix.smartsmall:
           description: Мониторинг инфраструктуры
     nginx:
       hosts:
-        nginx.4dir:
+        nginx.smartsmall:
           description: Прокси сервер для доступа извне
     bareos:
       hosts:
-        bareos.4dir:
+        bareos.smartsmall:
           description: Резервное копирование
