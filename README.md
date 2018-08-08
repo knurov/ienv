@@ -1,1 +1,1 @@
-# Ansible скрипт для 4dir
+# Ansible скрипт для smartsmall
