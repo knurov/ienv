@@ -32,13 +32,16 @@
   - name: Добавить конфиг в nginx
     block:
       - template:
-        src: lam.j2
-        dest: /etc/site-available/lam
+          src: "lam.j2"
+          dest: "/etc/nginx/sites-available/lam"
         notify:
           - restart nginx
       - file:
-        src: /etc/site-available/lam
-        path: /etc/site-enabled/lam
-        state: link
+          src: /etc/nginx/sites-available/lam
+          path: /etc/nginx/sites-enabled/lam
+          state: link
         notify:
           - restart nginx
+      - file:
+          path: /etc/nginx/sites-enabled/default
+          state: absent
