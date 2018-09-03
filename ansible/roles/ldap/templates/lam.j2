@@ -2,7 +2,7 @@ server {
   listen 80 default_server;
   listen [::]:80 default_server;
 
-  location / {
+  location /lam {
     index index.html;
     alias /usr/share/ldap-account-manager;
     autoindex off;
@@ -15,7 +15,7 @@ server {
       include fastcgi_params;
     }
 
-    location ~ /(tmp/internal|sess|config|lib|help|locale) {
+    location ~ /lam/(tmp/internal|sess|config|lib|help|locale) {
       deny all;
       return 403;
     }
