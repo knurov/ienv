@@ -30,7 +30,7 @@
       - install
 
   - name: Добавить конфиг в nginx
-    block:
+    blocks:
       - template:
         src: lam.j2
         dest: /etc/site-available/lam
@@ -39,3 +39,5 @@
         src: /etc/site-available/lam
         path: /etc/site-enabled/lam
         state: link
+    notify:
+      - reestart nginx
