@@ -99,7 +99,7 @@ all:
     ldap:
       hosts:
         ldap.smartsmalls:
-          description: Катало пользователей и групп
+          description: Каталог пользователей и групп
     gitlab:
       hosts:
         gitlab.smartsmalls:
@@ -116,7 +116,7 @@ all:
       hosts:
         zabbix.smartsmalls:
           description: Мониторинг инфраструктуры
-    nginx:
+    nginx-proxy:
       hosts:
         nginx.smartsmalls:
           description: Прокси сервер для доступа извне

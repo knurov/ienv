@@ -31,6 +31,12 @@
   tags:
     - dyn-dns-dhcp
 
+- hosts: nginx-proxy
+  roles:
+    - nginx-proxy
+  tags:
+    - nginx-proxy
+
 - hosts: ldap
   roles:
     - ldap
