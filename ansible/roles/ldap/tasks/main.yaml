@@ -14,12 +14,12 @@
     tags:
       - install
 
-  # - name: Установить LAM c оф сайта
-  #   apt:
-  #     deb: https://github.com/LDAPAccountManager/lam/releases/download/untagged-0f11e4b04e249cac51c5/ldap-account-manager_6.4-1_all.deb
-  #     state: present
-  #   tags:
-  #     - install
+  - name: Установить LAM c оф сайта
+    apt:
+      deb: https://github.com/LDAPAccountManager/lam/releases/download/untagged-0f11e4b04e249cac51c5/ldap-account-manager_6.4-1_all.deb
+      state: present
+    tags:
+      - install
 
   - name: Включить автозапуск службы slapd
     service:
@@ -46,23 +46,25 @@
           path: /etc/nginx/sites-enabled/default
           state: absent
 
-  - name: Добавить конфиг для nginx-proxy_pass
-    template:
-      src: ldap.j2
-      dest: /etc/nginx/sites-available/ldap
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['nginx-proxy'] }}"
-    tags:
-      - delegate
-
-  - name: Линк для nginx-proxy_pass
-    file:
-      src: /etc/nginx/sites-available/ldap
-      path: /etc/nginx/sites-enabled/ldap
-      state: link
-    notify:
-      - restart nginx
-    delegate_to: "{{ item }}"
-    with_items: "{{ groups['nginx-proxy'] }}"
-    tags:
-      - delegate
+  # - name: Добавить конфиг для nginx-proxy_pass
+  #   template:
+  #     src: ldap.j2
+  #     dest: /etc/nginx/sites-available/ldap
+  #   notify:
+  #     - restart nginx-proxy
+  #   delegate_to: "{{ item }}"
+  #   with_items: "{{ groups['nginx-proxy'] }}"
+  #   tags:
+  #     - delegate
+  #
+  # - name: Линк для nginx-proxy_pass
+  #   file:
+  #     src: /etc/nginx/sites-available/ldap
+  #     path: /etc/nginx/sites-enabled/ldap
+  #     state: link
+  #   notify:
+  #     - restart nginx-proxy
+  #   delegate_to: "{{ item }}"
+  #   with_items: "{{ groups['nginx-proxy'] }}"
+  #   tags:
+  #     - delegate
