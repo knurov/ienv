@@ -29,27 +29,13 @@
     tags:
       - install
 
-  # - name: Создать каталог для кастомных фактов
-  #   file:
-  #     path: "/etc/ansible/facts.d"
-  #     state: "directory"
-  #   tags:
-  #     - config
-  #
-  # - name: записать в факты об установленных сервисах
-  #   ini_file:
-  #     path: /etc/ansible/facts.d/services.fact
-  #     state: present
-  #     create: yes
-  #     section: general
-  #     option: "{{ item }}"
-  #     value: True
-  #     no_extra_spaces: yes
-  #   with_items: "{{ packages }}"
-  #   tags:
-  #     - config
+  - name: Добавить конфиг в nginx
+    block:
+      - template:
+        src: lam.j2
+        dest: /etc/site-available/lam
 
-#  - name: setup
-#    setup: filter=ansible_local
-#    tags:
-#      - config
+      - file:
+        src: /etc/site-available/lam
+        path: /etc/site-enabled/lam
+        state: link
