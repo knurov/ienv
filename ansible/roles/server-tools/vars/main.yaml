@@ -5,4 +5,8 @@ packages:
   - vim
   - mc
   - curl
+  - less
+  - nano
+  - man
+  - bash-completion
   # - htop
