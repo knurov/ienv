@@ -1,19 +1,24 @@
-location / {
-  index index.html;
-  alias /usr/share/ldap-account-manager;
-  autoindex off;
+server {
+  listen 80 default_server;
+  listen [::]:80 default_server;
 
-  location ~ \.php$ {
-    fastcgi_split_path_info ^(.+\.php)(/.+)$;
-    fastcgi_pass unix:/var/run/php5-fpm.sock;
-    fastcgi_index index.php;
-    fastcgi_param SCRIPT_FILENAME $request_filename;
-    include fastcgi_params;
+  location / {
+    index index.html;
+    alias /usr/share/ldap-account-manager;
+    autoindex off;
+
+    location ~ \.php$ {
+      fastcgi_split_path_info ^(.+\.php)(/.+)$;
+      fastcgi_pass unix:/var/run/php5-fpm.sock;
+      fastcgi_index index.php;
+      fastcgi_param SCRIPT_FILENAME $request_filename;
+      include fastcgi_params;
+    }
+
+    location ~ /(tmp/internal|sess|config|lib|help|locale) {
+      deny all;
+      return 403;
+    }
+
   }
-
-  location ~ /(tmp/internal|sess|config|lib|help|locale) {
-    deny all;
-    return 403;
-  }
-
 }
