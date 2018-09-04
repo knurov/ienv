@@ -14,12 +14,34 @@
     tags:
       - install
 
-  - name: Установить LAM c оф сайта
-    apt:
-      deb: https://github.com/LDAPAccountManager/lam/releases/download/untagged-0f11e4b04e249cac51c5/ldap-account-manager_6.4-1_all.deb
-      state: present
-    tags:
-      - install
+  - name: Настройка OPENLDAP
+      block:
+        - debconf: name='slapd' question='slapd/password2' vtype='password' value='Xsw!2345'
+        - debconf: name='slapd' question='slapd/internal/generated_adminpw' vtype='password' value='Xsw!2345'
+        - debconf: name='slapd' question='slapd/internal/adminpw' vtype='password' value='Xsw!2345'
+        - debconf: name='slapd' question='slapd/password1' vtype='password' value='Xsw!2345'
+        - debconf: name='slapd' question='slapd/unsafe_selfwrite_acl' vtype='note'
+        - debconf: name='slapd' question='slapd/upgrade_slapcat_failure' vtype='error'
+        - debconf: name='slapd' question='slapd/invalid_config' vtype='boolean' value='true'
+        - debconf: name='slapd' question='slapd/password_mismatch' vtype='note'
+        - debconf: name='slapd' question='slapd/dump_database' vtype='select' value='when needed'
+        - debconf: name='slapd' question='slapd/no_configuration' vtype='boolean' value='false'
+        - debconf: name='slapd' question='slapd/purge_database' vtype='boolean' value='true'
+        - debconf: name='slapd' question='slapd/domain' vtype='string' value='4dir.com'
+        - debconf: name='slapd' question='slapd/move_old_database' vtype='boolean' value='true'
+        - debconf: name='slapd' question='slapd/ppolicy_schema_needs_update' vtype='select' value='abort installation'
+        - debconf: name='slapd' question='slapd/backend' vtype='select' value='MDB'
+        - debconf: name='slapd	shared/organization' vtype='string' value='4dir'
+        - debconf: name='slapd' question='slapd/dump_database_destdir' vtype='string' value='/var/backups/slapd-VERSION'
+  - name: reconfigure btsync
+    command: sudo dpkg-reconfigure -f noninteractive slapd
+
+  # - name: Установить LAM c оф сайта
+  #   apt:
+  #     deb: https://github.com/LDAPAccountManager/lam/releases/download/untagged-0f11e4b04e249cac51c5/ldap-account-manager_6.4-1_all.deb
+  #     state: present
+  #   tags:
+  #     - install
 
   - name: Включить автозапуск службы slapd
     service:
