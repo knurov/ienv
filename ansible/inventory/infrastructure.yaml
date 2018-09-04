@@ -103,6 +103,7 @@ all:
           dn: "dc=4dir,dc=com"
           domain: "4dir.com"
           bind_pw: Xsw!2345
+          system_pw: systempassword
     gitlab:
       hosts:
         gitlab.smartsmalls:
