@@ -83,47 +83,31 @@
       bind_dn: "cn=admin,{{ dn }}"
       bind_pw: "{{ bind_pw }}"
 
+  - name: Удалить системную учетную запись
+    ldap_entry:
+      dn: "uid=systemaccount,{{ dn }}"
+      state: absent
+      server_uri: ldap://localhost/
+      bind_dn: "cn=admin,{{ dn }}"
+      bind_pw: "{{ bind_pw }}"
+    tags:
+      - system_account
+
+
   - name: Добавить системную учетную запись
     ldap_entry:
-      dn: "cn=system,{{ dn }}"
+      dn: "uid=systemaccount,{{ dn }}"
       objectClass:
         - simpleSecurityObject
+        - account
       attributes:
-        description: LDAP system account
+        userPassword: "{{ system_pw }}"
       state: present
       server_uri: ldap://localhost/
       bind_dn: "cn=admin,{{ dn }}"
       bind_pw: "{{ bind_pw }}"
     tags:
       - system_account
-
-  - name: Добавить системную учетную запись
-    ldap_passwd:
-      dn: "cn=system,{{ dn }}"
-      passwd: "{{ system_pw }}"
-      server_uri: ldap://localhost/
-      bind_dn: "cn=admin,{{ dn }}"
-      bind_pw: "{{ bind_pw }}"
-    tags:
-      - system_account
-
-
-
-# dn: cn=admin,dc=4dir,dc=com
-# objectClass: simpleSecurityObject
-# objectClass: organizationalRole
-# cn: admin
-# description: LDAP administrator
-# userPassword:: e1NTSEF9Zk4yb0oxS1hrY3dqaTd3alBaR0lYUk1wWExxQUJLSDA=
-# structuralObjectClass: organizationalRole
-# entryUUID: e4b75056-449a-1038-8a2b-b325d715d121
-# creatorsName: cn=admin,dc=4dir,dc=com
-# createTimestamp: 20180904143102Z
-# entryCSN: 20180904143102.366794Z#000000#000#000000
-# modifiersName: cn=admin,dc=4dir,dc=com
-# modifyTimestamp: 20180904143102Z
-
-
 
   - name: Добавить конфиг в nginx
     block:
