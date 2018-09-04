@@ -8,10 +8,10 @@
 
   - name: Настройка OPENLDAP
     block:
-      - debconf: name='slapd' question='slapd/password2' vtype='password' value='Xsw!2345'
-      - debconf: name='slapd' question='slapd/internal/generated_adminpw' vtype='password' value='Xsw!2345'
-      - debconf: name='slapd' question='slapd/internal/adminpw' vtype='password' value='Xsw!2345'
-      - debconf: name='slapd' question='slapd/password1' vtype='password' value='Xsw!2345'
+      - debconf: name='slapd' question='slapd/password2' vtype='password' value='{{ bind_pw }}'
+      - debconf: name='slapd' question='slapd/internal/generated_adminpw' vtype='password' value='{{ bind_pw }}'
+      - debconf: name='slapd' question='slapd/internal/adminpw' vtype='password' value='{{ bind_pw }}'
+      - debconf: name='slapd' question='slapd/password1' vtype='password' value='{{ bind_pw }}'
       - debconf: name='slapd' question='slapd/unsafe_selfwrite_acl' vtype='note' value=''
       - debconf: name='slapd' question='slapd/upgrade_slapcat_failure' vtype='error' value=''
       - debconf: name='slapd' question='slapd/invalid_config' vtype='boolean' value='true'
@@ -19,11 +19,11 @@
       - debconf: name='slapd' question='slapd/dump_database' vtype='select' value='when needed'
       - debconf: name='slapd' question='slapd/no_configuration' vtype='boolean' value='false'
       - debconf: name='slapd' question='slapd/purge_database' vtype='boolean' value='true'
-      - debconf: name='slapd' question='slapd/domain' vtype='string' value='4dir.com'
+      - debconf: name='slapd' question='slapd/domain' vtype='string' value='{{domain}}'
       - debconf: name='slapd' question='slapd/move_old_database' vtype='boolean' value='true'
       - debconf: name='slapd' question='slapd/ppolicy_schema_needs_update' vtype='select' value='abort installation'
       - debconf: name='slapd' question='slapd/backend' vtype='select' value='MDB'
-      - debconf: name='slapd' question='shared/organization' vtype='string' value='4dir'
+      - debconf: name='slapd' question='shared/organization' vtype='string' value='{{domain}}'
       - debconf: name='slapd' question='slapd/dump_database_destdir' vtype='string' value='/var/backups/slapd-VERSION'
 
   # - name: reconfigure btsync
@@ -37,6 +37,13 @@
     tags:
       - install
 
+  - name: Включить автозапуск службы slapd
+    service:
+      name: slapd
+      enabled: yes
+      state: started
+    tags:
+      - install
 
   # - name: Установить LAM c оф сайта
   #   apt:
@@ -45,13 +52,35 @@
   #   tags:
   #     - install
 
-  - name: Включить автозапуск службы slapd
-    service:
-      name: slapd
-      enabled: yes
-      state: started
-    tags:
-      - install
+  - name: Добавить Ветку с пользователями в LDAP
+    ldap_entry:
+      dn: "ou=People,{{ dn }}"
+      objectClass:
+        - organizationalUnit
+      state: present
+      server_uri: ldap://localhost/
+      bind_dn: "cn=admin,{{ dn }}"
+      bind_pw: "{{ bind_pw }}"
+
+  - name: Добавить Ветку с группами в LDAP
+    ldap_entry:
+      dn: "ou=group,{{ dn }}"
+      objectClass:
+        - organizationalUnit
+      state: present
+      server_uri: ldap://localhost/
+      bind_dn: "cn=admin,{{ dn }}"
+      bind_pw: "{{ bind_pw }}"
+
+  - name: Добавить группу users в LDAP
+    ldap_entry:
+      dn: "cn=users,ou=group,{{ dn }}"
+      objectClass:
+        - posixGroup
+      state: present
+      server_uri: ldap://localhost/
+      bind_dn: "cn=admin,{{ dn }}"
+      bind_pw: "{{ bind_pw }}"
 
   - name: Добавить конфиг в nginx
     block:
@@ -69,6 +98,31 @@
       - file:
           path: /etc/nginx/sites-enabled/default
           state: absent
+
+  - name: Настроит LAM
+    lineinfile:
+      path: /var/lib/ldap-account-manager/config/lam.conf
+      create: yes
+      regexp: '^#*{{ item.key }}'
+      line: '{{ item.key }} {{ item.value }}'
+    with_items:
+      - key: Admins:
+        value: 'cn=admin,{{ dn }}'
+      - key: treesuffix:
+        value: '{{ dn }}'
+      - key: types: suffix_user:
+        value: 'ou=People,{{ dn }}'
+      - key: types: suffix_group:
+        value: 'ou=group,{{ dn }}'
+      - key: loginSearchSuffix:
+        value: '{{ dn }}'
+      - key: loginSearchFilter:
+        value: 'cn=%USER%'
+      - key: loginMethod:
+        value: 'search'
+    notify:
+      - "restart php7.0-fpm"
+
 
   # - name: Добавить конфиг для nginx-proxy_pass
   #   template:
