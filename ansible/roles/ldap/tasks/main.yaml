@@ -27,8 +27,6 @@
       - debconf: name='slapd' question='slapd/dump_database_destdir' vtype='string' value='/var/backups/slapd-VERSION'
     tags:
       - debconf
-  # - name: reconfigure btsync
-  #   command: dpkg-reconfigure -f noninteractive slapd
 
   - name: Установить пакеты из списка
     apt:
@@ -78,6 +76,8 @@
       dn: "cn=users,ou=group,{{ dn }}"
       objectClass:
         - posixGroup
+      attributes:
+        gidNumber: 10000
       state: present
       server_uri: ldap://localhost/
       bind_dn: "cn=admin,{{ dn }}"
