@@ -106,19 +106,19 @@
       regexp: '^#*{{ item.key }}'
       line: '{{ item.key }} {{ item.value }}'
     with_items:
-      - key: Admins:
+      - key: "Admins:"
         value: 'cn=admin,{{ dn }}'
-      - key: treesuffix:
+      - key: "treesuffix:"
         value: '{{ dn }}'
-      - key: types: suffix_user:
+      - key: "types: suffix_user:"
         value: 'ou=People,{{ dn }}'
-      - key: types: suffix_group:
+      - key: "types: suffix_group:"
         value: 'ou=group,{{ dn }}'
-      - key: loginSearchSuffix:
+      - key: "loginSearchSuffix:"
         value: '{{ dn }}'
-      - key: loginSearchFilter:
+      - key: "loginSearchFilter:"
         value: 'cn=%USER%'
-      - key: loginMethod:
+      - key: "loginMethod:"
         value: 'search'
     notify:
       - "restart php7.0-fpm"
