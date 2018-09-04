@@ -45,12 +45,12 @@
     tags:
       - install
 
-  # - name: Установить LAM c оф сайта
-  #   apt:
-  #     deb: https://github.com/LDAPAccountManager/lam/releases/download/untagged-0f11e4b04e249cac51c5/ldap-account-manager_6.4-1_all.deb
-  #     state: present
-  #   tags:
-  #     - install
+  - name: Установить LAM c оф сайта
+    apt:
+      deb: https://github.com/LDAPAccountManager/lam/releases/download/untagged-0f11e4b04e249cac51c5/ldap-account-manager_6.4-1_all.deb
+      state: present
+    tags:
+      - install
 
   - name: Добавить Ветку с пользователями в LDAP
     ldap_entry:

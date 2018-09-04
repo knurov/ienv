@@ -2,3 +2,4 @@ packages:
   - slapd
   - nginx
   - php7.0-fpm
+  - python-ldap
