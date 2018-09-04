@@ -35,7 +35,7 @@
       - debconf: name='slapd' question='slapd/dump_database_destdir' vtype='string' value='/var/backups/slapd-VERSION'
 
   - name: reconfigure btsync
-    command: sudo dpkg-reconfigure -f noninteractive slapd
+    command: dpkg-reconfigure -f noninteractive slapd
 
   # - name: Установить LAM c оф сайта
   #   apt:
