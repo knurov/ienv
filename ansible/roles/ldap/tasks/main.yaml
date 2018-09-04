@@ -6,14 +6,6 @@
     tags:
       - install
 
-  - name: Установить пакеты из списка
-    apt:
-      name: "{{ item }}"
-      state: present
-    with_items: "{{ packages }}"
-    tags:
-      - install
-
   - name: Настройка OPENLDAP
     block:
       - debconf: name='slapd' question='slapd/password2' vtype='password' value='Xsw!2345'
@@ -34,8 +26,17 @@
       - debconf: name='slapd' question='shared/organization' vtype='string' value='4dir'
       - debconf: name='slapd' question='slapd/dump_database_destdir' vtype='string' value='/var/backups/slapd-VERSION'
 
-  - name: reconfigure btsync
-    command: dpkg-reconfigure -f noninteractive slapd
+  # - name: reconfigure btsync
+  #   command: dpkg-reconfigure -f noninteractive slapd
+
+  - name: Установить пакеты из списка
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
 
   # - name: Установить LAM c оф сайта
   #   apt:
