@@ -25,7 +25,8 @@
       - debconf: name='slapd' question='slapd/backend' vtype='select' value='MDB'
       - debconf: name='slapd' question='shared/organization' vtype='string' value='{{domain}}'
       - debconf: name='slapd' question='slapd/dump_database_destdir' vtype='string' value='/var/backups/slapd-VERSION'
-
+    tags:
+      - debconf
   # - name: reconfigure btsync
   #   command: dpkg-reconfigure -f noninteractive slapd
 

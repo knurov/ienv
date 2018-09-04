@@ -101,7 +101,7 @@ all:
         ldap.smartsmalls:
           description: Каталог пользователей и групп
           dn: "dc=4dir,dc=com"
-          domain: "4dir.dc=com"
+          domain: "4dir.com"
           bind_pw: Xsw!2345
     gitlab:
       hosts:
