@@ -115,7 +115,7 @@
       objectClass:
         - groupOfNames
       attributes:
-        userPassword: "{{ system_pw }}"
+        member: ""
       state: present
       server_uri: ldap://localhost/
       bind_dn: "cn=admin,{{ dn }}"
