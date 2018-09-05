@@ -2,6 +2,10 @@ server {
   listen 80 default_server;
   listen [::]:80 default_server;
 
+  location / {
+  return 301 http://$host/lam/;
+  }
+
   location /lam {
     index index.html;
     alias /usr/share/ldap-account-manager;
