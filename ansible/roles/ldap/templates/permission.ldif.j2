@@ -1,0 +1,7 @@
+dn: olcDatabase={1}mdb,cn=config
+changetype: modify
+replace: olcAccess
+olcAccess: to *
+  by group="cn=ldapadmins,ou=group,{{ dn }}" manage
+  by self write
+  by * read
