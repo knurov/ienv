@@ -54,3 +54,9 @@
     - docker
   tags:
     - docker
+
+- hosts: subversion
+  roles:
+    - subversion
+  tags:
+    - subversion

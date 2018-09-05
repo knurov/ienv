@@ -1,0 +1,59 @@
+---
+  - name: Установить пакеты для Subversion
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+
+  # - name: Создать каталог для svnadmin
+  #   file:
+  #     path: /var/www/svnadmin
+  #     state: directory
+
+  - name: Распаковка svnadmin
+    unarchive:
+      src: https://github.com/mfreiholz/iF.SVNAdmin/archive/stable-1.6.2.tar.gz
+      dest: "{{ svnadmin_path }}"
+      remote_src: yes
+      extra_opts:
+        - --transform
+        - s/iF.SVNAdmin-stable-1.6.2/svnadmin/
+
+  - name: Фиксим проверку версии
+    replace:
+      path: "{{ svnadmin_path }}/svnadmin/include/config.inc.php"
+      regexp: 'if.*checkPHPVersion.*5.3.*'
+      replace: "if (version_compare(PHP_VERSION, '5.3.0', '<')) {"
+
+  - name: Права на папку data
+    file:
+      path: "{{ svnadmin_path }}/svnadmin/data"
+      mode: 0777
+      recurse: yes
+
+  - name: Создать authz
+    file:
+      path: "{{ svnadmin_path }}/svnadmin/data/authz"
+      owner: www-data
+      state: touch
+
+  - name: Настроить Apache
+    template:
+      src: 'apache-svn.conf.j2'
+      dest: '/etc/apache2/sites-available/001-apache-svn.conf'
+    notify:
+      - restart apache2
+
+  - name: Линка на конфиг apache
+    file:
+      src: /etc/apache2/sites-available/001-apache-svn.conf
+      path: /etc/apache2/sites-enabled/001-apache-svn.conf
+      state: link
+    notify:
+      - restart apache2
+
+  - name: Включить модули apache2
+    apache2_module:
+      name: authnz_ldap
+    notify:
+      - restart apache2

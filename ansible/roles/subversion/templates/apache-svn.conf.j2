@@ -1,0 +1,36 @@
+<VirtualHost *:80>
+  ServerAlias svnadmin.*
+  DocumentRoot "{{ svnadmin_path }}/svnadmin"
+  <location / >
+  </location>
+</VirtualHost>
+
+
+<VirtualHost *:80>
+  ServerAlias svn.*
+  DocumentRoot /var/www/websvn-2.3.3
+  <Location />
+     AuthType Basic
+     AuthName "SVN Server"
+     AuthBasicProvider ldap
+     AuthLDAPBindDN "uid={{ hostvars[groups['ldap'][0]].system_dn }},{{ hostvars[groups['ldap'][0]].dn }}"
+     AuthLDAPBindPassword "{{ hostvars[groups['ldap'][0]].system_pw }}"
+     AuthLDAPURL ldap://{{ groups['ldap'][0] }}/ou=People,{{ hostvars[groups['ldap'][0]].dn }}?uid?sub?(objectClass=posixAccount)
+    Require valid-user
+  </Location>
+
+  <Location /repos>
+    DAV svn
+    SVNParentPath /var/lib/svn
+    SVNListParentPath on
+    AuthzSVNAccessFile /var/www/svnadmin/data/authz
+    AuthType Basic
+    AuthName "SVN Server"
+    AuthBasicProvider ldap
+    AuthLDAPBindDN "uid={{ hostvars[groups['ldap'][0]].system_dn }},{{ hostvars[groups['ldap'][0]].dn }}"
+    AuthLDAPBindPassword "{{ hostvars[groups['ldap'][0]].system_pw }}"
+    AuthLDAPURL ldap://{{ groups['ldap'][0] }}/ou=People,{{ hostvars[groups['ldap'][0]].dn }}?uid?sub?(objectClass=posixAccount)
+    Require valid-user
+  </Location>
+
+</VirtualHost>

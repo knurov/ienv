@@ -85,7 +85,7 @@
 
   - name: Добавить системную учетную запись
     ldap_entry:
-      dn: "uid=systemaccount,{{ dn }}"
+      dn: "uid={{ system_pw }},{{ dn }}"
       objectClass:
         - simpleSecurityObject
         - account

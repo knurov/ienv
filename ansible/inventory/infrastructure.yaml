@@ -7,14 +7,12 @@ all:
     ansible_become_method: sudo
     ansible_become_pass: xsw!2345
   children:
-
     dyn-dns-dhcp:
       hosts:
         10.0.0.254:
           domain: smartsmalls
           dns: 10.0.0.254
           dhcp_interface: ens18
-
     addusers:
       hosts:
         ns.smartsmalls:
@@ -103,6 +101,7 @@ all:
           dn: "dc=4dir,dc=com"
           domain: "4dir.com"
           bind_pw: Xsw!2345
+          system_dn: systemaccount
           system_pw: systempassword
     gitlab:
       hosts:
@@ -112,7 +111,7 @@ all:
       hosts:
         jira.smartsmalls:
           description: Трекер и управление проектами
-    svn:
+    subversion:
       hosts:
         svn.smartsmalls:
           description: Репозиторий с документацией
