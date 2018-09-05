@@ -109,6 +109,39 @@
     tags:
       - system_account
 
+  - name: Добавить группу ldapadmins
+    ldap_entry:
+      dn: "cn=ldapadmins,ou=group,{{ dn }}"
+      objectClass:
+        - groupOfNames
+      attributes:
+        userPassword: "{{ system_pw }}"
+      state: present
+      server_uri: ldap://localhost/
+      bind_dn: "cn=admin,{{ dn }}"
+      bind_pw: "{{ bind_pw }}"
+    tags:
+      - system_account
+
+  - name: Дать права на запись группе ldapadmins
+    ldap_attribute:
+      dn: olcDatabase={1}mdb,cn=config
+      name: olcAccess
+      values:
+        - '{3}to *   by group="cn=ldapadmins,ou=group,{{ dn }}" manage by self write by * read'
+      state: present
+      server_uri: ldap://localhost/
+      bind_dn: "cn=admin,{{ dn }}"
+      bind_pw: "{{ bind_pw }}"
+    tags:
+      - system_account
+
+# olcAccess: {0}to attrs=userPassword by self write by anonymous auth by * non
+#  e
+# olcAccess: {1}to attrs=shadowLastChange by self write by * read
+# olcAccess: {2}to * by * read
+
+
   - name: Добавить конфиг в nginx
     block:
       - template:
