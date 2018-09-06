@@ -5,10 +5,25 @@
       state: present
     with_items: "{{ packages }}"
 
-  # - name: Создать каталог для svnadmin
-  #   file:
-  #     path: /var/www/svnadmin
-  #     state: directory
+  - name: Включить модули apache2
+    apache2_module:
+      name: "{{ item }}"
+    with_items:
+      - authnz_ldap
+      - dav
+      - dav_fs
+      - dav_svn
+    notify:
+      - restart apache2
+    tags:
+      - apache_mod
+
+  - name: Создать каталог для svn
+    file:
+      path: /var/lib/svn
+      state: directory
+      owner: www-data
+      group: www-data
 
   - name: Распаковка svnadmin
     unarchive:
@@ -18,6 +33,14 @@
       extra_opts:
         - --transform
         - s/iF.SVNAdmin-stable-1.6.2/svnadmin/
+
+  - name: Распаковка WebSVN
+    unarchive:
+      src: http://websvn.tigris.org/files/documents/1380/49056/websvn-2.3.3.tar.gz
+      dest: "/var/www"
+      remote_src: yes
+    tags:
+      - websvn
 
   - name: Фиксим проверку версии
     replace:
@@ -52,9 +75,10 @@
     notify:
       - restart apache2
 
-  - name: Включить модули apache2
-    apache2_module:
-      name: authnz_ldap
+  - name: Удалить конфиг по умолчанию apache
+    file:
+      path: /etc/apache2/sites-enabled/000-default.conf
+      state: absent
     notify:
       - restart apache2
 
@@ -71,3 +95,45 @@
       dest: "{{ svnadmin_path }}/svnadmin/data/userroleassignments.ini"
       owner: www-data
       group: www-data
+
+  - name: Скопировать config.php для websvn
+    copy:
+      src: /var/www/websvn-2.3.3/include/distconfig.php
+      dest: /var/www/websvn-2.3.3/include/config.php
+      remote_src: yes
+    tags:
+      - websvn
+
+  - name: Настроить путь к svn для websvn
+    lineinfile:
+      path: /var/www/websvn-2.3.3/include/config.php
+      regexp: '^.*\$config-\>parentPath'
+      line: "$config->parentPath('/var/lib/svn');"
+    tags:
+      - websvn
+
+  - name: Настроить путь к authz для websvn
+    lineinfile:
+      path: /var/www/websvn-2.3.3/include/config.php
+      regexp: '^.*\$config-\>useAuthenticationFile'
+      line: "$config->useAuthenticationFile('/var/www/svnadmin/data/authz');"
+    tags:
+      - websvn
+
+  - name: Добавить About для  websvn
+    replace:
+      path: "/var/www/websvn-2.3.3/templates/{{ item }}"
+      regexp: 'You can customize this short message in the index.tmpl of this template in order to tell your visitors what they find in your repositories.'
+      replace: "Прямая сылка к репозиториям http://{{ inventory_hostname }}/repos"
+    with_items:
+      - calm/index.tmpl
+      - Elegant/index.tmpl
+      - BlueGrey/index.tmpl
+    tags:
+      - websvn
+
+
+#
+# ./templates/calm/index.tmpl
+# ./templates/Elegant/index.tmpl
+# ./templates/BlueGrey/index.tmpl

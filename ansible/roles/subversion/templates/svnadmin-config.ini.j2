@@ -52,7 +52,7 @@ BaseDN=ou=group,{{ hostvars[groups['ldap'][0]].dn }}
 SearchFilter=(objectClass=posixGroup)
 Attributes=cn
 GroupsToUserAttribute=memberUid
-GroupsToUserAttributeValue=
+GroupsToUserAttributeValue=cn
 
 [Update:ldap]
 AutoRemoveUsers=true
