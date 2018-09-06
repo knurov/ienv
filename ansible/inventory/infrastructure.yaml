@@ -103,6 +103,9 @@ all:
           bind_pw: Xsw!2345
           system_dn: systemaccount
           system_pw: systempassword
+          sysadm_name: sysadm
+          sysadm_pw: Xsw!2345
+          sysadm_email: "sysadm@smartsmalls.com"
     gitlab:
       hosts:
         gitlab.smartsmalls:

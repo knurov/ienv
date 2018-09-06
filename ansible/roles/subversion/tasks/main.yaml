@@ -57,3 +57,17 @@
       name: authnz_ldap
     notify:
       - restart apache2
+
+  - name: Настройка SVNAdmin
+    template:
+      src: svnadmin-config.ini.j2
+      dest: "{{ svnadmin_path }}/svnadmin/data/config.ini"
+      owner: www-data
+      group: www-data
+
+  - name: Настройка ACL SVNAdmin
+    template:
+      src: svnadmin-userroleassignments.ini.j2
+      dest: "{{ svnadmin_path }}/svnadmin/data/userroleassignments.ini"
+      owner: www-data
+      group: www-data

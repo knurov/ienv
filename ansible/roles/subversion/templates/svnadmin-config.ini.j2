@@ -1,0 +1,64 @@
+[Common]
+FirstStart=0
+BackupFolder=./data/backup/
+
+[Translation]
+Directory=./translations/
+
+[Engine:Providers]
+AuthenticationStatus=basic
+UserViewProviderType=ldap
+UserEditProviderType=
+GroupViewProviderType=ldap
+GroupEditProviderType=
+AccessPathViewProviderType=svnauthfile
+AccessPathEditProviderType=svnauthfile
+RepositoryViewProviderType=svnclient
+RepositoryEditProviderType=svnclient
+
+[ACLManager]
+UserRoleAssignmentFile=./data/userroleassignments.ini
+
+[Subversion]
+SVNAuthFile={{ svnadmin_path }}/svnadmin/data/authz
+
+[Repositories:svnclient]
+SVNParentPath=/var/lib/svn
+SvnExecutable=/usr/bin/svn
+SvnAdminExecutable=/usr/bin/svnadmin
+
+[Users:passwd]
+SVNUserFile=
+
+[Users:digest]
+SVNUserDigestFile=
+SVNDigestRealm=SVN Privat
+
+[Ldap]
+HostAddress=ldap://{{ groups['ldap'][0] }}:389/
+ProtocolVersion=3
+BindDN=uid={{ hostvars[groups['ldap'][0]].system_dn }},{{ hostvars[groups['ldap'][0]].dn }}
+BindPassword={{ hostvars[groups['ldap'][0]].system_pw }}
+CacheEnabled=false
+CacheFile=./data/ldap.cache.json
+
+[Users:ldap]
+BaseDN=ou=People,{{ hostvars[groups['ldap'][0]].dn }}
+SearchFilter=(&(objectClass=inetOrgPerson)(objectClass=posixAccount))
+Attributes=cn
+
+[Groups:ldap]
+BaseDN=ou=group,{{ hostvars[groups['ldap'][0]].dn }}
+SearchFilter=(objectClass=posixGroup)
+Attributes=cn
+GroupsToUserAttribute=memberUid
+GroupsToUserAttributeValue=
+
+[Update:ldap]
+AutoRemoveUsers=true
+AutoRemoveGroups=true
+
+[GUI]
+RepositoryDeleteEnabled=false
+RepositoryDumpEnabled=false
+AllowUpdateByGui=true

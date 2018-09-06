@@ -98,13 +98,42 @@
     tags:
       - system_account
 
+  - name: Добавить системного администратора
+    ldap_entry:
+      dn: "cn={{ sysadm_name }},ou=People,{{ dn }}"
+      objectClass:
+        - posixAccount
+        - inetOrgPerson
+        - organizationalPerson
+        - person
+      attributes:
+        loginShell: /bin/bash
+        homeDirectory: "/home/{{ sysadm_name }}"
+        uid: "{{ sysadm_name }}"
+        cn: "{{ sysadm_name }}"
+        sn: "{{ sysadm_name }}"
+        userPassword: "{{ sysadm_pw }}"
+        uidNumber: 10000
+        gidNumber: 10000
+        mail: "{{ sysadm_email }}"
+      state: present
+      server_uri: ldap://localhost/
+      bind_dn: "cn=admin,{{ dn }}"
+      bind_pw: "{{ bind_pw }}"
+    tags:
+      - system_account
+
+# userPassword:: e1NTSEF9aHFXU2NHMldMN2I1OUc4dzBIbWhUa3RwZVE1Rk5FMXo=
+# uidNumber: 10001
+# gidNumber: 10001
+
   - name: Добавить группу ldapadmins
     ldap_entry:
       dn: "cn=ldapadmins,ou=group,{{ dn }}"
       objectClass:
         - groupOfNames
       attributes:
-        member: ""
+        member: "cn={{ sysadm_name }},ou=People,{{ dn }}"
       state: present
       server_uri: ldap://localhost/
       bind_dn: "cn=admin,{{ dn }}"
