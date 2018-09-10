@@ -1,0 +1,85 @@
+---
+  - name: Обновить метаданные репозитория deb
+    apt:
+      update_cache: yes
+    tags:
+      - install
+
+  - name: Установить пакеты необходимые для установки gitlab
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages.pre }}"
+    tags:
+      - install
+
+  - name: Подключить репозиторий gitlab
+    shell: "curl https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | sudo bash"
+    tags:
+      - install
+
+  - name: Установить gitlab
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages.gitlab }}"
+    tags:
+      - install
+
+  # - name: restart gitlab
+  #   service:
+  #     name: gitlab-runsvdir
+  #     enabled: True
+  #     state: restarted
+  #   tags:
+  #     - install
+  #
+  # - name: reconfigure gitlab
+  #   command: "gitlab-ctl reconfigure"
+  #   ignore_errors: yes
+  #   tags:
+  #     - install
+
+  # - name: Костыль для запуска Gitlab в LXC Proxmox
+  #   replace:
+  #     path: /opt/gitlab/embedded/cookbooks/package/resources/sysctl.rb
+  #     regexp: '^\s*command "cat /etc/sysctl.conf /etc/sysctl.d/\*.conf.*$'
+  #     replace: '    # command "cat /etc/sysctl.conf /etc/sysctl.d/*.conf  | sysctl -e -p -"'
+  #   tags:
+  #     - config
+
+  - name: Настройка external_url
+    lineinfile:
+      path: /etc/gitlab/gitlab.rb
+      regexp: '^[#\s]*{{ item.key }}'
+      line: '{{ item.key }} {{ item.value }}'
+    with_items:
+      - key: "external_url"
+        value: "'http://{{ inventory_hostname }}'"
+    tags:
+      - config
+    notify:
+      - "regonfigure gitlab"
+      - "restart gitlab"
+
+  - name: Включить поддержку ldap
+    lineinfile:
+      path: /etc/gitlab/gitlab.rb
+      regexp: ^[#\s]*gitlab_rails\[\'ldap_enabled\'\] = .*
+      line: "gitlab_rails['ldap_enabled'] = true"
+    tags:
+      - config
+    notify:
+      - "regonfigure gitlab"
+      - "restart gitlab"
+
+  - name: Настроить подключение к ldap
+    blockinfile:
+      dest: /etc/gitlab/gitlab.rb
+      insertafter: ^[#\s]*gitlab_rails\['ldap_enabled'\] = true
+      block: '{{lookup("template", "ldap_block.j2")}}'
+    tags:
+      - config
+    notify:
+      - "regonfigure gitlab"
+      - "restart gitlab"

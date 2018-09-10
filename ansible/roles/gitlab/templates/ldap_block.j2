@@ -1,0 +1,17 @@
+gitlab_rails['ldap_servers'] = YAML.load <<-'EOS'
+   main: # 'main' is the GitLab 'provider ID' of this LDAP server
+     label: 'LDAP'
+     host: '{{ groups['ldap'][0] }}'
+     port: 389
+     uid: 'uid'
+     bind_dn: '{{ hostvars[groups['ldap'][0]].system_dn }},{{ hostvars[groups['ldap'][0]].dn }}'
+     password: '{{ hostvars[groups['ldap'][0]].system_pw }}'
+     encryption: 'plain'
+     base: 'ou=People,{{ hostvars[groups['ldap'][0]].dn }}'
+     attributes:
+       username: ['uid', 'userid', 'sAMAccountName']
+       email:    ['mail', 'email', 'userPrincipalName']
+       name:       'cn'
+       first_name: 'givenName'
+       last_name:  'sn'
+EOS

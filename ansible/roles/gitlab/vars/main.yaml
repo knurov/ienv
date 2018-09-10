@@ -1,0 +1,9 @@
+---
+  packages:
+    pre:
+      - curl
+      - openssh-server
+      - ca-certificates
+      - postfix
+    gitlab:
+      - gitlab-ce

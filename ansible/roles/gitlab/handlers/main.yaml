@@ -1,0 +1,9 @@
+---
+  - name: regonfigure gitlab
+    command: "gitlab-ctl reconfigure"
+
+  - name: restart gitlab
+    service:
+      name: gitlab-runsvdir
+      enabled: True
+      state: restarted

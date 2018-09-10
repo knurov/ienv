@@ -60,3 +60,9 @@
     - subversion
   tags:
     - subversion
+
+- hosts: gitlab
+  roles:
+    - gitlab
+  tags:
+    - gitlab

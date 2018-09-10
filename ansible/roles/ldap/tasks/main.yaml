@@ -1,5 +1,4 @@
 ---
-# Роль директора для bareos
   - name: Обновить метаданные репозитория deb
     apt:
       update_cache: yes
