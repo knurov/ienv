@@ -73,6 +73,23 @@
       - "regonfigure gitlab"
       - "restart gitlab"
 
+  - name: Включить поддержку ldap
+    lineinfile:
+      path: /etc/gitlab/gitlab.rb
+      regexp: ^[#\s]*gitlab_rails\[\'{{ item.key }}\'\] = .*
+      line: "gitlab_rails['{{ item.key }}'] = {{ item.value }}"
+    with_dict:
+      ldap_enabled: "true"
+      lfs_enabled: "true"
+      lfs_storage_path: '"/var/opt/gitlab/gitlab-rails/shared/lfs-objects"'
+    notify:
+      - "regonfigure gitlab"
+      - "restart gitlab"
+    tags:
+      - config
+      - gitlab-config
+
+
   - name: Настроить подключение к ldap
     blockinfile:
       dest: /etc/gitlab/gitlab.rb
