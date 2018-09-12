@@ -1,0 +1,107 @@
+---
+  - name: Установить пакеты из списка
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  # - name: Скачать установщик jira
+  #   get_url:
+  #     url: https://www.atlassian.com/software/jira/downloads/binary/atlassian-jira-software-7.12.1-x64.bin
+  #     dest: /tmp/
+  #     # timeout: 20
+  #     mode: u=rwx,g=rwx,o=rx
+  #   tags:
+  #     - install
+
+  # - name: Установить jira
+  #   expect:
+  #     command: /tmp/atlassian-jira-software-7.12.1-x64.bin
+  #     responses:
+  #       Question:
+  #       - o
+  #       - 2
+  #       - /opt/atlassian/jira
+  #       - /var/atlassian/application-data/jira
+  #       - 2
+  #       - 8080
+  #       - 8005
+  #       - y
+  #       - i
+  #       - n
+  #   tags:
+  #     - install
+
+  # - name: Add or modify an attribute, add element if needed
+  #   xml:
+  #     path: /opt/atlassian/jira/conf/server.xml
+  #     xpath: /Server/Service/Connector
+  #     attribute: port
+  #     value: 80
+
+  # - name: Запуск jira
+  #   service:
+  #     name: jira
+  #     enabled: yes
+  #     state: restarted
+  #   tags:
+  #     - config
+
+  - name: Настроить вход в postgresql localhost
+    lineinfile:
+      path: /etc/postgresql/9.6/main/pg_hba.conf
+      regexp: '(host\s*all\s*all\s*127.0.0.1\/32\s*).*'
+      line: '\1trust'
+      backrefs: yes
+    notify: restart postgresql
+    tags:
+      - config
+      - postgres
+
+  - name: Настроить вход в postgresql localhost
+    lineinfile:
+      path: /etc/postgresql/9.6/main/pg_hba.conf
+      regexp: '(local\s*all\s*postgres\s*)peer'
+      line: '\1trust'
+      backrefs: yes
+    notify: restart postgresql
+    tags:
+      - config
+      - postgres
+
+  - name: Запуск postgres
+    service:
+      name: postgresql
+      enabled: yes
+      state: started
+    tags:
+      - config
+      - postgres
+  - name: создать BD
+    postgresql_db:
+      name: jira
+      encoding: UTF-8
+
+  - name: Добавить конфиг в nginx
+    block:
+      - template:
+          src: "nginx-jira.j2"
+          dest: "/etc/nginx/sites-available/jira"
+        notify:
+          - restart nginx
+      - file:
+          src: /etc/nginx/sites-available/jira
+          path: /etc/nginx/sites-enabled/jira
+          state: link
+        notify:
+          - restart nginx
+      - file:
+          path: /etc/nginx/sites-enabled/default
+          state: absent
+        notify:
+          - restart nginx
+    tags:
+      - nginx
+      - config
