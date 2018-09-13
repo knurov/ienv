@@ -89,7 +89,6 @@ all:
     openvpn:
       hosts:
         openvpn.smartsmalls:
-          description: Сервер OpenVPN
           domain: smartsmalls
           dns: 10.0.0.254
           vpnnet: 10.0.99.0
@@ -97,7 +96,10 @@ all:
     ldap:
       hosts:
         ldap.smartsmalls:
-          description: Каталог пользователей и групп
+          service:
+            - description: Каталог пользователей и групп
+              logo: fa-users
+              title: ldap
           dn: "dc=4dir,dc=com"
           domain: "4dir.com"
           bind_pw: Xsw!2345
@@ -109,24 +111,58 @@ all:
     gitlab:
       hosts:
         gitlab.smartsmalls:
-          description: Репозитории GIT
+          service:
+            - description: Репозитории GIT
+              logo: fa-gitlab
+              title: GitLab
     jira:
       hosts:
         jira.smartsmalls:
-          description: Трекер и управление проектами
+          service:
+            - description: Трекер и управление проектами
+              logo: fa-bug
+              title: Jira
     subversion:
       hosts:
         svn.smartsmalls:
-          description: Репозиторий с документацией
+          service:
+            - description: Репозиторий с документацией
+              protocol: http
+              logo: fa-file
+              title: SVN
+            - description: Админисстрирование svn
+              cname: svnadmin.smartsmalls
+              logo: fa-file
+              title: SVN Admin
     zabbix:
       hosts:
         zabbix.smartsmalls:
-          description: Мониторинг инфраструктуры
+          service:
+            - description: Мониторинг инфраструктуры
+              logo: fa-heartbeat
+              title: Zabbix
     nginx-proxy:
       hosts:
         nginx.smartsmalls:
-          description: Прокси сервер для доступа извне
     bareos:
       hosts:
         bareos.smartsmalls:
-          description: Резервное копирование
+          service:
+            - description: Резервное копирование
+              logo: fa-save
+              title: Bareos
+
+    landingpage:
+      hosts:
+        ns.smartsmalls:
+          title: Инфраструктура разработки
+          description: Все что нужно для полного цикла разработки
+          ou: Кочевые компуторщики
+          subdomain: home.* start.*
+          contacts:
+            phones:
+              - +7(000)000-00-00
+              - +7(000)000-00-01
+            emails:
+              - sysadm@smartsmalls.com
+            message: Что-то пошло не така - есть телефон и почта.

@@ -1,0 +1,51 @@
+---
+  - name: Установить пакеты из списка
+    apt:
+      name: "{{ item }}"
+      state: present
+    with_items: "{{ packages }}"
+    tags:
+      - install
+
+  - name: Файл конфигурации
+    template:
+      src: landingpage.j2
+      dest: "/etc/nginx/sites-available/landingpage"
+      mode: u=rwx,g=rx,o=rx
+    notify:
+      - restart nginx
+
+  - name: Создать линк на конфиг сайта
+    file:
+      src: /etc/nginx/sites-available/landingpage
+      path: /etc/nginx/sites-enabled/landingpage
+      state: link
+    notify:
+      - restart nginx
+
+  - name: Удалить линк на default конфиг
+    file:
+      path: /etc/nginx/sites-enabled/default
+      state: absent
+    notify:
+      - restart nginx
+
+  - name: Создать каталог
+    file:
+      path: "/var/www/landingpagep"
+      state: "directory"
+
+  - name: Скопировать файлы
+    copy:
+      src: website/
+      dest: /var/www/landingpagep
+      owner: www-data
+      group: www-data
+
+  - name: Файл индекс
+    template:
+      src: index.html.j2
+      dest: "/var/www/landingpagep/index.html"
+      mode: u=rwx,g=rx,o=rx
+    tags:
+      - mainpage

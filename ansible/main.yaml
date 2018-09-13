@@ -72,3 +72,9 @@
     - jira
   tags:
     - jira
+
+- hosts: landingpage
+  roles:
+    - landingpage
+  tags:
+    - landingpage
