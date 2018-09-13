@@ -134,6 +134,7 @@ all:
               cname: svnadmin.smartsmalls
               logo: fa-file
               title: SVN Admin
+              group: admins
     zabbix:
       hosts:
         zabbix.smartsmalls:
@@ -141,9 +142,11 @@ all:
             - description: Мониторинг инфраструктуры
               logo: fa-heartbeat
               title: Zabbix
+              group: admins
     nginx-proxy:
       hosts:
         nginx.smartsmalls:
+
     bareos:
       hosts:
         bareos.smartsmalls:
@@ -151,6 +154,15 @@ all:
             - description: Резервное копирование
               logo: fa-save
               title: Bareos
+              group: admins
+    proxmox:
+      hosts:
+        proxmox.smartsmalls.com:
+          service:
+            - description: Виртуализация qemu/lxc
+              logo: fa-server
+              title: Proxmox
+              group: admins
 
     landingpage:
       hosts:
@@ -166,3 +178,23 @@ all:
             emails:
               - sysadm@smartsmalls.com
             message: Что-то пошло не така - есть телефон и почта.
+
+    greenenergy:
+      hosts:
+        green.smartsmalls:
+          service:
+            - description: Стенд для GreeenEnergy
+              logo: fa-desktop
+              title: Buyer
+              cname: buyer.green.smartsmalls
+              group: stands
+            - description: Стенд для GreeenEnergy
+              logo: fa-desktop
+              title: Operator
+              cname: operator.green.smartsmalls
+              group: stands
+            - description: Стенд для GreeenEnergy
+              logo: fa-desktop
+              title: Producer
+              cname: producer.green.smartsmalls
+              group: stands
